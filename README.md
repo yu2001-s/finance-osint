@@ -7,25 +7,33 @@ The repo is the canonical database. Contributors pull it, add structured data lo
 ## Core Layers
 
 ```text
-Source -> Evidence -> Claim -> Validation/Challenge -> Relationship -> Thesis -> Debate
+Source -> Dataset -> Evidence -> Metric/Event/Claim -> Relationship -> Thesis
+                              -> Validation/Challenge
 ```
 
 - `sources/`: provenance metadata for filings, transcripts, pages, datasets, meetings, and observations.
-- `evidence/`: exact excerpts, observations, or first-hand reports tied to sources.
+- `evidence/`: exact excerpts, locators, observations, or first-hand reports tied to sources.
+- `claim-predicates/`: registered claim predicate vocabulary.
+- `metric-definitions/`: registered metric vocabulary.
+- `metrics/`: structured numeric observations with provenance.
+- `events/`: structured time-bound occurrences or expected occurrences.
+- `datasets/`: metadata about source datasets.
 - `claims/`: narrow checkable statements backed by evidence.
-- `validations/`: append-only review records that attest, corroborate, dispute, or falsify specific objects.
-- `challenges/`: append-only objections about evidence quality, scope, ontology, materiality, or missing support.
+- `validations/`: append-only review records that evaluate support.
+- `challenges/`: append-only unresolved objections about evidence quality, scope, ontology, materiality, or missing support.
 - `relationships/`: rich typed graph relationships derived from claims or evidence.
-- `theses/`: interpretations, forecasts, or arguments built from evidence, claims, and relationships.
-- `debates/`: structured adversarial review around claims, relationships, and theses.
+- `theses/`: interpretations, forecasts, or arguments built from evidence, claims, metrics, events, datasets, and relationships.
 - `relationship-types/`: the graph ontology. Registered types are canonical; provisional types must declare their proposed definition.
 - `schemas/`: JSON Schemas enforced locally and in CI.
+
+Debate records are deferred from public v1. Prototype debate examples live under `examples/deferred/`.
 
 ## Quick Start
 
 ```bash
 uv sync
 uv run fo lint
+uv run fo lint --json
 uv run fo graph build
 ```
 
@@ -42,20 +50,21 @@ fo lint
 
 ## Contribution Policy
 
-Evidence is the strict layer. Claims, relationships, theses, and debates can be contested, but they must preserve their dependency chain.
+Evidence is the strict layer. Claims, relationships, theses, validations, and challenges can be contested, but they must preserve their dependency chain.
 
 - Public evidence should be source-backed and reviewable.
 - First-hand evidence must declare access, attribution, public status, and risk flags.
-- Anonymous or internal-source reports can be recorded as attestations, not upgraded to hard fact without corroboration.
+- Anonymous or internal-source reports can be recorded, but remain visibly low-trust unless independently supported.
+- Claims use `support_type` to describe reasoning distance from evidence.
 - Relationship types must be registered or marked `provisional:` with a proposed type definition.
-- Relationship materiality and qualifiers must fit the selected relationship type.
-- Corroborated or falsified claims, relationships, and validations need at least one non-low-trust evidence path.
-- Debates should target specific claims, relationships, theses, arguments, or evidence.
+- Relationship participants, scope, materiality, and qualifiers must fit the selected relationship type.
+- Canonical records do not store truth `status` or `confidence`; tools derive review state locally.
 
 ## Local Commands
 
 ```bash
-uv run fo lint                 # validate schemas, references, and relationship type usage
-uv run fo graph build          # build .local/graph.json from repo data
-uv run fo graph inspect AAPL   # find graph records mentioning a string
+uv run fo lint                 # validate schemas, references, and ontology usage
+uv run fo lint --json          # machine-readable lint output for agents/CI
+uv run fo graph build          # build .local/graph.json from current repo data
+uv run fo graph inspect exdev  # find graph records mentioning a string
 ```

@@ -3,21 +3,38 @@
   "$id": "relationship-type.schema.json",
   "title": "Relationship Type",
   "type": "object",
-  "required": ["kind", "id", "label", "description", "directional", "roles"],
+  "required": [
+    "schema_version",
+    "kind",
+    "id",
+    "label",
+    "description",
+    "state",
+    "ontology_version",
+    "directional",
+    "roles"
+  ],
   "properties": {
+    "schema_version": { "const": 1 },
     "kind": { "const": "relationship_type" },
     "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
     "label": { "type": "string", "minLength": 1 },
     "description": { "type": "string", "minLength": 1 },
+    "state": { "type": "string", "enum": ["registered", "proposed", "retired"] },
+    "ontology_version": { "type": "integer", "minimum": 1 },
     "directional": { "type": "boolean" },
     "roles": {
-      "type": "object",
-      "minProperties": 1,
-      "additionalProperties": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
         "type": "object",
-        "required": ["entity_types"],
+        "required": ["name", "required", "min", "allowed_entity_types"],
         "properties": {
-          "entity_types": {
+          "name": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+          "required": { "type": "boolean" },
+          "min": { "type": "integer", "minimum": 0 },
+          "max": { "type": ["integer", "null"], "minimum": 1 },
+          "allowed_entity_types": {
             "type": "array",
             "minItems": 1,
             "items": { "type": "string" }
@@ -30,6 +47,7 @@
     "allowed_scope": { "type": "array", "items": { "type": "string" }, "default": [] },
     "allowed_qualifiers": { "type": "array", "items": { "type": "string" }, "default": [] },
     "inverse_type": { "type": ["string", "null"] },
+    "inverse_behavior": { "type": "string", "enum": ["derive_local", "none", "explicit"] },
     "materiality": {
       "type": "object",
       "properties": {
@@ -37,9 +55,7 @@
       },
       "additionalProperties": true
     },
-    "evidence_required": { "type": "boolean" },
-    "status": { "type": "string", "enum": ["registered", "proposed", "retired"] }
+    "evidence_required": { "type": "boolean" }
   },
   "additionalProperties": true
 }
-

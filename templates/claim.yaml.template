@@ -1,18 +1,17 @@
+schema_version: 1
 kind: claim
 id: claim:company-topic-slug
 statement: Narrow checkable statement.
-subject: entity:company:TICKER
-predicate: predicate_name
-object: entity:company:OTHER
+subject: entity:company:company-slug
+predicate: disclosed_relationship
+object: entity:company:other-company
 qualifiers: {}
 time_scope:
   start: "YYYY-MM-DD"
   end: null
-status: proposed
-confidence: low
+support_type: direct
 evidence:
-  - evidence:provider:slug
+  - id: evidence:provider:slug
 submitted_by: github:username
 created_at: "YYYY-MM-DDTHH:MM:SSZ"
 risk_flags: []
-

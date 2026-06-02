@@ -1,5 +1,6 @@
+schema_version: 1
 kind: entity
-id: entity:company:FNDWY
+id: entity:company:fndwy
 entity_type: company
 name: Synthetic Foundry Works Ltd.
 aliases:
@@ -7,6 +8,5 @@ aliases:
 identifiers:
   ticker: FNDWY
 description: Synthetic upstream manufacturing supplier used in scaffold examples.
-status: proposed
+state: proposed
 created_at: "2026-06-02T00:00:00Z"
-

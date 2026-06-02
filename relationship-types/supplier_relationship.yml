@@ -1,14 +1,23 @@
+schema_version: 1
 kind: relationship_type
 id: supplier_relationship
 label: Supplier Relationship
 description: One entity provides goods, components, infrastructure, or services to another entity.
+state: registered
+ontology_version: 1
 directional: true
 roles:
-  supplier:
-    entity_types: [company]
+  - name: supplier
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types: [company]
     description: Entity providing the good, component, infrastructure, or service.
-  buyer:
-    entity_types: [company]
+  - name: buyer
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types: [company]
     description: Entity receiving or buying from the supplier.
 allowed_scope:
   - product
@@ -25,8 +34,7 @@ allowed_qualifiers:
   - commodity_supplier
   - outsourced
 inverse_type: customer_relationship
+inverse_behavior: derive_local
 materiality:
   allowed_values: [low, medium, high, critical]
 evidence_required: true
-status: registered
-

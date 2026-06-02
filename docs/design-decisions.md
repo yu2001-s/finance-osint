@@ -31,6 +31,7 @@ dataset
 evidence
 entity
 metric
+metric_definition
 event
 claim
 validation
@@ -291,7 +292,7 @@ Minimal metric fields:
 kind
 id
 entity
-metric_type
+metric_definition
 value
 unit
 period
@@ -450,9 +451,12 @@ Relationship instances should support n-ary participants by default:
 
 ```yaml
 participants:
-  buyer: entity:company:A
-  supplier: entity:company:B
-  end_market: entity:market:C
+  - role: buyer
+    entity: entity:company:A
+  - role: supplier
+    entity: entity:company:B
+  - role: end_market
+    entity: entity:market:C
 ```
 
 Use broad registered types plus rich scope instead of many one-off specific types.
@@ -493,8 +497,12 @@ Objects that can be superseded or contradicted should support consistent linkage
 ```text
 contradicts
 supersedes
+duplicate_of
+corrects
+restates
+narrows
+broadens
 superseded_by
-related_to
 ```
 
 These links make contradiction and compaction discoverable without relying only on prose in challenges.
@@ -548,7 +556,7 @@ Forecasts should live inside theses as optional structured expressions:
 
 ```yaml
 forecast:
-  metric_type: revenue
+  metric_definition: metric_definition:revenue
   entity: entity:company:COMPX
   period:
     start: "2026-01-01"
@@ -725,10 +733,10 @@ submitted_by
   GitHub identity accountable for the record.
 
 attributed_to
-  Speaker, guru, management team, firm, source category, or public entity whose statement or forecast is being recorded.
+  Speaker, management team, firm, source category, or public entity whose statement or forecast is being recorded.
 ```
 
-For public-statement and guru accountability workflows, use `attributed_to` rather than implying the subject authorized the record.
+For public-statement workflows, use `attributed_to` rather than implying the subject authorized the record.
 
 `submitted_by` is useful but not sufficient by itself. Before public launch, CI should verify that `submitted_by` matches the PR author unless an explicit and reviewable `submitted_on_behalf_of` workflow exists.
 
@@ -778,14 +786,14 @@ duplicate tickers
 CIKs and other stable identifiers
 cross-entity relationships
 date suffixes
-author suffixes for validations/challenges
+contributor suffixes for validations/challenges
 ```
 
 ## Public V1 Scope
 
 The canonical design can include metrics, events, datasets, debates, arguments, and resolutions.
 
-Public launch scope should be narrower:
+Public launch scope should include:
 
 ```text
 entity
@@ -793,6 +801,10 @@ source
 evidence
 claim
 claim_predicate
+metric_definition
+metric
+event
+dataset
 relationship_type
 relationship
 validation
@@ -800,7 +812,7 @@ challenge
 thesis
 ```
 
-Metrics, events, datasets, and durable debates should be added once the public-source path is solid or when the first real corpus proves the need.
+Durable debates should be added once the public-source path is solid or when the first real corpus proves the need.
 
 The first public workflows should focus on:
 
@@ -808,11 +820,18 @@ The first public workflows should focus on:
 filings
 public statements
 claim extraction
+metric extraction
+event extraction
 relationship mapping
 thesis writing
 validations/challenges
-guru forecast attribution
 ```
+
+## Contract Spec
+
+Exact implementation contracts for schema versioning, ID/path rules, content
+modes, JSON output, archive behavior, and the SQLite v1 index live in
+`docs/contracts.md`.
 
 ## Minimal Agent Router
 

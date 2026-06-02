@@ -1,0 +1,13 @@
+schema_version: 1
+kind: claim_predicate
+id: claim_predicate:source_attestation
+name: source_attestation
+label: Source Attestation
+description: A public, private, anonymous, or internal source attests to an assertion.
+state: registered
+ontology_version: 1
+required_fields: [subject, evidence]
+allowed_support_type: [observed, private_attestation, rumor]
+allowed_subject_kinds: [entity]
+allowed_object_kinds: [string, boolean]
+may_reference: [evidence, source]

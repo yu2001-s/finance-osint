@@ -1,9 +1,12 @@
+schema_version: 1
 kind: relationship
-id: rel:company-a-company-b-topic
+id: relationship:company-a-company-b-topic
 type: supplier_relationship
 participants:
-  buyer: entity:company:BUYER
-  supplier: entity:company:SUPPLIER
+  - role: buyer
+    entity: entity:company:buyer-slug
+  - role: supplier
+    entity: entity:company:supplier-slug
 scope:
   product: entity:product:product-slug
 direction:
@@ -14,8 +17,6 @@ time_scope:
 materiality:
   level: medium
   basis: inferred
-status: proposed
-confidence: low
 derived_from:
   claims:
     - claim:company-topic-slug
@@ -23,4 +24,3 @@ derived_from:
     - evidence:provider:slug
 submitted_by: github:username
 created_at: "YYYY-MM-DDTHH:MM:SSZ"
-

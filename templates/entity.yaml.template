@@ -1,11 +1,11 @@
+schema_version: 1
 kind: entity
-id: entity:company:TICKER
+id: entity:company:company-slug
 entity_type: company
 name: Company Name
 aliases: []
 identifiers:
   ticker: TICKER
 description: Short description.
-status: proposed
+state: proposed
 created_at: "YYYY-MM-DDTHH:MM:SSZ"
-

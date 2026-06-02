@@ -1,0 +1,13 @@
+schema_version: 1
+kind: claim_predicate
+id: claim_predicate:market_signal
+name: market_signal
+label: Market Signal
+description: Evidence indicates a market, customer, pricing, demand, or competitive signal.
+state: registered
+ontology_version: 1
+required_fields: [subject, evidence]
+allowed_support_type: [direct, observed, inferred, rumor]
+allowed_subject_kinds: [entity]
+allowed_object_kinds: [entity, string, number]
+may_reference: [evidence, event, metric, relationship]

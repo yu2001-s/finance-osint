@@ -3,16 +3,46 @@
   "$id": "evidence.schema.json",
   "title": "Evidence",
   "type": "object",
-  "required": ["kind", "id", "evidence_class", "source", "summary", "submitted_by", "observed_at"],
+  "required": [
+    "schema_version",
+    "kind",
+    "id",
+    "evidence_class",
+    "source",
+    "summary",
+    "content_mode",
+    "submitted_by",
+    "observed_at",
+    "source_attribution"
+  ],
   "properties": {
+    "schema_version": { "const": 1 },
     "kind": { "const": "evidence" },
     "id": { "type": "string", "pattern": "^evidence:[A-Za-z0-9_.:-]+$" },
     "evidence_class": {
       "type": "string",
-      "enum": ["E0_public_primary", "E1_public_secondary", "E2_firsthand_public", "E3_firsthand_private", "E4_anonymous_internal", "E5_unverified_rumor"]
+      "enum": [
+        "public_primary",
+        "public_secondary",
+        "firsthand_public",
+        "firsthand_private",
+        "anonymous_internal",
+        "rumor"
+      ]
     },
     "source": { "type": "string", "pattern": "^source:[A-Za-z0-9_.:-]+$" },
     "summary": { "type": "string", "minLength": 1 },
+    "content_mode": {
+      "type": "string",
+      "enum": [
+        "metadata_only",
+        "excerpt",
+        "summary",
+        "redacted_summary",
+        "small_fixture",
+        "external_link"
+      ]
+    },
     "excerpt": { "type": "string" },
     "locator": {
       "type": "object",
@@ -20,13 +50,18 @@
         "page": { "type": ["integer", "string"] },
         "section": { "type": "string" },
         "table": { "type": "string" },
-        "timestamp": { "type": "string" }
+        "timestamp": { "type": "string" },
+        "row": { "type": ["integer", "string"] },
+        "column": { "type": "string" }
       },
       "additionalProperties": true
     },
     "observed_at": { "type": "string" },
     "submitted_by": { "type": "string", "pattern": "^github:[A-Za-z0-9_.-]+$" },
-    "attribution": { "type": "string", "enum": ["named_contributor", "anonymous_to_public", "anonymous_to_maintainers", "unknown"] },
+    "source_attribution": {
+      "type": "string",
+      "enum": ["named_public", "anonymous_to_public", "unknown"]
+    },
     "source_access": {
       "type": "object",
       "properties": {
@@ -36,9 +71,8 @@
       },
       "additionalProperties": true
     },
-    "risk_flags": { "type": "array", "items": { "type": "string" }, "default": [] },
-    "status": { "type": "string", "enum": ["attested", "corroborated", "contested", "partially_corroborated", "unverifiable", "withdrawn"] }
+    "verification_status": { "type": "string" },
+    "risk_flags": { "type": "array", "items": { "type": "string" }, "default": [] }
   },
   "additionalProperties": true
 }
-

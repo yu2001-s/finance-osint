@@ -1,0 +1,14 @@
+schema_version: 1
+kind: event
+id: event:company-slug:event-type:date
+event_type: product_launch
+event_state: expected
+title: Event title
+entities:
+  - entity:company:company-slug
+expected_at: "YYYY-MM-DD"
+evidence:
+  - evidence:provider:slug
+properties: {}
+submitted_by: github:username
+created_at: "YYYY-MM-DDTHH:MM:SSZ"

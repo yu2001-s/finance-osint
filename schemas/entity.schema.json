@@ -3,13 +3,28 @@
   "$id": "entity.schema.json",
   "title": "Entity",
   "type": "object",
-  "required": ["kind", "id", "entity_type", "name", "status"],
+  "required": ["schema_version", "kind", "id", "entity_type", "name"],
   "properties": {
+    "schema_version": { "const": 1 },
     "kind": { "const": "entity" },
-    "id": { "type": "string", "pattern": "^entity:[a-z_]+:[A-Za-z0-9_.-]+$" },
+    "id": { "type": "string", "pattern": "^entity:[a-z_]+:[a-z0-9_.-]+$" },
     "entity_type": {
       "type": "string",
-      "enum": ["company", "person", "product", "component", "market", "geography", "commodity", "technology", "regulation", "fund", "service"]
+      "enum": [
+        "company",
+        "person",
+        "product",
+        "component",
+        "security",
+        "listing",
+        "market",
+        "geography",
+        "commodity",
+        "technology",
+        "regulation",
+        "fund",
+        "service"
+      ]
     },
     "name": { "type": "string", "minLength": 1 },
     "aliases": { "type": "array", "items": { "type": "string" }, "default": [] },
@@ -18,7 +33,10 @@
       "additionalProperties": { "type": ["string", "number", "array", "null"] }
     },
     "description": { "type": "string" },
-    "status": { "type": "string", "enum": ["active", "inactive", "proposed", "merged", "retired"] },
+    "state": {
+      "type": "string",
+      "enum": ["active", "inactive", "proposed", "merged", "retired"]
+    },
     "created_at": { "type": "string" },
     "updated_at": { "type": "string" }
   },

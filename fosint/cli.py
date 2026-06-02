@@ -19,24 +19,32 @@ SCHEMA_BY_KIND = {
     "entity": "entity.schema.json",
     "source": "source.schema.json",
     "evidence": "evidence.schema.json",
+    "claim_predicate": "claim-predicate.schema.json",
+    "metric_definition": "metric-definition.schema.json",
+    "metric": "metric.schema.json",
+    "event": "event.schema.json",
+    "dataset": "dataset.schema.json",
     "claim": "claim.schema.json",
     "validation": "validation.schema.json",
     "challenge": "challenge.schema.json",
     "relationship_type": "relationship-type.schema.json",
     "relationship": "relationship.schema.json",
     "thesis": "thesis.schema.json",
-    "debate": "debate.schema.json",
-    "argument": "argument.schema.json",
-    "resolution": "resolution.schema.json",
 }
 
 REF_PREFIXES = (
     "entity:",
     "source:",
     "evidence:",
+    "claim_predicate:",
+    "metric_definition:",
+    "metric:",
+    "event:",
+    "dataset:",
     "claim:",
     "validation:",
     "challenge:",
+    "relationship:",
     "rel:",
     "thesis:",
     "debate:",
@@ -47,27 +55,38 @@ REF_PREFIXES = (
 SKIP_PARTS = {".git", ".local", ".venv", "__pycache__", ".pytest_cache", ".mypy_cache"}
 DATA_DIRS = (
     "relationship-types",
+    "claim-predicates",
+    "metric-definitions",
     "entities",
     "sources",
     "evidence",
+    "datasets",
+    "metrics",
+    "events",
     "claims",
     "validations",
     "challenges",
     "relationships",
     "theses",
-    "debates",
 )
 
-FIRST_HAND_EVIDENCE_CLASSES = {
+EVIDENCE_CLASSES_REQUIRING_ACCESS = {
+    "firsthand_public",
+    "firsthand_private",
+    "anonymous_internal",
+    "rumor",
+}
+LOW_TRUST_EVIDENCE_CLASSES = {"anonymous_internal", "rumor"}
+OLD_EVIDENCE_CLASSES = {
+    "E0_public_primary",
+    "E1_public_secondary",
     "E2_firsthand_public",
     "E3_firsthand_private",
     "E4_anonymous_internal",
     "E5_unverified_rumor",
 }
-LOW_TRUST_EVIDENCE_CLASSES = {"E4_anonymous_internal", "E5_unverified_rumor"}
-CANONICAL_CLAIM_STATUSES = {"corroborated", "falsified"}
-CANONICAL_RELATIONSHIP_STATUSES = {"supported", "corroborated", "falsified"}
-CANONICAL_VALIDATION_VERDICTS = {"corroborates", "falsifies"}
+NO_TRUTH_FIELDS_KINDS = {"claim", "relationship", "thesis", "metric", "event", "evidence"}
+NO_AUTHOR_FIELD_KINDS = {"validation", "challenge", "thesis"}
 
 
 @dataclass(frozen=True)
@@ -92,7 +111,7 @@ def repo_root() -> Path:
     return current
 
 
-def iter_yaml_files(root: Path) -> list[Path]:
+def iter_yaml_files(root: Path, include_archive: bool = True) -> list[Path]:
     files: list[Path] = []
     for dirname in DATA_DIRS:
         directory = root / dirname
@@ -103,6 +122,14 @@ def iter_yaml_files(root: Path) -> list[Path]:
                 continue
             if path.is_file() and path.suffix in {".yml", ".yaml"}:
                 files.append(path)
+    if include_archive:
+        archive = root / "archive"
+        if archive.exists():
+            for path in archive.rglob("*"):
+                if any(part in SKIP_PARTS for part in path.parts):
+                    continue
+                if path.is_file() and path.suffix in {".yml", ".yaml"}:
+                    files.append(path)
     return sorted(files)
 
 
@@ -116,10 +143,10 @@ def load_yaml(path: Path) -> dict[str, Any]:
     return loaded
 
 
-def load_records(root: Path) -> tuple[list[Record], list[str]]:
+def load_records(root: Path, include_archive: bool = True) -> tuple[list[Record], list[str]]:
     records: list[Record] = []
     errors: list[str] = []
-    for path in iter_yaml_files(root):
+    for path in iter_yaml_files(root, include_archive=include_archive):
         try:
             records.append(Record(path=path, data=load_yaml(path)))
         except Exception as exc:
@@ -195,7 +222,7 @@ def validate_references(root: Path, records: list[Record], id_map: dict[str, Rec
     errors: list[str] = []
     for record in records:
         for path, value in walk_strings(record.data):
-            if path and path[-1] == "id":
+            if path == ("id",):
                 continue
             if not is_reference(value):
                 continue
@@ -211,7 +238,7 @@ def registered_relationship_types(records: list[Record]) -> dict[str, Record]:
     return {
         record.id: record
         for record in records
-        if record.kind == "relationship_type" and record.data.get("status") == "registered"
+        if record.kind == "relationship_type" and record.data.get("state") == "registered"
     }
 
 
@@ -219,7 +246,23 @@ def proposed_relationship_types(records: list[Record]) -> dict[str, Record]:
     return {
         record.id: record
         for record in records
-        if record.kind == "relationship_type" and record.data.get("status") == "proposed"
+        if record.kind == "relationship_type" and record.data.get("state") == "proposed"
+    }
+
+
+def registered_claim_predicates(records: list[Record]) -> dict[str, Record]:
+    return {
+        str(record.data.get("name")): record
+        for record in records
+        if record.kind == "claim_predicate" and record.data.get("state") == "registered"
+    }
+
+
+def proposed_claim_predicates(records: list[Record]) -> dict[str, Record]:
+    return {
+        str(record.data.get("name")): record
+        for record in records
+        if record.kind == "claim_predicate" and record.data.get("state") == "proposed"
     }
 
 
@@ -238,6 +281,20 @@ def as_string_list(value: Any) -> list[str]:
     return []
 
 
+def as_reference_list(value: Any) -> list[str]:
+    if isinstance(value, str):
+        return [value]
+    if not isinstance(value, list):
+        return []
+    found: list[str] = []
+    for item in value:
+        if isinstance(item, str):
+            found.append(item)
+        elif isinstance(item, dict) and isinstance(item.get("id"), str):
+            found.append(str(item["id"]))
+    return found
+
+
 def evidence_class_for(record_id: str, id_map: dict[str, Record]) -> str | None:
     record = id_map.get(record_id)
     if not record or record.kind != "evidence":
@@ -246,7 +303,7 @@ def evidence_class_for(record_id: str, id_map: dict[str, Record]) -> str | None:
 
 
 def evidence_ids_for_claim(record: Record) -> list[str]:
-    return as_string_list(record.data.get("evidence"))
+    return as_reference_list(record.data.get("evidence"))
 
 
 def evidence_ids_for_relationship(record: Record, id_map: dict[str, Record]) -> list[str]:
@@ -343,10 +400,24 @@ def validate_relationships(
         if type_def is None:
             continue
 
-        roles = type_def.data.get("roles", {})
-        participants = record.data.get("participants", {})
-        for role, participant_id in participants.items():
-            if role not in roles:
+        role_defs = {
+            role.get("name"): role
+            for role in type_def.data.get("roles", [])
+            if isinstance(role, dict) and isinstance(role.get("name"), str)
+        }
+        participants = record.data.get("participants", [])
+        role_counts: dict[str, int] = {}
+        if not isinstance(participants, list):
+            continue
+
+        for participant in participants:
+            if not isinstance(participant, dict):
+                continue
+            role = str(participant.get("role", ""))
+            participant_id = participant.get("entity")
+            role_counts[role] = role_counts.get(role, 0) + 1
+
+            if role not in role_defs:
                 errors.append(
                     f"{relative}: participant role `{role}` is not allowed by type `{rel_type}`"
                 )
@@ -358,11 +429,26 @@ def validate_relationships(
                 )
                 continue
             actual_entity_type = entity_type_for(participant_id, id_map)
-            allowed_entity_types = roles[role].get("entity_types", [])
+            allowed_entity_types = role_defs[role].get("allowed_entity_types", [])
             if actual_entity_type and actual_entity_type not in allowed_entity_types:
                 errors.append(
                     f"{relative}: `{participant_id}` has entity_type `{actual_entity_type}`, "
                     f"but role `{role}` expects one of {allowed_entity_types}"
+                )
+
+        for role_name, role_def in role_defs.items():
+            count = role_counts.get(str(role_name), 0)
+            min_count = int(role_def.get("min", 0))
+            max_count = role_def.get("max")
+            if role_def.get("required") and count < min_count:
+                errors.append(
+                    f"{relative}: relationship type `{rel_type}` requires at least "
+                    f"{min_count} participant(s) for role `{role_name}`"
+                )
+            if isinstance(max_count, int) and count > max_count:
+                errors.append(
+                    f"{relative}: relationship type `{rel_type}` allows at most "
+                    f"{max_count} participant(s) for role `{role_name}`"
                 )
 
         allowed_scope = set(type_def.data.get("allowed_scope", []))
@@ -402,6 +488,67 @@ def validate_relationships(
     return errors
 
 
+def evidence_items_have_methodology(record: Record) -> bool:
+    evidence = record.data.get("evidence")
+    if not isinstance(evidence, list):
+        return False
+    return any(isinstance(item, dict) and bool(item.get("methodology")) for item in evidence)
+
+
+def validate_claim_predicates(root: Path, records: list[Record]) -> list[str]:
+    errors: list[str] = []
+    registered = registered_claim_predicates(records)
+    proposed = proposed_claim_predicates(records)
+
+    for record in records:
+        if record.kind != "claim":
+            continue
+
+        relative = record.path.relative_to(root)
+        predicate = str(record.data.get("predicate", ""))
+        predicate_def: Record | None = None
+
+        if predicate.startswith("provisional:"):
+            proposed_name = predicate.split(":", 1)[1]
+            proposed_path = record.data.get("proposed_predicate_definition")
+            if not proposed_path:
+                errors.append(
+                    f"{relative}: provisional predicate `{predicate}` needs "
+                    "proposed_predicate_definition"
+                )
+            else:
+                definition_path = root / str(proposed_path)
+                if not definition_path.exists():
+                    errors.append(
+                        f"{relative}: proposed_predicate_definition `{proposed_path}` does not exist"
+                    )
+            if proposed_name not in proposed:
+                errors.append(
+                    f"{relative}: provisional predicate `{predicate}` has no proposed "
+                    "claim_predicate record"
+                )
+            else:
+                predicate_def = proposed[proposed_name]
+        else:
+            if predicate not in registered:
+                errors.append(f"{relative}: claim predicate `{predicate}` is not registered")
+            else:
+                predicate_def = registered[predicate]
+
+        if predicate_def is None:
+            continue
+
+        allowed_support = predicate_def.data.get("allowed_support_type", [])
+        support_type = record.data.get("support_type")
+        if allowed_support and support_type not in allowed_support:
+            errors.append(
+                f"{relative}: support_type `{support_type}` is not allowed by predicate "
+                f"`{predicate}`"
+            )
+
+    return errors
+
+
 def validate_evidence_policy(
     root: Path, records: list[Record], id_map: dict[str, Record]
 ) -> list[str]:
@@ -410,53 +557,72 @@ def validate_evidence_policy(
     for record in records:
         relative = record.path.relative_to(root)
 
+        for path, value in walk_strings(record.data):
+            if value == "anonymous_to_maintainers":
+                dotted = ".".join(path) or "$"
+                errors.append(f"{relative}: {dotted} uses hidden attribution `anonymous_to_maintainers`")
+
+        if record.kind in NO_TRUTH_FIELDS_KINDS:
+            for field in ("status", "confidence"):
+                if field in record.data:
+                    errors.append(
+                        f"{relative}: canonical `{record.kind}` records must not store `{field}`; "
+                        "derive review state locally"
+                    )
+
+        if record.kind == "validation" and "confidence" in record.data:
+            errors.append(
+                f"{relative}: validation records must not store `confidence`; derive review state locally"
+            )
+
+        if record.kind == "challenge" and "status" in record.data:
+            errors.append(
+                f"{relative}: challenge records must not store `status`; use addressed_by, "
+                "withdrawn_by, or superseded_by"
+            )
+
+        if record.kind in NO_AUTHOR_FIELD_KINDS and "author" in record.data:
+            errors.append(f"{relative}: use `submitted_by`, not `author`")
+
         if record.kind == "evidence":
             evidence_class = str(record.data.get("evidence_class", ""))
-            if evidence_class in FIRST_HAND_EVIDENCE_CLASSES:
-                if "attribution" not in record.data:
-                    errors.append(f"{relative}: first-hand evidence must declare attribution")
+            if evidence_class in OLD_EVIDENCE_CLASSES:
+                errors.append(f"{relative}: use plain v1 evidence_class labels, not `{evidence_class}`")
+            if evidence_class in EVIDENCE_CLASSES_REQUIRING_ACCESS:
+                if "source_attribution" not in record.data:
+                    errors.append(f"{relative}: evidence must declare source_attribution")
                 if not isinstance(record.data.get("source_access"), dict):
-                    errors.append(f"{relative}: first-hand evidence must declare source_access")
+                    errors.append(f"{relative}: evidence must declare source_access")
                 if "risk_flags" not in record.data:
-                    errors.append(f"{relative}: first-hand evidence must declare risk_flags")
+                    errors.append(f"{relative}: evidence must declare risk_flags")
             if evidence_class in LOW_TRUST_EVIDENCE_CLASSES and not record.data.get("risk_flags"):
                 errors.append(f"{relative}: low-trust evidence must include at least one risk_flag")
 
         if record.kind == "claim":
-            status = str(record.data.get("status", ""))
-            confidence = str(record.data.get("confidence", ""))
+            support_type = str(record.data.get("support_type", ""))
             evidence_ids = evidence_ids_for_claim(record)
-            if (status in CANONICAL_CLAIM_STATUSES or confidence == "high") and not (
-                has_non_low_trust_support(evidence_ids, id_map)
-            ):
-                errors.append(
-                    f"{relative}: `{status}` claim with `{confidence}` confidence needs at least "
-                    "one non-low-trust evidence record"
-                )
+            evidence_classes = evidence_support_classes(evidence_ids, id_map)
+            methodology_present = bool(record.data.get("methodology")) or evidence_items_have_methodology(
+                record
+            )
 
-        if record.kind == "relationship":
-            status = str(record.data.get("status", ""))
-            confidence = str(record.data.get("confidence", ""))
-            evidence_ids = evidence_ids_for_relationship(record, id_map)
-            if (status in CANONICAL_RELATIONSHIP_STATUSES or confidence == "high") and not (
-                has_non_low_trust_support(evidence_ids, id_map)
+            if support_type == "direct" and evidence_classes and evidence_classes <= {"rumor"}:
+                errors.append(
+                    f"{relative}: direct support_type cannot rely only on rumor evidence"
+                )
+            if support_type == "inferred" and len(evidence_ids) < 2 and not methodology_present:
+                errors.append(
+                    f"{relative}: inferred support_type needs multiple evidence records or methodology"
+                )
+            if support_type == "private_attestation" and not (
+                evidence_classes & {"firsthand_private", "anonymous_internal"}
             ):
                 errors.append(
-                    f"{relative}: `{status}` relationship with `{confidence}` confidence needs at "
-                    "least one non-low-trust evidence record through derived_from"
+                    f"{relative}: private_attestation support_type needs firsthand_private or "
+                    "anonymous_internal evidence"
                 )
-
-        if record.kind == "validation":
-            verdict = str(record.data.get("verdict", ""))
-            confidence = str(record.data.get("confidence", ""))
-            evidence_ids = evidence_ids_for_validation(record, id_map)
-            if (verdict in CANONICAL_VALIDATION_VERDICTS or confidence == "high") and not (
-                has_non_low_trust_support(evidence_ids, id_map)
-            ):
-                errors.append(
-                    f"{relative}: `{verdict}` validation with `{confidence}` confidence needs at "
-                    "least one non-low-trust evidence record"
-                )
+            if support_type == "rumor" and "rumor" not in evidence_classes:
+                errors.append(f"{relative}: rumor support_type needs rumor evidence")
 
     return errors
 
@@ -486,7 +652,18 @@ def build_graph_data(root: Path, records: list[Record]) -> dict[str, Any]:
         )
 
         if record.kind == "relationship":
-            for role, participant_id in record.data.get("participants", {}).items():
+            participants = record.data.get("participants", [])
+            if isinstance(participants, list):
+                participant_items = [
+                    (str(item.get("role")), item.get("entity"))
+                    for item in participants
+                    if isinstance(item, dict)
+                ]
+            elif isinstance(participants, dict):
+                participant_items = list(participants.items())
+            else:
+                participant_items = []
+            for role, participant_id in participant_items:
                 if isinstance(participant_id, str) and is_reference(participant_id):
                     edges.append(
                         {
@@ -533,7 +710,7 @@ def build_graph_data(root: Path, records: list[Record]) -> dict[str, Any]:
         unique_edges.append(edge)
 
     return {
-        "schema_version": "0.1",
+        "schema_version": 1,
         "node_count": len(nodes),
         "edge_count": len(unique_edges),
         "nodes": nodes,
@@ -541,9 +718,28 @@ def build_graph_data(root: Path, records: list[Record]) -> dict[str, Any]:
     }
 
 
-def run_lint(root: Path) -> int:
+def json_error(error: str) -> dict[str, Any]:
+    path = ""
+    message = error
+    if ": " in error:
+        maybe_path, maybe_message = error.split(": ", 1)
+        if "/" in maybe_path or maybe_path.endswith((".yml", ".yaml")):
+            path = maybe_path
+            message = maybe_message
+    return {
+        "code": "validation_error",
+        "path": path,
+        "json_pointer": None,
+        "message": message,
+        "hint": None,
+        "record_id": None,
+        "related_ids": [],
+    }
+
+
+def run_lint(root: Path, json_output: bool = False, current_only: bool = False) -> int:
     validators = load_schemas(root)
-    records, load_errors = load_records(root)
+    records, load_errors = load_records(root, include_archive=not current_only)
     id_map, id_errors = build_id_map(root, records)
 
     errors: list[str] = []
@@ -551,8 +747,26 @@ def run_lint(root: Path) -> int:
     errors.extend(validate_schemas(root, records, validators))
     errors.extend(id_errors)
     errors.extend(validate_references(root, records, id_map))
+    errors.extend(validate_claim_predicates(root, records))
     errors.extend(validate_relationships(root, records, id_map))
     errors.extend(validate_evidence_policy(root, records, id_map))
+
+    if json_output:
+        print(
+            json.dumps(
+                {
+                    "ok": not errors,
+                    "command": "lint",
+                    "repo_root": str(root),
+                    "records_checked": len(records),
+                    "warnings": [],
+                    "errors": [json_error(error) for error in errors],
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 1 if errors else 0
 
     if errors:
         for error in errors:
@@ -564,17 +778,17 @@ def run_lint(root: Path) -> int:
     return 0
 
 
-def cmd_lint(_: argparse.Namespace) -> int:
-    return run_lint(repo_root())
+def cmd_lint(args: argparse.Namespace) -> int:
+    return run_lint(repo_root(), json_output=bool(args.json), current_only=bool(args.current_only))
 
 
 def cmd_graph_build(_: argparse.Namespace) -> int:
     root = repo_root()
-    lint_status = run_lint(root)
+    lint_status = run_lint(root, current_only=True)
     if lint_status != 0:
         return lint_status
 
-    records, _ = load_records(root)
+    records, _ = load_records(root, include_archive=False)
     graph = build_graph_data(root, records)
     output_dir = root / ".local"
     output_dir.mkdir(exist_ok=True)
@@ -590,7 +804,7 @@ def cmd_graph_inspect(args: argparse.Namespace) -> int:
     if graph_path.exists():
         graph = json.loads(graph_path.read_text(encoding="utf-8"))
     else:
-        records, errors = load_records(root)
+        records, errors = load_records(root, include_archive=False)
         if errors:
             for error in errors:
                 print(f"ERROR {error}", file=sys.stderr)
@@ -617,6 +831,12 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     lint_parser = subparsers.add_parser("lint", help="validate repo records")
+    lint_parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
+    lint_parser.add_argument(
+        "--current-only",
+        action="store_true",
+        help="skip archive records during validation",
+    )
     lint_parser.set_defaults(func=cmd_lint)
 
     graph_parser = subparsers.add_parser("graph", help="graph utilities")

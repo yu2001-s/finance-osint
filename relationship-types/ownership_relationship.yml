@@ -1,14 +1,23 @@
+schema_version: 1
 kind: relationship_type
 id: ownership_relationship
 label: Ownership Relationship
 description: One entity owns, controls, or holds an economic interest in another entity.
+state: registered
+ontology_version: 1
 directional: true
 roles:
-  owner:
-    entity_types: [company, person, fund]
+  - name: owner
+    required: true
+    min: 1
+    max: null
+    allowed_entity_types: [company, person, fund]
     description: Entity with ownership or control.
-  owned:
-    entity_types: [company, fund]
+  - name: owned
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types: [company, fund]
     description: Entity being owned or controlled.
 allowed_scope:
   - ownership_percentage
@@ -21,8 +30,7 @@ allowed_qualifiers:
   - beneficial_owner
   - controlling_owner
 inverse_type: null
+inverse_behavior: none
 materiality:
   allowed_values: [low, medium, high, critical]
 evidence_required: true
-status: registered
-

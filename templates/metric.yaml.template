@@ -1,0 +1,21 @@
+schema_version: 1
+kind: metric
+id: metric:company-slug:metric-name:period
+entity: entity:company:company-slug
+metric_definition: metric_definition:revenue
+value: 0
+unit: USD
+period:
+  type: fiscal_year
+  value: "YYYY"
+value_basis: reported
+evidence:
+  - evidence:provider:slug
+source_locator:
+  section: Section name
+as_of: "YYYY-MM-DD"
+reported_at: "YYYY-MM-DD"
+published_at: "YYYY-MM-DD"
+dimensions: {}
+submitted_by: github:username
+created_at: "YYYY-MM-DDTHH:MM:SSZ"

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "claim-predicate.schema.json",
+  "title": "Claim Predicate",
+  "type": "object",
+  "required": ["schema_version", "kind", "id", "name", "state", "ontology_version"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "kind": { "const": "claim_predicate" },
+    "id": { "type": "string", "pattern": "^claim_predicate:[a-z][a-z0-9_]*$" },
+    "name": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "label": { "type": "string" },
+    "description": { "type": "string" },
+    "state": { "type": "string", "enum": ["registered", "proposed", "retired"] },
+    "ontology_version": { "type": "integer", "minimum": 1 },
+    "required_fields": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "allowed_support_type": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["direct", "observed", "inferred", "private_attestation", "rumor"]
+      },
+      "default": []
+    },
+    "allowed_subject_kinds": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "allowed_object_kinds": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "may_reference": { "type": "array", "items": { "type": "string" }, "default": [] }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,13 @@
+schema_version: 1
+kind: claim_predicate
+id: claim_predicate:transaction_disclosure
+name: transaction_disclosure
+label: Transaction Disclosure
+description: A source discloses a transaction or transaction-related event.
+state: registered
+ontology_version: 1
+required_fields: [subject, evidence]
+allowed_support_type: [direct, inferred]
+allowed_subject_kinds: [entity]
+allowed_object_kinds: [event, relationship]
+may_reference: [evidence, event, relationship]

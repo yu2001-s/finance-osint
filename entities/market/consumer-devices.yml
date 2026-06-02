@@ -1,8 +1,8 @@
+schema_version: 1
 kind: entity
 id: entity:market:consumer-devices
 entity_type: market
 name: Consumer Devices
 description: Synthetic market category for scaffold examples.
-status: proposed
+state: proposed
 created_at: "2026-06-02T00:00:00Z"
-

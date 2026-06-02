@@ -8,30 +8,33 @@ The project should preserve disagreement without weakening provenance.
 - Claims should be narrow and sourced.
 - Validations and challenges should be append-only records rather than destructive edits.
 - Relationships should use registered or provisional ontology.
+- Metrics and events should preserve point-in-time context.
 - Theses may be speculative, but must declare dependencies.
-- Debates should target concrete objects.
 
 ## First-Hand Information
 
-First-hand reports are allowed when they declare:
+First-hand, private, anonymous, and rumor reports are allowed when they declare:
 
 - evidence class
-- attribution level
-- public or nonpublic status
+- source attribution
+- public or nonpublic status through the source
 - access conditions
+- verification status when known
 - risk flags
 
-Anonymous or internal-source reports should stay marked as attestations unless independently corroborated.
+Anonymous or internal-source reports should stay visibly low-trust unless
+independently supported by public or otherwise stronger evidence.
 
-Low-trust evidence may support investigation, debate, and theses. It should not be the sole support for canonical states such as `corroborated`, `falsified`, or high confidence.
+Low-trust evidence may support investigation and theses. It should not be the
+sole support path for strong derived review states.
 
 ## Validation and Challenge Norm
 
 Use validations for targeted review outcomes:
 
 - attests
-- corroborates
-- partially_corroborates
+- supports
+- partially_supports
 - disputes
 - falsifies
 - marks_stale
@@ -46,13 +49,12 @@ Use challenges for open objections:
 - outdated
 - ontology_issue
 - materiality_dispute
-- legal_or_confidentiality_risk
+- other
 
-## Debate Norm
+Validation evaluates support. Challenge records unresolved pressure.
 
-A good debate contribution should say:
+## Derived State
 
-- what it supports or attacks
-- what evidence it depends on
-- what would weaken it
-- what remains unresolved
+Canonical records should not store truth `status` or `confidence`. Local tools
+derive review labels from the evidence graph, validations, challenges,
+contradictions, archive location, freshness, and supersession links.

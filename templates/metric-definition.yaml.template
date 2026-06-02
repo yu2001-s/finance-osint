@@ -1,0 +1,26 @@
+schema_version: 1
+kind: metric_definition
+id: metric_definition:metric_name
+name: metric_name
+label: Metric Label
+description: What this metric measures.
+state: proposed
+ontology_version: 1
+value_type: number
+default_unit: USD
+allowed_units:
+  - USD
+allowed_value_basis:
+  - reported
+  - observed
+  - derived
+  - estimated
+  - restated
+required_dimensions:
+  - period
+optional_dimensions:
+  - segment
+  - geography
+  - product
+source_requirements:
+  - evidence

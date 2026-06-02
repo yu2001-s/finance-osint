@@ -1,7 +1,8 @@
+schema_version: 1
 kind: challenge
 id: challenge:synthetic:exdev-margin-risk-needs-alternatives
 target: thesis:synthetic:exdev-margin-risk-from-foundry-concentration
-author: github:scaffold
+submitted_by: github:scaffold
 challenge_type: missing_evidence
 summary: The thesis needs evidence about available manufacturing alternatives before concentration risk can be assessed.
 depends_on:
@@ -10,13 +11,9 @@ depends_on:
   claims:
     - claim:synthetic:exdev-uses-fndwy-for-x1
   relationships:
-    - rel:synthetic:exdev-fndwy-x1-supply
+    - relationship:synthetic:exdev-fndwy-x1-supply
   theses:
     - thesis:synthetic:exdev-margin-risk-from-foundry-concentration
-  arguments:
-    - arg:synthetic:exdev-supplier-risk-material
-status: open
 created_at: "2026-06-02T00:00:00Z"
 risk_flags:
   - synthetic_fixture
-

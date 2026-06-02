@@ -1,0 +1,15 @@
+schema_version: 1
+kind: metric_definition
+id: metric_definition:ownership_percent
+name: ownership_percent
+label: Ownership Percent
+description: Ownership, control, or economic interest percentage.
+state: registered
+ontology_version: 1
+value_type: percentage
+default_unit: percent
+allowed_units: [percent, basis_points]
+allowed_value_basis: [reported, derived, estimated, restated]
+required_dimensions: [as_of]
+optional_dimensions: [owner, owned, share_class]
+source_requirements: [evidence]

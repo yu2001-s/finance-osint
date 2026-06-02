@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "event.schema.json",
+  "title": "Event",
+  "type": "object",
+  "required": ["schema_version", "kind", "id", "event_type", "event_state", "title", "entities", "evidence", "submitted_by"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "kind": { "const": "event" },
+    "id": { "type": "string", "pattern": "^event:[A-Za-z0-9_.:-]+$" },
+    "event_type": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "event_state": { "type": "string", "enum": ["expected", "occurred", "cancelled", "missed"] },
+    "title": { "type": "string", "minLength": 1 },
+    "entities": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^entity:[A-Za-z0-9_.:-]+$" }
+    },
+    "occurred_at": { "type": "string" },
+    "expected_at": { "type": "string" },
+    "effective_at": { "type": "string" },
+    "period": { "type": "object", "additionalProperties": true },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "pattern": "^evidence:[A-Za-z0-9_.:-]+$" }
+    },
+    "properties": { "type": "object", "additionalProperties": true },
+    "submitted_by": { "type": "string", "pattern": "^github:[A-Za-z0-9_.-]+$" },
+    "created_at": { "type": "string" }
+  },
+  "additionalProperties": true
+}

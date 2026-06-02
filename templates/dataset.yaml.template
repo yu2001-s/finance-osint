@@ -1,0 +1,19 @@
+schema_version: 1
+kind: dataset
+id: dataset:provider:dataset-slug
+title: Dataset title
+dataset_type: official_dataset
+publisher: Publisher
+coverage:
+  period_start: "YYYY-MM-DD"
+  period_end: "YYYY-MM-DD"
+access:
+  public_status: public
+  url: https://example.com/dataset
+sources:
+  - source:public:provider:slug
+content_mode: external_link
+license: Unknown
+limitations: Known limitations.
+submitted_by: github:username
+created_at: "YYYY-MM-DDTHH:MM:SSZ"

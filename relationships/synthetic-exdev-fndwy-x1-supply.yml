@@ -1,9 +1,12 @@
+schema_version: 1
 kind: relationship
-id: rel:synthetic:exdev-fndwy-x1-supply
+id: relationship:synthetic:exdev-fndwy-x1-supply
 type: supplier_relationship
 participants:
-  buyer: entity:company:EXDEV
-  supplier: entity:company:FNDWY
+  - role: buyer
+    entity: entity:company:exdev
+  - role: supplier
+    entity: entity:company:fndwy
 scope:
   product: entity:product:example-phone
   component: entity:component:x1-processor
@@ -17,8 +20,6 @@ time_scope:
 materiality:
   level: high
   basis: inferred
-status: proposed
-confidence: low
 derived_from:
   claims:
     - claim:synthetic:exdev-uses-fndwy-for-x1
@@ -26,4 +27,3 @@ derived_from:
     - evidence:synthetic:exdev-fy2025-supplier-note
 submitted_by: github:scaffold
 created_at: "2026-06-02T00:00:00Z"
-

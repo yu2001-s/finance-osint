@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "metric-definition.schema.json",
+  "title": "Metric Definition",
+  "type": "object",
+  "required": ["schema_version", "kind", "id", "name", "state", "ontology_version"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "kind": { "const": "metric_definition" },
+    "id": { "type": "string", "pattern": "^metric_definition:[a-z][a-z0-9_]*$" },
+    "name": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "label": { "type": "string" },
+    "description": { "type": "string" },
+    "state": { "type": "string", "enum": ["registered", "proposed", "retired"] },
+    "ontology_version": { "type": "integer", "minimum": 1 },
+    "value_type": { "type": "string" },
+    "default_unit": { "type": "string" },
+    "allowed_units": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "allowed_value_basis": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["reported", "observed", "derived", "estimated", "restated"]
+      },
+      "default": []
+    },
+    "required_dimensions": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "optional_dimensions": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "source_requirements": { "type": "array", "items": { "type": "string" }, "default": [] }
+  },
+  "additionalProperties": true
+}

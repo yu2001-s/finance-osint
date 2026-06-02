@@ -1,14 +1,23 @@
+schema_version: 1
 kind: relationship_type
 id: product_dependency
 label: Product Dependency
 description: A product depends on a component, technology, service, commodity, or external input.
+state: registered
+ontology_version: 1
 directional: true
 roles:
-  product:
-    entity_types: [product]
+  - name: product
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types: [product]
     description: Product whose function, production, or economics depends on another entity.
-  dependency:
-    entity_types: [component, technology, commodity, service, company]
+  - name: dependency
+    required: true
+    min: 1
+    max: null
+    allowed_entity_types: [component, technology, commodity, service, company]
     description: Required component, technology, service, commodity, or provider.
 allowed_scope:
   - component
@@ -22,8 +31,7 @@ allowed_qualifiers:
   - substitutable
   - single_source
 inverse_type: null
+inverse_behavior: none
 materiality:
   allowed_values: [low, medium, high, critical]
 evidence_required: true
-status: registered
-

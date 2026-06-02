@@ -17,24 +17,41 @@ uv run fo graph build
 1. Add or update entities under `entities/`.
 2. Add source metadata under `sources/`.
 3. Add exact evidence or observation reports under `evidence/`.
-4. Add claims only when they point to evidence.
-5. Add validations or challenges as append-only review records when you support, dispute, or falsify an object.
-6. Add relationships when a typed connection is supported by claims or evidence.
-7. Add theses and debates as separate interpretive layers.
-8. Run `uv run fo lint` before opening a PR.
+4. Add metrics, events, or datasets when the information has a structured shape.
+5. Add claims only when they point to evidence.
+6. Add validations or challenges as append-only review records when you support, dispute, or pressure an object.
+7. Add relationships when a typed connection is supported by claims or evidence.
+8. Add theses as the interpretive layer.
+9. Run `uv run fo lint` before opening a PR.
 
 ## Evidence Classes
 
 ```text
-E0_public_primary       Public primary source: filing, transcript, court doc, official dataset.
-E1_public_secondary     Public secondary source: article, research report, trade publication.
-E2_firsthand_public     First-hand observation in a public setting.
-E3_firsthand_private    First-hand private conversation or closed-door meeting.
-E4_anonymous_internal   Anonymous or internal-source report.
-E5_unverified_rumor     Watchlist signal only; not canonical fact.
+public_primary       Public primary source: filing, transcript, court doc, official dataset.
+public_secondary     Public secondary source: article, research report, trade publication.
+firsthand_public     First-hand observation in a public setting.
+firsthand_private    First-hand private conversation or closed-door meeting.
+anonymous_internal   Anonymous or internal-source report.
+rumor                Watchlist signal only; not strong factual support.
 ```
 
-Low-trust classes `E4_anonymous_internal` and `E5_unverified_rumor` are allowed, but they cannot be the only support for a corroborated or falsified claim, relationship, or validation.
+Low-trust classes `anonymous_internal` and `rumor` are allowed, but they cannot
+be the only path to strong derived review state.
+
+## Claims
+
+Claims use `support_type`:
+
+```text
+direct
+observed
+inferred
+private_attestation
+rumor
+```
+
+If a claim predicate does not exist yet, use a provisional predicate with a
+proposed definition under `claim-predicates/proposals/`.
 
 ## Relationship Types
 

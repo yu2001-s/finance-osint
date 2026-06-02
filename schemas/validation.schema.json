@@ -3,21 +3,31 @@
   "$id": "validation.schema.json",
   "title": "Validation",
   "type": "object",
-  "required": ["kind", "id", "target", "author", "verdict", "summary", "depends_on"],
+  "required": [
+    "schema_version",
+    "kind",
+    "id",
+    "target",
+    "submitted_by",
+    "verdict",
+    "summary",
+    "depends_on"
+  ],
   "properties": {
+    "schema_version": { "const": 1 },
     "kind": { "const": "validation" },
     "id": { "type": "string", "pattern": "^validation:[A-Za-z0-9_.:-]+$" },
     "target": {
       "type": "string",
-      "pattern": "^(evidence|claim|rel|thesis):[A-Za-z0-9_.:-]+$"
+      "pattern": "^(evidence|claim|relationship|thesis|metric|event|dataset):[A-Za-z0-9_.:-]+$"
     },
-    "author": { "type": "string", "pattern": "^github:[A-Za-z0-9_.-]+$" },
+    "submitted_by": { "type": "string", "pattern": "^github:[A-Za-z0-9_.-]+$" },
     "verdict": {
       "type": "string",
       "enum": [
         "attests",
-        "corroborates",
-        "partially_corroborates",
+        "supports",
+        "partially_supports",
         "disputes",
         "falsifies",
         "marks_stale",
@@ -38,19 +48,26 @@
         },
         "relationships": {
           "type": "array",
-          "items": { "type": "string", "pattern": "^rel:[A-Za-z0-9_.:-]+$" }
+          "items": { "type": "string", "pattern": "^relationship:[A-Za-z0-9_.:-]+$" }
         },
         "theses": {
           "type": "array",
           "items": { "type": "string", "pattern": "^thesis:[A-Za-z0-9_.:-]+$" }
+        },
+        "metrics": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^metric:[A-Za-z0-9_.:-]+$" }
+        },
+        "events": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^event:[A-Za-z0-9_.:-]+$" }
         }
       },
       "additionalProperties": true
     },
-    "confidence": { "type": "string", "enum": ["low", "medium", "high"] },
     "created_at": { "type": "string" },
-    "risk_flags": { "type": "array", "items": { "type": "string" }, "default": [] }
+    "risk_flags": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "withdraws": { "type": "string" }
   },
   "additionalProperties": true
 }
-

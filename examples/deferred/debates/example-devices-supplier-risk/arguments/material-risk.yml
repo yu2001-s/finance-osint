@@ -12,9 +12,8 @@ depends_on:
   claims:
     - claim:synthetic:exdev-uses-fndwy-for-x1
   relationships:
-    - rel:synthetic:exdev-fndwy-x1-supply
+    - relationship:synthetic:exdev-fndwy-x1-supply
   theses:
     - thesis:synthetic:exdev-margin-risk-from-foundry-concentration
 confidence: low
 created_at: "2026-06-02T00:00:00Z"
-

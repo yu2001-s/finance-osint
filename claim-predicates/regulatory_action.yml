@@ -1,0 +1,13 @@
+schema_version: 1
+kind: claim_predicate
+id: claim_predicate:regulatory_action
+name: regulatory_action
+label: Regulatory Action
+description: A regulator, rule, agency, or jurisdiction took or proposed an action.
+state: registered
+ontology_version: 1
+required_fields: [subject, evidence]
+allowed_support_type: [direct, inferred]
+allowed_subject_kinds: [entity]
+allowed_object_kinds: [event, relationship]
+may_reference: [evidence, event, relationship]

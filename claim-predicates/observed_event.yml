@@ -1,0 +1,13 @@
+schema_version: 1
+kind: claim_predicate
+id: claim_predicate:observed_event
+name: observed_event
+label: Observed Event
+description: A source or contributor records an event that occurred or is expected.
+state: registered
+ontology_version: 1
+required_fields: [subject, evidence]
+allowed_support_type: [direct, observed, inferred]
+allowed_subject_kinds: [entity]
+allowed_object_kinds: [event]
+may_reference: [evidence, event]

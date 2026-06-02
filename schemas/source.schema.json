@@ -3,13 +3,38 @@
   "$id": "source.schema.json",
   "title": "Source",
   "type": "object",
-  "required": ["kind", "id", "source_type", "title", "public_status", "accessed_at"],
+  "required": [
+    "schema_version",
+    "kind",
+    "id",
+    "source_type",
+    "title",
+    "public_status",
+    "accessed_at",
+    "content_mode"
+  ],
   "properties": {
+    "schema_version": { "const": 1 },
     "kind": { "const": "source" },
     "id": { "type": "string", "pattern": "^source:[A-Za-z0-9_.:-]+$" },
     "source_type": {
       "type": "string",
-      "enum": ["sec_filing", "transcript", "press_release", "court_document", "official_dataset", "web_page", "news_article", "research_report", "conference", "meeting", "field_observation", "anonymous_report", "internal_report", "other"]
+      "enum": [
+        "sec_filing",
+        "transcript",
+        "press_release",
+        "court_document",
+        "official_dataset",
+        "web_page",
+        "news_article",
+        "research_report",
+        "conference",
+        "meeting",
+        "field_observation",
+        "anonymous_report",
+        "internal_report",
+        "other"
+      ]
     },
     "title": { "type": "string", "minLength": 1 },
     "publisher": { "type": "string" },
@@ -18,9 +43,26 @@
     "published_at": { "type": "string" },
     "accessed_at": { "type": "string" },
     "public_status": { "type": "string", "enum": ["public", "nonpublic", "unknown"] },
+    "content_mode": {
+      "type": "string",
+      "enum": [
+        "metadata_only",
+        "excerpt",
+        "summary",
+        "redacted_summary",
+        "small_fixture",
+        "external_link"
+      ]
+    },
     "provenance": { "type": "string" },
-    "risk_flags": { "type": "array", "items": { "type": "string" }, "default": [] }
+    "risk_flags": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "accession_number": { "type": "string" },
+    "form_type": { "type": "string" },
+    "filing_date": { "type": "string" },
+    "accepted_at": { "type": "string" },
+    "period_of_report": { "type": "string" },
+    "amends": { "type": ["string", "null"] },
+    "content_hash": { "type": "string" }
   },
   "additionalProperties": true
 }
-

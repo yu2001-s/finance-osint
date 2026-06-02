@@ -1,14 +1,23 @@
+schema_version: 1
 kind: relationship_type
 id: regulatory_exposure
 label: Regulatory Exposure
 description: An entity is materially exposed to a law, rule, regulatory body, policy, or enforcement process.
+state: registered
+ontology_version: 1
 directional: true
 roles:
-  exposed_entity:
-    entity_types: [company, product, market]
+  - name: exposed_entity
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types: [company, product, market]
     description: Entity affected by the regulatory object.
-  regulatory_object:
-    entity_types: [regulation, geography]
+  - name: regulatory_object
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types: [regulation, geography]
     description: Regulation, jurisdiction, agency context, or policy object.
 allowed_scope:
   - geography
@@ -21,8 +30,7 @@ allowed_qualifiers:
   - proposed
   - enforcement
 inverse_type: null
+inverse_behavior: none
 materiality:
   allowed_values: [low, medium, high, critical]
 evidence_required: true
-status: registered
-

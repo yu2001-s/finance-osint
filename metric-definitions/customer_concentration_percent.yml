@@ -1,0 +1,15 @@
+schema_version: 1
+kind: metric_definition
+id: metric_definition:customer_concentration_percent
+name: customer_concentration_percent
+label: Customer Concentration Percent
+description: Percentage of revenue, volume, or exposure tied to a customer.
+state: registered
+ontology_version: 1
+value_type: percentage
+default_unit: percent
+allowed_units: [percent, basis_points]
+allowed_value_basis: [reported, derived, estimated, restated]
+required_dimensions: [period]
+optional_dimensions: [customer, segment, product, geography]
+source_requirements: [evidence]

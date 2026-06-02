@@ -1,14 +1,23 @@
+schema_version: 1
 kind: relationship_type
 id: technology_dependency
 label: Technology Dependency
 description: An entity depends on a technology, manufacturing process, technical standard, or technical capability.
+state: registered
+ontology_version: 1
 directional: true
 roles:
-  dependent:
-    entity_types: [company, product, component]
+  - name: dependent
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types: [company, product, component]
     description: Entity depending on the technology.
-  technology:
-    entity_types: [technology, component]
+  - name: technology
+    required: true
+    min: 1
+    max: null
+    allowed_entity_types: [technology, component]
     description: Technology, process, or technical capability being depended on.
 allowed_scope:
   - product
@@ -21,8 +30,7 @@ allowed_qualifiers:
   - substitutable
   - proprietary
 inverse_type: null
+inverse_behavior: none
 materiality:
   allowed_values: [low, medium, high, critical]
 evidence_required: true
-status: registered
-

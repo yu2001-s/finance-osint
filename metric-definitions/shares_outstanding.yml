@@ -1,0 +1,15 @@
+schema_version: 1
+kind: metric_definition
+id: metric_definition:shares_outstanding
+name: shares_outstanding
+label: Shares Outstanding
+description: Number of shares outstanding as of a point in time.
+state: registered
+ontology_version: 1
+value_type: count
+default_unit: shares
+allowed_units: [shares, thousands, millions]
+allowed_value_basis: [reported, derived, estimated, restated]
+required_dimensions: [as_of]
+optional_dimensions: [share_class, security]
+source_requirements: [evidence]

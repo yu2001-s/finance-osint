@@ -1,0 +1,25 @@
+schema_version: 1
+kind: claim_predicate
+id: claim_predicate:predicate_name
+name: predicate_name
+label: Predicate Label
+description: What this predicate means and when it should be used.
+state: proposed
+ontology_version: 1
+required_fields:
+  - subject
+  - evidence
+allowed_support_type:
+  - direct
+  - observed
+  - inferred
+allowed_subject_kinds:
+  - entity
+allowed_object_kinds:
+  - entity
+may_reference:
+  - evidence
+  - claim
+  - metric
+  - event
+  - relationship

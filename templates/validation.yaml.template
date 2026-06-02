@@ -1,8 +1,9 @@
+schema_version: 1
 kind: validation
 id: validation:company-topic-slug
 target: claim:company-topic-slug
-author: github:username
-verdict: corroborates
+submitted_by: github:username
+verdict: supports
 summary: Short explanation of what this validation establishes.
 depends_on:
   evidence:
@@ -10,7 +11,5 @@ depends_on:
   claims: []
   relationships: []
   theses: []
-confidence: low
 created_at: "YYYY-MM-DDTHH:MM:SSZ"
 risk_flags: []
-

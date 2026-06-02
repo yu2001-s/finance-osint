@@ -1,0 +1,13 @@
+schema_version: 1
+kind: claim_predicate
+id: claim_predicate:forecast_statement
+name: forecast_statement
+label: Forecast Statement
+description: A source made a forecast or guidance statement.
+state: registered
+ontology_version: 1
+required_fields: [subject, evidence]
+allowed_support_type: [direct, inferred]
+allowed_subject_kinds: [entity]
+allowed_object_kinds: [metric, string]
+may_reference: [evidence, metric, event]

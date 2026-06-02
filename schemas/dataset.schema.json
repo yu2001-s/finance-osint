@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dataset.schema.json",
+  "title": "Dataset",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "kind",
+    "id",
+    "title",
+    "dataset_type",
+    "publisher",
+    "coverage",
+    "access",
+    "sources",
+    "content_mode"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "kind": { "const": "dataset" },
+    "id": { "type": "string", "pattern": "^dataset:[A-Za-z0-9_.:-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "dataset_type": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "publisher": { "type": "string" },
+    "coverage": { "type": "object", "additionalProperties": true },
+    "access": { "type": "object", "additionalProperties": true },
+    "sources": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^source:[A-Za-z0-9_.:-]+$" }
+    },
+    "content_mode": {
+      "type": "string",
+      "enum": [
+        "metadata_only",
+        "excerpt",
+        "summary",
+        "redacted_summary",
+        "small_fixture",
+        "external_link"
+      ]
+    },
+    "content_hash": { "type": "string" },
+    "license": { "type": "string" },
+    "limitations": { "type": "string" },
+    "submitted_by": { "type": "string", "pattern": "^github:[A-Za-z0-9_.-]+$" },
+    "created_at": { "type": "string" }
+  },
+  "additionalProperties": true
+}

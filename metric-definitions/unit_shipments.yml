@@ -1,0 +1,15 @@
+schema_version: 1
+kind: metric_definition
+id: metric_definition:unit_shipments
+name: unit_shipments
+label: Unit Shipments
+description: Number of product or unit shipments for an entity and period.
+state: registered
+ontology_version: 1
+value_type: count
+default_unit: units
+allowed_units: [units, thousands, millions]
+allowed_value_basis: [reported, observed, derived, estimated, restated]
+required_dimensions: [period]
+optional_dimensions: [product, geography, channel, customer]
+source_requirements: [evidence]

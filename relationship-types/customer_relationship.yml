@@ -1,14 +1,23 @@
+schema_version: 1
 kind: relationship_type
 id: customer_relationship
 label: Customer Relationship
 description: One entity sells goods, components, infrastructure, or services to another entity.
+state: registered
+ontology_version: 1
 directional: true
 roles:
-  seller:
-    entity_types: [company]
+  - name: seller
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types: [company]
     description: Entity selling the good, component, infrastructure, or service.
-  customer:
-    entity_types: [company]
+  - name: customer
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types: [company]
     description: Entity buying from the seller.
 allowed_scope:
   - product
@@ -23,8 +32,7 @@ allowed_qualifiers:
   - concentrated_customer
   - channel_customer
 inverse_type: supplier_relationship
+inverse_behavior: derive_local
 materiality:
   allowed_values: [low, medium, high, critical]
 evidence_required: true
-status: registered
-

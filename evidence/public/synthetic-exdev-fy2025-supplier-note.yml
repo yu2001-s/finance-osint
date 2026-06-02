@@ -1,19 +1,20 @@
+schema_version: 1
 kind: evidence
 id: evidence:synthetic:exdev-fy2025-supplier-note
-evidence_class: E0_public_primary
+evidence_class: public_primary
 source: source:public:synthetic:exdev-fy2025-report
 summary: Synthetic fixture text states that Example Devices uses Foundry Works for the X1 processor in Example Phone.
+content_mode: small_fixture
 excerpt: "Example Devices relies on Foundry Works for manufacturing support related to the X1 processor used in Example Phone."
 locator:
   section: Synthetic supplier note
 observed_at: "2026-06-02T00:00:00Z"
 submitted_by: github:scaffold
-attribution: named_contributor
+source_attribution: named_public
 source_access:
   nda_or_confidentiality: false
   recording_available: false
   source_identity_public: true
+verification_status: synthetic_fixture
 risk_flags:
   - synthetic_fixture
-status: attested
-
