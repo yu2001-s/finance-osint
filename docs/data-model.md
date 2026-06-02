@@ -126,3 +126,7 @@ fo graph neighbors ID --json
 `fo new` helpers are deterministic record constructors. They create schema-valid
 YAML from explicit arguments and then rely on the same validators used by CI.
 They should not perform ingestion, summarization, or semantic inference.
+
+The common v1 contribution path is covered by helpers for entity, source,
+evidence, claim, metric, event, dataset, validation, challenge, relationship,
+and thesis records. Ontology-definition helpers remain deferred.

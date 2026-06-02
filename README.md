@@ -95,12 +95,17 @@ uv run fo new claim \
 Supported constructors:
 
 ```text
+fo new entity
 fo new source
 fo new evidence
 fo new claim
+fo new metric
+fo new event
+fo new dataset
 fo new validation
 fo new challenge
 fo new relationship
+fo new thesis
 ```
 
 ## Agent Skills

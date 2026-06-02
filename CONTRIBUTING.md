@@ -31,6 +31,7 @@ You may use deterministic constructors instead of hand-writing YAML:
 uv run fo new evidence --help
 uv run fo new claim --help
 uv run fo new relationship --help
+uv run fo new thesis --help
 ```
 
 These helpers create structure from explicit inputs. They do not infer,

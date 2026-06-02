@@ -20,8 +20,18 @@ uv run fo review ID --json
 
 2. Draft a thesis only from explicit dependencies.
 
-3. Create or edit a thesis YAML record. There is no `fo new thesis` helper yet,
-so follow `templates/thesis.yaml.template`.
+3. Create the thesis with explicit dependencies:
+
+```bash
+uv run fo new thesis \
+  --title "Thesis title" \
+  --summary "Interpretation built from explicit dependencies." \
+  --claim claim:... \
+  --relationship relationship:... \
+  --evidence evidence:... \
+  --submitted-by github:USERNAME \
+  --json
+```
 
 4. Validate:
 

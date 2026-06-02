@@ -1574,6 +1574,7 @@ def build_depends_on(args: argparse.Namespace) -> dict[str, list[str]]:
         "theses": sorted(args.thesis or []),
         "metrics": sorted(args.metric or []),
         "events": sorted(args.event or []),
+        "datasets": sorted(getattr(args, "dataset", []) or []),
     }
 
 
@@ -1853,6 +1854,160 @@ def run_new_relationship(root: Path, args: argparse.Namespace) -> int:
     add_optional_common_fields(data, args)
     path = generated_record_path(root, "relationships", record_id, args.path)
     return run_new_record(root, "new relationship", path, data, args.json, args.overwrite)
+
+
+def run_new_entity(root: Path, args: argparse.Namespace) -> int:
+    record_id = args.id or f"entity:{args.entity_type}:{slugify(args.name)}"
+    if not record_id.startswith("entity:"):
+        raise ValueError(f"id `{record_id}` must start with `entity:`")
+    data: dict[str, Any] = {
+        "schema_version": 1,
+        "kind": "entity",
+        "id": record_id,
+        "entity_type": args.entity_type,
+        "name": args.name,
+        "submitted_by": args.submitted_by,
+    }
+    if args.alias:
+        data["aliases"] = sorted(set(args.alias))
+    identifiers = parse_key_values(args.identifier)
+    if identifiers:
+        data["identifiers"] = identifiers
+    if args.description:
+        data["description"] = args.description
+    if args.state:
+        data["state"] = args.state
+    add_optional_common_fields(data, args)
+    path = generated_record_path(root, f"entities/{args.entity_type}", record_id, args.path)
+    return run_new_record(root, "new entity", path, data, args.json, args.overwrite)
+
+
+def run_new_metric(root: Path, args: argparse.Namespace) -> int:
+    period = parse_key_values(args.period)
+    record_id = ensure_id(
+        "metric",
+        args.id,
+        f"{args.entity} {args.metric_definition} {' '.join(f'{k}-{v}' for k, v in sorted(period.items()))}",
+    )
+    data: dict[str, Any] = {
+        "schema_version": 1,
+        "kind": "metric",
+        "id": record_id,
+        "entity": args.entity,
+        "metric_definition": args.metric_definition,
+        "value": args.value,
+        "unit": args.unit,
+        "period": period,
+        "value_basis": args.value_basis,
+        "evidence": sorted(args.evidence),
+        "submitted_by": args.submitted_by,
+    }
+    source_locator = parse_key_values(args.source_locator)
+    if source_locator:
+        data["source_locator"] = source_locator
+    dimensions = parse_key_values(args.dimension)
+    if dimensions:
+        data["dimensions"] = dimensions
+    for field in (
+        "as_of",
+        "reported_at",
+        "published_at",
+        "restated_from",
+        "methodology",
+        "limitations",
+    ):
+        value = getattr(args, field)
+        if value:
+            data[field] = value
+    add_optional_common_fields(data, args)
+    path = generated_record_path(root, "metrics", record_id, args.path)
+    return run_new_record(root, "new metric", path, data, args.json, args.overwrite)
+
+
+def run_new_event(root: Path, args: argparse.Namespace) -> int:
+    record_id = ensure_id("event", args.id, f"{args.event_type} {args.title}")
+    data: dict[str, Any] = {
+        "schema_version": 1,
+        "kind": "event",
+        "id": record_id,
+        "event_type": args.event_type,
+        "event_state": args.event_state,
+        "title": args.title,
+        "entities": sorted(args.entity),
+        "evidence": sorted(args.evidence),
+        "submitted_by": args.submitted_by,
+    }
+    for field in ("occurred_at", "expected_at", "effective_at"):
+        value = getattr(args, field)
+        if value:
+            data[field] = value
+    period = parse_key_values(args.period)
+    if period:
+        data["period"] = period
+    properties = parse_key_values(args.property)
+    if properties:
+        data["properties"] = properties
+    add_optional_common_fields(data, args)
+    path = generated_record_path(root, "events", record_id, args.path)
+    return run_new_record(root, "new event", path, data, args.json, args.overwrite)
+
+
+def run_new_dataset(root: Path, args: argparse.Namespace) -> int:
+    record_id = ensure_id("dataset", args.id, f"{args.publisher} {args.title}")
+    data: dict[str, Any] = {
+        "schema_version": 1,
+        "kind": "dataset",
+        "id": record_id,
+        "title": args.title,
+        "dataset_type": args.dataset_type,
+        "publisher": args.publisher,
+        "coverage": parse_key_values(args.coverage),
+        "access": parse_key_values(args.access),
+        "sources": sorted(args.source),
+        "content_mode": args.content_mode,
+        "submitted_by": args.submitted_by,
+    }
+    for field in ("content_hash", "license", "limitations"):
+        value = getattr(args, field)
+        if value:
+            data[field] = value
+    add_optional_common_fields(data, args)
+    path = generated_record_path(root, "datasets", record_id, args.path)
+    return run_new_record(root, "new dataset", path, data, args.json, args.overwrite)
+
+
+def run_new_thesis(root: Path, args: argparse.Namespace) -> int:
+    depends_on = build_depends_on(args)
+    if not any(depends_on.values()):
+        error = command_error("missing_dependency", "thesis needs at least one explicit dependency")
+        if args.json:
+            print_json(result_envelope("new thesis", root, ok=False, errors=[error]))
+        else:
+            print(f"ERROR {error['message']}", file=sys.stderr)
+        return 1
+
+    record_id = ensure_id("thesis", args.id, args.title)
+    data: dict[str, Any] = {
+        "schema_version": 1,
+        "kind": "thesis",
+        "id": record_id,
+        "title": args.title,
+        "summary": args.summary,
+        "depends_on": depends_on,
+        "submitted_by": args.submitted_by,
+    }
+    if args.stance:
+        data["stance"] = args.stance
+    if args.time_horizon:
+        data["time_horizon"] = args.time_horizon
+    forecast = parse_json_object(args.forecast_json, "--forecast-json")
+    if forecast is not None:
+        data["forecast"] = forecast
+    if args.contradicting_evidence:
+        data["contradicting_evidence"] = sorted(set(args.contradicting_evidence))
+    add_optional_common_fields(data, args)
+    path = generated_record_path(root, "theses", record_id, args.path)
+    return run_new_record(root, "new thesis", path, data, args.json, args.overwrite)
 
 
 def run_lint(root: Path, json_output: bool = False, current_only: bool = False) -> int:
@@ -2279,6 +2434,26 @@ def cmd_new_relationship(args: argparse.Namespace) -> int:
     return run_new_relationship(repo_root(), args)
 
 
+def cmd_new_entity(args: argparse.Namespace) -> int:
+    return run_new_entity(repo_root(), args)
+
+
+def cmd_new_metric(args: argparse.Namespace) -> int:
+    return run_new_metric(repo_root(), args)
+
+
+def cmd_new_event(args: argparse.Namespace) -> int:
+    return run_new_event(repo_root(), args)
+
+
+def cmd_new_dataset(args: argparse.Namespace) -> int:
+    return run_new_dataset(repo_root(), args)
+
+
+def cmd_new_thesis(args: argparse.Namespace) -> int:
+    return run_new_thesis(repo_root(), args)
+
+
 def add_new_common_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--id", help="explicit canonical id")
     parser.add_argument("--path", help="explicit output path")
@@ -2296,6 +2471,7 @@ def add_dependency_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--thesis", action="append", default=[], help="dependent thesis id")
     parser.add_argument("--metric", action="append", default=[], help="dependent metric id")
     parser.add_argument("--event", action="append", default=[], help="dependent event id")
+    parser.add_argument("--dataset", action="append", default=[], help="dependent dataset id")
 
 
 def add_new_file_options(parser: argparse.ArgumentParser) -> None:
@@ -2322,6 +2498,38 @@ def build_parser() -> argparse.ArgumentParser:
 
     new_parser = subparsers.add_parser("new", help="create deterministic YAML records")
     new_subparsers = new_parser.add_subparsers(dest="new_command", required=True)
+
+    entity_parser = new_subparsers.add_parser("entity", help="create an entity record")
+    add_new_common_options(entity_parser)
+    entity_parser.add_argument(
+        "--entity-type",
+        required=True,
+        choices=[
+            "company",
+            "person",
+            "product",
+            "component",
+            "security",
+            "listing",
+            "market",
+            "geography",
+            "commodity",
+            "technology",
+            "regulation",
+            "fund",
+            "service",
+        ],
+    )
+    entity_parser.add_argument("--name", required=True)
+    entity_parser.add_argument("--alias", action="append", default=[])
+    entity_parser.add_argument("--identifier", action="append", default=[], help="repeatable key=value")
+    entity_parser.add_argument("--description")
+    entity_parser.add_argument(
+        "--state",
+        choices=["active", "inactive", "proposed", "merged", "retired"],
+        default="proposed",
+    )
+    entity_parser.set_defaults(func=cmd_new_entity)
 
     source_parser = new_subparsers.add_parser("source", help="create a source record")
     add_new_common_options(source_parser)
@@ -2473,6 +2681,83 @@ def build_parser() -> argparse.ArgumentParser:
     )
     relationship_parser.add_argument("--proposed-type-definition")
     relationship_parser.set_defaults(func=cmd_new_relationship)
+
+    metric_parser = new_subparsers.add_parser("metric", help="create a metric record")
+    add_new_common_options(metric_parser)
+    metric_parser.add_argument("--entity", required=True)
+    metric_parser.add_argument("--metric-definition", required=True)
+    metric_parser.add_argument("--value", required=True, type=float)
+    metric_parser.add_argument("--unit", required=True)
+    metric_parser.add_argument("--period", action="append", required=True, help="repeatable key=value")
+    metric_parser.add_argument(
+        "--value-basis",
+        required=True,
+        choices=["reported", "observed", "derived", "estimated", "restated"],
+    )
+    metric_parser.add_argument("--evidence", action="append", required=True)
+    metric_parser.add_argument("--source-locator", action="append", default=[], help="repeatable key=value")
+    metric_parser.add_argument("--dimension", action="append", default=[], help="repeatable key=value")
+    metric_parser.add_argument("--as-of")
+    metric_parser.add_argument("--reported-at")
+    metric_parser.add_argument("--published-at")
+    metric_parser.add_argument("--restated-from")
+    metric_parser.add_argument("--methodology")
+    metric_parser.add_argument("--limitations")
+    metric_parser.set_defaults(func=cmd_new_metric)
+
+    event_parser = new_subparsers.add_parser("event", help="create an event record")
+    add_new_common_options(event_parser)
+    event_parser.add_argument("--event-type", required=True)
+    event_parser.add_argument(
+        "--event-state",
+        required=True,
+        choices=["expected", "occurred", "cancelled", "missed"],
+    )
+    event_parser.add_argument("--title", required=True)
+    event_parser.add_argument("--entity", action="append", required=True, help="related entity id")
+    event_parser.add_argument("--evidence", action="append", required=True)
+    event_parser.add_argument("--occurred-at")
+    event_parser.add_argument("--expected-at")
+    event_parser.add_argument("--effective-at")
+    event_parser.add_argument("--period", action="append", default=[], help="repeatable key=value")
+    event_parser.add_argument("--property", action="append", default=[], help="repeatable key=value")
+    event_parser.set_defaults(func=cmd_new_event)
+
+    dataset_parser = new_subparsers.add_parser("dataset", help="create a dataset record")
+    add_new_common_options(dataset_parser)
+    dataset_parser.add_argument("--title", required=True)
+    dataset_parser.add_argument("--dataset-type", required=True)
+    dataset_parser.add_argument("--publisher", required=True)
+    dataset_parser.add_argument("--coverage", action="append", required=True, help="repeatable key=value")
+    dataset_parser.add_argument("--access", action="append", required=True, help="repeatable key=value")
+    dataset_parser.add_argument("--source", action="append", required=True, help="source id")
+    dataset_parser.add_argument(
+        "--content-mode",
+        required=True,
+        choices=[
+            "metadata_only",
+            "excerpt",
+            "summary",
+            "redacted_summary",
+            "small_fixture",
+            "external_link",
+        ],
+    )
+    dataset_parser.add_argument("--content-hash")
+    dataset_parser.add_argument("--license")
+    dataset_parser.add_argument("--limitations")
+    dataset_parser.set_defaults(func=cmd_new_dataset)
+
+    thesis_parser = new_subparsers.add_parser("thesis", help="create a thesis record")
+    add_new_common_options(thesis_parser)
+    thesis_parser.add_argument("--title", required=True)
+    thesis_parser.add_argument("--summary", required=True)
+    thesis_parser.add_argument("--stance")
+    thesis_parser.add_argument("--time-horizon")
+    thesis_parser.add_argument("--forecast-json", help="JSON object forecast expression")
+    thesis_parser.add_argument("--contradicting-evidence", action="append", default=[])
+    add_dependency_options(thesis_parser)
+    thesis_parser.set_defaults(func=cmd_new_thesis)
 
     index_parser = subparsers.add_parser("index", help="local SQLite index utilities")
     index_subparsers = index_parser.add_subparsers(dest="index_command", required=True)
