@@ -1505,6 +1505,356 @@ def validate_repo(root: Path, current_only: bool = False) -> tuple[list[Record],
     return records, errors
 
 
+def slugify(value: str, max_length: int = 96) -> str:
+    lowered = value.lower()
+    lowered = re.sub(r"[^a-z0-9]+", "-", lowered)
+    lowered = re.sub(r"-+", "-", lowered).strip("-")
+    return (lowered or "record")[:max_length].strip("-") or "record"
+
+
+def id_slug(record_id: str) -> str:
+    return slugify(record_id.split(":", 1)[1] if ":" in record_id else record_id)
+
+
+def ensure_id(prefix: str, explicit_id: str | None, seed: str) -> str:
+    if explicit_id:
+        if not explicit_id.startswith(f"{prefix}:"):
+            raise ValueError(f"id `{explicit_id}` must start with `{prefix}:`")
+        return explicit_id
+    return f"{prefix}:{slugify(seed)}"
+
+
+def generated_record_path(root: Path, dirname: str, record_id: str, explicit_path: str | None) -> Path:
+    if explicit_path:
+        path = Path(explicit_path)
+        return path if path.is_absolute() else root / path
+    return root / dirname / "generated" / f"{id_slug(record_id)}.yml"
+
+
+def parse_key_values(values: list[str] | None) -> dict[str, str]:
+    parsed: dict[str, str] = {}
+    for item in values or []:
+        if "=" not in item:
+            raise ValueError(f"`{item}` must use key=value")
+        key, value = item.split("=", 1)
+        key = key.strip()
+        if not key:
+            raise ValueError(f"`{item}` has an empty key")
+        parsed[key] = value.strip()
+    return parsed
+
+
+def parse_participants(values: list[str] | None) -> list[dict[str, str]]:
+    participants: list[dict[str, str]] = []
+    for item in values or []:
+        if "=" not in item:
+            raise ValueError(f"`{item}` must use role=entity:id")
+        role, entity_id = item.split("=", 1)
+        participants.append({"role": role.strip(), "entity": entity_id.strip()})
+    return participants
+
+
+def parse_json_object(value: str | None, field_name: str) -> dict[str, Any] | None:
+    if not value:
+        return None
+    try:
+        loaded = json.loads(value)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"{field_name} must be a JSON object: {exc.msg}") from exc
+    if not isinstance(loaded, dict):
+        raise ValueError(f"{field_name} must be a JSON object")
+    return loaded
+
+
+def build_depends_on(args: argparse.Namespace) -> dict[str, list[str]]:
+    return {
+        "evidence": sorted(args.evidence or []),
+        "claims": sorted(args.claim or []),
+        "relationships": sorted(args.relationship or []),
+        "theses": sorted(args.thesis or []),
+        "metrics": sorted(args.metric or []),
+        "events": sorted(args.event or []),
+    }
+
+
+def add_optional_common_fields(data: dict[str, Any], args: argparse.Namespace) -> None:
+    if getattr(args, "created_at", None):
+        data["created_at"] = args.created_at
+    risk_flags = sorted(set(getattr(args, "risk_flag", None) or []))
+    if risk_flags:
+        data["risk_flags"] = risk_flags
+
+
+def validate_new_record(root: Path, path: Path, data: dict[str, Any]) -> list[str]:
+    records, load_errors = load_records(root)
+    try:
+        relative = path.relative_to(root)
+    except ValueError:
+        relative = path
+    new_record = Record(path=path, data=data)
+    validators = load_schemas(root)
+
+    errors = list(load_errors)
+    for existing in records:
+        if existing.id == new_record.id:
+            errors.append(
+                f"{relative}: duplicate id `{new_record.id}` already used by "
+                f"{existing.path.relative_to(root)}"
+            )
+    kind = data.get("kind")
+    if kind not in validators:
+        errors.append(f"{relative}: unknown or missing kind `{kind}`")
+    else:
+        for error in sorted(validators[kind].iter_errors(data), key=lambda item: item.path):
+            errors.append(f"{relative}: {format_error_path(error)}: {error.message}")
+
+    combined = records + [new_record]
+    id_map, id_errors = build_id_map(root, combined)
+    errors.extend(id_errors)
+    errors.extend(validate_references(root, [new_record], id_map))
+    errors.extend(validate_claim_predicates(root, combined))
+    errors.extend(validate_relationships(root, combined, id_map))
+    errors.extend(validate_evidence_policy(root, [new_record], id_map))
+    return errors
+
+
+def write_record_file(path: Path, data: dict[str, Any], overwrite: bool = False) -> None:
+    if path.exists() and not overwrite:
+        raise FileExistsError(f"{path} already exists; pass --overwrite to replace it")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as handle:
+        yaml.safe_dump(data, handle, sort_keys=False, allow_unicode=False)
+
+
+def run_new_record(
+    root: Path,
+    command: str,
+    path: Path,
+    data: dict[str, Any],
+    json_output: bool = False,
+    overwrite: bool = False,
+) -> int:
+    try:
+        relative_path = path.relative_to(root)
+    except ValueError:
+        error = command_error("path_outside_repo", f"{path} is outside the repository")
+        if json_output:
+            print_json(result_envelope(command, root, ok=False, errors=[error], record=data))
+        else:
+            print(f"ERROR {error['message']}", file=sys.stderr)
+        return 1
+
+    if path.exists() and not overwrite:
+        error = command_error("file_exists", f"{relative_path} already exists")
+        if json_output:
+            print_json(result_envelope(command, root, ok=False, errors=[error], record=data))
+        else:
+            print(f"ERROR {error['message']}", file=sys.stderr)
+        return 1
+
+    errors = validate_new_record(root, path, data)
+    if errors:
+        if json_output:
+            print_json(
+                result_envelope(
+                    command,
+                    root,
+                    ok=False,
+                    errors=[json_error(error) for error in errors],
+                    record=data,
+                )
+            )
+        else:
+            for error in errors:
+                print(f"ERROR {error}", file=sys.stderr)
+        return 1
+
+    try:
+        write_record_file(path, data, overwrite=overwrite)
+    except OSError as exc:
+        error = command_error("write_failed", str(exc))
+        if json_output:
+            print_json(result_envelope(command, root, ok=False, errors=[error], record=data))
+        else:
+            print(f"ERROR {error['message']}", file=sys.stderr)
+        return 1
+
+    result = {
+        "created": True,
+        "path": str(relative_path),
+        "id": data["id"],
+        "record": data,
+        "next_commands": ["uv run fo lint --json"],
+    }
+    if json_output:
+        print_json(result_envelope(command, root, **result))
+    else:
+        print(f"Created {result['path']}")
+        print("Run: uv run fo lint --json")
+    return 0
+
+
+def run_new_source(root: Path, args: argparse.Namespace) -> int:
+    record_id = ensure_id(
+        "source",
+        args.id,
+        f"{args.public_status} {args.source_type} {args.title}",
+    )
+    data: dict[str, Any] = {
+        "schema_version": 1,
+        "kind": "source",
+        "id": record_id,
+        "source_type": args.source_type,
+        "title": args.title,
+        "public_status": args.public_status,
+        "accessed_at": args.accessed_at,
+        "content_mode": args.content_mode,
+        "submitted_by": args.submitted_by,
+    }
+    for field in ("publisher", "url", "archive_url", "published_at", "provenance"):
+        value = getattr(args, field)
+        if value:
+            data[field] = value
+    add_optional_common_fields(data, args)
+    path = generated_record_path(root, "sources", record_id, args.path)
+    return run_new_record(root, "new source", path, data, args.json, args.overwrite)
+
+
+def run_new_evidence(root: Path, args: argparse.Namespace) -> int:
+    record_id = ensure_id("evidence", args.id, f"{args.source} {args.summary}")
+    data: dict[str, Any] = {
+        "schema_version": 1,
+        "kind": "evidence",
+        "id": record_id,
+        "evidence_class": args.evidence_class,
+        "source": args.source,
+        "summary": args.summary,
+        "content_mode": args.content_mode,
+        "observed_at": args.observed_at,
+        "submitted_by": args.submitted_by,
+        "source_attribution": args.source_attribution,
+    }
+    if args.excerpt:
+        data["excerpt"] = args.excerpt
+    locator = parse_key_values(args.locator)
+    if locator:
+        data["locator"] = locator
+    source_access = parse_json_object(args.source_access_json, "--source-access-json")
+    if source_access is not None:
+        data["source_access"] = source_access
+    if args.verification_status:
+        data["verification_status"] = args.verification_status
+    add_optional_common_fields(data, args)
+    path = generated_record_path(root, "evidence", record_id, args.path)
+    return run_new_record(root, "new evidence", path, data, args.json, args.overwrite)
+
+
+def run_new_claim(root: Path, args: argparse.Namespace) -> int:
+    record_id = ensure_id("claim", args.id, args.statement)
+    data: dict[str, Any] = {
+        "schema_version": 1,
+        "kind": "claim",
+        "id": record_id,
+        "statement": args.statement,
+        "subject": args.subject,
+        "predicate": args.predicate,
+        "support_type": args.support_type,
+        "evidence": [{"id": evidence_id} for evidence_id in sorted(args.evidence)],
+        "submitted_by": args.submitted_by,
+    }
+    if args.object is not None:
+        data["object"] = args.object
+    qualifiers = parse_key_values(args.qualifier)
+    if qualifiers:
+        data["qualifiers"] = qualifiers
+    if args.time_start or args.time_end:
+        data["time_scope"] = {"start": args.time_start, "end": args.time_end}
+    if args.methodology:
+        data["methodology"] = args.methodology
+    if args.proposed_predicate_definition:
+        data["proposed_predicate_definition"] = args.proposed_predicate_definition
+    add_optional_common_fields(data, args)
+    path = generated_record_path(root, "claims", record_id, args.path)
+    return run_new_record(root, "new claim", path, data, args.json, args.overwrite)
+
+
+def run_new_validation(root: Path, args: argparse.Namespace) -> int:
+    seed = f"{args.target} {args.verdict} {args.submitted_by}"
+    record_id = ensure_id("validation", args.id, seed)
+    data: dict[str, Any] = {
+        "schema_version": 1,
+        "kind": "validation",
+        "id": record_id,
+        "target": args.target,
+        "submitted_by": args.submitted_by,
+        "verdict": args.verdict,
+        "summary": args.summary,
+        "depends_on": build_depends_on(args),
+    }
+    add_optional_common_fields(data, args)
+    path = generated_record_path(root, "validations", record_id, args.path)
+    return run_new_record(root, "new validation", path, data, args.json, args.overwrite)
+
+
+def run_new_challenge(root: Path, args: argparse.Namespace) -> int:
+    seed = f"{args.target} {args.challenge_type} {args.submitted_by}"
+    record_id = ensure_id("challenge", args.id, seed)
+    data: dict[str, Any] = {
+        "schema_version": 1,
+        "kind": "challenge",
+        "id": record_id,
+        "target": args.target,
+        "submitted_by": args.submitted_by,
+        "challenge_type": args.challenge_type,
+        "summary": args.summary,
+    }
+    depends_on = build_depends_on(args)
+    if any(depends_on.values()):
+        data["depends_on"] = depends_on
+    for field in ("addressed_by", "withdrawn_by", "superseded_by"):
+        value = getattr(args, field)
+        if value:
+            data[field] = value
+    add_optional_common_fields(data, args)
+    path = generated_record_path(root, "challenges", record_id, args.path)
+    return run_new_record(root, "new challenge", path, data, args.json, args.overwrite)
+
+
+def run_new_relationship(root: Path, args: argparse.Namespace) -> int:
+    participants = parse_participants(args.participant)
+    participant_seed = " ".join(item["entity"] for item in participants)
+    record_id = ensure_id("relationship", args.id, f"{args.type} {participant_seed}")
+    data: dict[str, Any] = {
+        "schema_version": 1,
+        "kind": "relationship",
+        "id": record_id,
+        "type": args.type,
+        "participants": participants,
+        "derived_from": {
+            "claims": sorted(args.derived_claim or []),
+            "evidence": sorted(args.derived_evidence or []),
+        },
+        "submitted_by": args.submitted_by,
+    }
+    scope = parse_key_values(args.scope)
+    if scope:
+        data["scope"] = scope
+    if args.qualifier:
+        data["qualifiers"] = sorted(set(args.qualifier))
+    if args.time_start or args.time_end:
+        data["time_scope"] = {"start": args.time_start, "end": args.time_end}
+    if args.materiality_level or args.materiality_basis:
+        data["materiality"] = {
+            "level": args.materiality_level,
+            "basis": args.materiality_basis or "unknown",
+        }
+    if args.proposed_type_definition:
+        data["proposed_type_definition"] = args.proposed_type_definition
+    add_optional_common_fields(data, args)
+    path = generated_record_path(root, "relationships", record_id, args.path)
+    return run_new_record(root, "new relationship", path, data, args.json, args.overwrite)
+
+
 def run_lint(root: Path, json_output: bool = False, current_only: bool = False) -> int:
     records, errors = validate_repo(root, current_only=current_only)
     if json_output:
@@ -1905,6 +2255,58 @@ def cmd_graph_inspect(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_new_source(args: argparse.Namespace) -> int:
+    return run_new_source(repo_root(), args)
+
+
+def cmd_new_evidence(args: argparse.Namespace) -> int:
+    return run_new_evidence(repo_root(), args)
+
+
+def cmd_new_claim(args: argparse.Namespace) -> int:
+    return run_new_claim(repo_root(), args)
+
+
+def cmd_new_validation(args: argparse.Namespace) -> int:
+    return run_new_validation(repo_root(), args)
+
+
+def cmd_new_challenge(args: argparse.Namespace) -> int:
+    return run_new_challenge(repo_root(), args)
+
+
+def cmd_new_relationship(args: argparse.Namespace) -> int:
+    return run_new_relationship(repo_root(), args)
+
+
+def add_new_common_options(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--id", help="explicit canonical id")
+    parser.add_argument("--path", help="explicit output path")
+    parser.add_argument("--submitted-by", required=True, help="GitHub contributor id, e.g. github:alice")
+    parser.add_argument("--created-at", help="explicit record creation timestamp")
+    parser.add_argument("--risk-flag", action="append", default=[], help="repeatable risk flag")
+    parser.add_argument("--overwrite", action="store_true", help="replace an existing file")
+    parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
+
+
+def add_dependency_options(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--evidence", action="append", default=[], help="dependent evidence id")
+    parser.add_argument("--claim", action="append", default=[], help="dependent claim id")
+    parser.add_argument("--relationship", action="append", default=[], help="dependent relationship id")
+    parser.add_argument("--thesis", action="append", default=[], help="dependent thesis id")
+    parser.add_argument("--metric", action="append", default=[], help="dependent metric id")
+    parser.add_argument("--event", action="append", default=[], help="dependent event id")
+
+
+def add_new_file_options(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--id", help="explicit canonical id")
+    parser.add_argument("--path", help="explicit output path")
+    parser.add_argument("--created-at", help="explicit record creation timestamp")
+    parser.add_argument("--risk-flag", action="append", default=[], help="repeatable risk flag")
+    parser.add_argument("--overwrite", action="store_true", help="replace an existing file")
+    parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="fo", description="Finance OSINT local tooling")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -1917,6 +2319,160 @@ def build_parser() -> argparse.ArgumentParser:
         help="skip archive records during validation",
     )
     lint_parser.set_defaults(func=cmd_lint)
+
+    new_parser = subparsers.add_parser("new", help="create deterministic YAML records")
+    new_subparsers = new_parser.add_subparsers(dest="new_command", required=True)
+
+    source_parser = new_subparsers.add_parser("source", help="create a source record")
+    add_new_common_options(source_parser)
+    source_parser.add_argument("--source-type", required=True)
+    source_parser.add_argument("--title", required=True)
+    source_parser.add_argument("--public-status", required=True, choices=["public", "nonpublic", "unknown"])
+    source_parser.add_argument("--accessed-at", required=True)
+    source_parser.add_argument(
+        "--content-mode",
+        required=True,
+        choices=[
+            "metadata_only",
+            "excerpt",
+            "summary",
+            "redacted_summary",
+            "small_fixture",
+            "external_link",
+        ],
+    )
+    source_parser.add_argument("--publisher")
+    source_parser.add_argument("--url")
+    source_parser.add_argument("--archive-url")
+    source_parser.add_argument("--published-at")
+    source_parser.add_argument("--provenance")
+    source_parser.set_defaults(func=cmd_new_source)
+
+    evidence_parser = new_subparsers.add_parser("evidence", help="create an evidence record")
+    add_new_common_options(evidence_parser)
+    evidence_parser.add_argument(
+        "--evidence-class",
+        required=True,
+        choices=[
+            "public_primary",
+            "public_secondary",
+            "firsthand_public",
+            "firsthand_private",
+            "anonymous_internal",
+            "rumor",
+        ],
+    )
+    evidence_parser.add_argument("--source", required=True)
+    evidence_parser.add_argument("--summary", required=True)
+    evidence_parser.add_argument(
+        "--content-mode",
+        required=True,
+        choices=[
+            "metadata_only",
+            "excerpt",
+            "summary",
+            "redacted_summary",
+            "small_fixture",
+            "external_link",
+        ],
+    )
+    evidence_parser.add_argument("--observed-at", required=True)
+    evidence_parser.add_argument(
+        "--source-attribution",
+        required=True,
+        choices=["named_public", "anonymous_to_public", "unknown"],
+    )
+    evidence_parser.add_argument("--excerpt")
+    evidence_parser.add_argument("--locator", action="append", default=[], help="repeatable key=value")
+    evidence_parser.add_argument("--source-access-json", help="JSON object for source_access")
+    evidence_parser.add_argument("--verification-status")
+    evidence_parser.set_defaults(func=cmd_new_evidence)
+
+    claim_parser = new_subparsers.add_parser("claim", help="create a claim record")
+    add_new_common_options(claim_parser)
+    claim_parser.add_argument("--statement", required=True)
+    claim_parser.add_argument("--subject", required=True)
+    claim_parser.add_argument("--predicate", required=True)
+    claim_parser.add_argument("--object")
+    claim_parser.add_argument(
+        "--support-type",
+        required=True,
+        choices=["direct", "observed", "inferred", "private_attestation", "rumor"],
+    )
+    claim_parser.add_argument("--evidence", action="append", required=True, help="supporting evidence id")
+    claim_parser.add_argument("--qualifier", action="append", default=[], help="repeatable key=value")
+    claim_parser.add_argument("--time-start")
+    claim_parser.add_argument("--time-end")
+    claim_parser.add_argument("--methodology")
+    claim_parser.add_argument("--proposed-predicate-definition")
+    claim_parser.set_defaults(func=cmd_new_claim)
+
+    validation_parser = new_subparsers.add_parser("validation", help="create a validation record")
+    add_new_common_options(validation_parser)
+    validation_parser.add_argument("--target", required=True)
+    validation_parser.add_argument(
+        "--verdict",
+        required=True,
+        choices=[
+            "attests",
+            "supports",
+            "partially_supports",
+            "disputes",
+            "falsifies",
+            "marks_stale",
+            "withdraws",
+        ],
+    )
+    validation_parser.add_argument("--summary", required=True)
+    add_dependency_options(validation_parser)
+    validation_parser.set_defaults(func=cmd_new_validation)
+
+    challenge_parser = new_subparsers.add_parser("challenge", help="create a challenge record")
+    add_new_common_options(challenge_parser)
+    challenge_parser.add_argument("--target", required=True)
+    challenge_parser.add_argument(
+        "--challenge-type",
+        required=True,
+        choices=[
+            "contradiction",
+            "missing_evidence",
+            "source_quality",
+            "scope_error",
+            "outdated",
+            "ontology_issue",
+            "materiality_dispute",
+            "other",
+        ],
+    )
+    challenge_parser.add_argument("--summary", required=True)
+    challenge_parser.add_argument("--addressed-by")
+    challenge_parser.add_argument("--withdrawn-by")
+    challenge_parser.add_argument("--superseded-by")
+    add_dependency_options(challenge_parser)
+    challenge_parser.set_defaults(func=cmd_new_challenge)
+
+    relationship_parser = new_subparsers.add_parser("relationship", help="create a relationship record")
+    add_new_common_options(relationship_parser)
+    relationship_parser.add_argument("--type", required=True)
+    relationship_parser.add_argument(
+        "--participant",
+        action="append",
+        required=True,
+        help="repeatable role=entity:id",
+    )
+    relationship_parser.add_argument("--derived-claim", action="append", default=[])
+    relationship_parser.add_argument("--derived-evidence", action="append", default=[])
+    relationship_parser.add_argument("--scope", action="append", default=[], help="repeatable key=record:id")
+    relationship_parser.add_argument("--qualifier", action="append", default=[])
+    relationship_parser.add_argument("--time-start")
+    relationship_parser.add_argument("--time-end")
+    relationship_parser.add_argument("--materiality-level")
+    relationship_parser.add_argument(
+        "--materiality-basis",
+        choices=["observed", "inferred", "estimated", "unknown"],
+    )
+    relationship_parser.add_argument("--proposed-type-definition")
+    relationship_parser.set_defaults(func=cmd_new_relationship)
 
     index_parser = subparsers.add_parser("index", help="local SQLite index utilities")
     index_subparsers = index_parser.add_subparsers(dest="index_command", required=True)

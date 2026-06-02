@@ -74,3 +74,48 @@ uv run fo graph build          # build .local/graph.json from current repo data
 uv run fo graph neighbors RECORD --json
 uv run fo graph inspect exdev  # find graph records mentioning a string
 ```
+
+## Deterministic Write Helpers
+
+`fo new` creates valid YAML from explicit inputs only. It does not fetch sources,
+summarize documents, infer claims, or decide truth.
+
+```bash
+uv run fo new claim \
+  --statement "EXDEV uses FNDWY for the X1 processor." \
+  --subject entity:company:exdev \
+  --predicate disclosed_relationship \
+  --object entity:company:fndwy \
+  --support-type direct \
+  --evidence evidence:synthetic:exdev-fy2025-supplier-note \
+  --submitted-by github:username \
+  --json
+```
+
+Supported constructors:
+
+```text
+fo new source
+fo new evidence
+fo new claim
+fo new validation
+fo new challenge
+fo new relationship
+```
+
+## Agent Skills
+
+`AGENTS.md` is a small router for humans and agents. Task-specific workflows
+live under `agent-skills/`:
+
+```text
+operate-repo
+add-evidence
+add-claim
+add-relationship
+validate-or-challenge
+write-thesis
+```
+
+These skills teach agents how to use deterministic `fo` commands. They are not
+canonical data and do not create hidden agent state.

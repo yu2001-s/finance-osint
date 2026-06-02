@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import contextlib
 import io
 import shutil
@@ -65,6 +66,23 @@ def run_json_command(func, *args) -> tuple[int, dict]:
     stdout = io.StringIO()
     with contextlib.redirect_stderr(stderr), contextlib.redirect_stdout(stdout):
         status = func(*args, json_output=True)
+    payload = yaml.safe_load(stdout.getvalue())
+    assert isinstance(payload, dict), stderr.getvalue()
+    return status, payload
+
+
+def run_new_json(func, repo: Path, **kwargs) -> tuple[int, dict]:
+    stderr = io.StringIO()
+    stdout = io.StringIO()
+    kwargs.setdefault("id", None)
+    kwargs.setdefault("path", None)
+    kwargs.setdefault("created_at", None)
+    kwargs.setdefault("risk_flag", [])
+    kwargs.setdefault("overwrite", False)
+    kwargs["json"] = True
+    args = argparse.Namespace(**kwargs)
+    with contextlib.redirect_stderr(stderr), contextlib.redirect_stdout(stdout):
+        status = func(repo, args)
     payload = yaml.safe_load(stdout.getvalue())
     assert isinstance(payload, dict), stderr.getvalue()
     return status, payload
@@ -258,6 +276,124 @@ class CliValidationTests(unittest.TestCase):
             "entity:company:exdev",
             {neighbor["id"] for neighbor in neighbors["neighbors"]},
         )
+
+    def test_new_source_evidence_and_claim_helpers_create_valid_yaml(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+
+            status, source = run_new_json(
+                cli.run_new_source,
+                repo,
+                source_type="other",
+                title="Helper Source",
+                public_status="public",
+                accessed_at="2026-06-02T00:00:00Z",
+                content_mode="small_fixture",
+                submitted_by="github:tester",
+                publisher="Finance OSINT tests",
+                url=None,
+                archive_url=None,
+                published_at=None,
+                provenance="Synthetic helper test.",
+            )
+            self.assertEqual(status, 0, source)
+
+            status, evidence = run_new_json(
+                cli.run_new_evidence,
+                repo,
+                evidence_class="public_primary",
+                source=source["id"],
+                summary="Helper evidence states a deterministic supplier relationship.",
+                content_mode="small_fixture",
+                observed_at="2026-06-02T00:00:00Z",
+                submitted_by="github:tester",
+                source_attribution="named_public",
+                excerpt="Helper evidence excerpt.",
+                locator=["section=Helper"],
+                source_access_json=None,
+                verification_status="synthetic_fixture",
+            )
+            self.assertEqual(status, 0, evidence)
+
+            status, claim = run_new_json(
+                cli.run_new_claim,
+                repo,
+                statement="Helper claim says EXDEV uses FNDWY.",
+                subject="entity:company:exdev",
+                predicate="disclosed_relationship",
+                object="entity:company:fndwy",
+                support_type="direct",
+                evidence=[evidence["id"]],
+                qualifier=["component=entity:component:x1-processor"],
+                time_start=None,
+                time_end=None,
+                methodology=None,
+                proposed_predicate_definition=None,
+                submitted_by="github:tester",
+            )
+            self.assertEqual(status, 0, claim)
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 0, output)
+        self.assertEqual(claim["record"]["evidence"], [{"id": evidence["id"]}])
+        self.assertTrue(claim["path"].startswith("claims/generated/"))
+
+    def test_new_claim_helper_rejects_missing_reference(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+
+            status, payload = run_new_json(
+                cli.run_new_claim,
+                repo,
+                statement="Helper claim with missing evidence.",
+                subject="entity:company:exdev",
+                predicate="disclosed_relationship",
+                object="entity:company:fndwy",
+                support_type="direct",
+                evidence=["evidence:test:missing"],
+                qualifier=[],
+                time_start=None,
+                time_end=None,
+                methodology=None,
+                proposed_predicate_definition=None,
+                submitted_by="github:tester",
+            )
+
+        self.assertEqual(status, 1, payload)
+        self.assertFalse(payload["ok"])
+        self.assertIn("references missing id", payload["errors"][0]["message"])
+
+    def test_new_relationship_helper_creates_valid_relationship(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+
+            status, payload = run_new_json(
+                cli.run_new_relationship,
+                repo,
+                type="supplier_relationship",
+                participant=[
+                    "buyer=entity:company:exdev",
+                    "supplier=entity:company:fndwy",
+                ],
+                derived_claim=["claim:synthetic:exdev-uses-fndwy-for-x1"],
+                derived_evidence=["evidence:synthetic:exdev-fy2025-supplier-note"],
+                scope=["product=entity:product:example-phone"],
+                qualifier=[],
+                time_start=None,
+                time_end=None,
+                materiality_level="medium",
+                materiality_basis="inferred",
+                proposed_type_definition=None,
+                submitted_by="github:tester",
+            )
+            self.assertEqual(status, 0, payload)
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 0, output)
+        self.assertEqual(payload["record"]["participants"][0]["role"], "buyer")
+        self.assertTrue(payload["path"].startswith("relationships/generated/"))
 
 
 if __name__ == "__main__":

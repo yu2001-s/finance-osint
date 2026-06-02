@@ -122,3 +122,7 @@ fo context ID --json
 fo review ID --json
 fo graph neighbors ID --json
 ```
+
+`fo new` helpers are deterministic record constructors. They create schema-valid
+YAML from explicit arguments and then rely on the same validators used by CI.
+They should not perform ingestion, summarization, or semantic inference.

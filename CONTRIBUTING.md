@@ -25,6 +25,23 @@ uv run fo graph build
 8. Add theses as the interpretive layer.
 9. Run `uv run fo lint` before opening a PR.
 
+You may use deterministic constructors instead of hand-writing YAML:
+
+```bash
+uv run fo new evidence --help
+uv run fo new claim --help
+uv run fo new relationship --help
+```
+
+These helpers create structure from explicit inputs. They do not infer,
+summarize, ingest sources, or decide truth.
+
+## Agent Workflows
+
+Agents should use `AGENTS.md` as a router and load the smallest relevant
+workflow under `agent-skills/`. Skills are instructions for operating the repo;
+they are not canonical data and do not replace `fo lint --json`.
+
 ## PR Validation
 
 GitHub Actions runs the deterministic local checks on every pull request:
