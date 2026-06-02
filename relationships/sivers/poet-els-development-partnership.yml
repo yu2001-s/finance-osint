@@ -1,0 +1,32 @@
+schema_version: 1
+kind: relationship
+id: relationship:sivers:poet-els-development-partnership
+type: development_partnership
+participants:
+  - role: partner
+    entity: entity:company:sivers-semiconductors
+  - role: partner
+    entity: entity:company:poet-technologies
+  - role: focus
+    entity: entity:architecture:external-laser-source-els
+scope:
+  architecture: entity:architecture:co-packaged-optics
+  product: entity:product:poet-optical-interposer
+  market: entity:market:ai-datacenter-infrastructure
+qualifiers:
+  - strategic
+  - development
+  - pre_production
+  - direct_statement
+materiality:
+  level: medium
+  basis: observed
+derived_from:
+  evidence:
+    - evidence:public:sivers:poet-els-cpo-collaboration
+  claims:
+    - claim:sivers:poet-els-cpo-collaboration
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - development_not_volume_revenue

@@ -1,0 +1,15 @@
+schema_version: 1
+kind: metric_definition
+id: metric_definition:opportunity_pipeline_value
+name: opportunity_pipeline_value
+label: Opportunity Pipeline Value
+description: Management-disclosed sales opportunity pipeline value. This is not backlog unless the source explicitly says so.
+state: registered
+ontology_version: 1
+value_type: monetary
+default_unit: USD
+allowed_units: [USD, SEK, local_currency]
+allowed_value_basis: [reported, derived, estimated, restated]
+required_dimensions: [period]
+optional_dimensions: [segment, product, customer, market]
+source_requirements: [evidence]

@@ -1,0 +1,20 @@
+schema_version: 1
+kind: claim
+id: claim:sivers:dfb-lasers-support-cpo-siph-optical-io
+statement: Sivers positions its high-power DFB laser chips and arrays for pluggable modules, co-packaged optics, silicon photonics, optical I/O, and 800G/1.6T AI/datacom use cases.
+subject: entity:component:sivers-inp-cw-dfb-laser-arrays
+predicate: product_signal
+object: entity:architecture:co-packaged-optics
+qualifiers:
+  architecture_1: entity:architecture:co-packaged-optics
+  architecture_2: entity:architecture:silicon-photonics
+  architecture_3: entity:architecture:external-laser-source-els
+  market: entity:market:ai-datacenter-infrastructure
+  use_case: optical_io_and_800g_1p6t
+support_type: direct
+evidence:
+  - id: evidence:public:sivers:ai-datacom-cpo-optical-io
+  - id: evidence:public:sivers:photonics-product-dfb-lasers
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags: []

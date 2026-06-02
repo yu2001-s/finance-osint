@@ -1,0 +1,19 @@
+schema_version: 1
+kind: metric
+id: metric:sivers:q1-2026-net-sales
+entity: entity:company:sivers-semiconductors
+metric_definition: metric_definition:revenue
+value: 61900000
+unit: SEK
+period:
+  fiscal_year: 2026
+  fiscal_quarter: 1
+  period_type: fiscal_quarter
+value_basis: reported
+evidence:
+  - evidence:public:sivers:q1-2026-revenue-pipeline
+dimensions:
+  segment: total
+reported_at: "2026-05-01T00:00:00Z"
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"

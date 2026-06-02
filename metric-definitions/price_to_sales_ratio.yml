@@ -1,0 +1,15 @@
+schema_version: 1
+kind: metric_definition
+id: metric_definition:price_to_sales_ratio
+name: price_to_sales_ratio
+label: Price to Sales Ratio
+description: Market capitalization or equity price divided by sales, as reported or derived by a market-data source.
+state: registered
+ontology_version: 1
+value_type: ratio
+default_unit: ratio
+allowed_units: [ratio]
+allowed_value_basis: [observed, derived, estimated, restated]
+required_dimensions: [as_of]
+optional_dimensions: [source_methodology]
+source_requirements: [evidence]

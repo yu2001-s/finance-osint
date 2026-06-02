@@ -1,0 +1,20 @@
+schema_version: 1
+kind: claim
+id: claim:sivers:onet-enablence-els-module-uses-lasers
+statement: Sivers, O-Net, and Enablence announced a development-stage ELS module using Sivers laser arrays and Enablence's NxN star coupler for CPO roll-out in AI datacenters and HPC systems.
+subject: entity:product:sivers-onet-enablence-els-module
+predicate: product_signal
+object: entity:component:sivers-inp-cw-dfb-laser-arrays
+qualifiers:
+  partner_1: entity:company:sivers-semiconductors
+  partner_2: entity:company:o-net-technologies
+  partner_3: entity:company:enablence-technologies
+  architecture: entity:architecture:co-packaged-optics
+  market: entity:market:ai-datacenter-infrastructure
+support_type: direct
+evidence:
+  - id: evidence:public:sivers:onet-enablence-els-module
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - development_not_volume_revenue

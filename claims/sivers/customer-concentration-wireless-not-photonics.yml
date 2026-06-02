@@ -1,0 +1,17 @@
+schema_version: 1
+kind: claim
+id: claim:sivers:customer-concentration-wireless-not-photonics
+statement: Sivers' FY2025 annual report says more than 50% of group revenue came from three customers, and those customers were within Wireless, so the disclosed concentration does not prove AI-photonics customer concentration.
+subject: entity:company:sivers-semiconductors
+predicate: market_signal
+object: customer_concentration_not_photonics
+qualifiers:
+  segment: wireless
+  unsupported_segment: photonics
+support_type: direct
+evidence:
+  - id: evidence:public:sivers:fy2025-revenue-customer-concentration
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - customer_concentration_not_photonics

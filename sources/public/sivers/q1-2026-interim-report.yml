@@ -1,0 +1,13 @@
+schema_version: 1
+kind: source
+id: source:public:sivers:q1-2026-interim-report
+source_type: company_report
+title: Sivers Q1 2026 interim report
+publisher: Sivers Semiconductors
+url: https://www.sivers-semiconductors.com/wp-content/uploads/2026/05/Sivers-Interim-report-Q126_FINAL_ENG.pdf
+published_at: "2026-05"
+accessed_at: "2026-06-03T00:00:00Z"
+public_status: public
+source_perspective: company_self
+content_mode: external_link
+provenance: Migrated from local stock-research source page src_sivers_q1_2026.

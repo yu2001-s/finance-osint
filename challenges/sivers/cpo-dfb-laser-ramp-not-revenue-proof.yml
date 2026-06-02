@@ -1,0 +1,36 @@
+schema_version: 1
+kind: challenge
+id: challenge:sivers:cpo-dfb-laser-ramp-not-revenue-proof
+target: thesis:sivers:cpo-dfb-laser-frontier-watch
+submitted_by: github:codex
+challenge_type: materiality_dispute
+summary: The official/product evidence supports Sivers' CPO/SiPh/ELS laser-array exposure and collaborations, but it does not by itself prove signed backlog, Photonics revenue acceleration, product-level gross-margin conversion, sole-source status with Ayar, or valuation support after the May 29, 2026 rerating snapshot.
+depends_on:
+  evidence:
+    - evidence:public:sivers:q1-2026-revenue-pipeline
+    - evidence:public:sivers:fy2025-revenue-customer-concentration
+    - evidence:public:sivers:valuation-20260529
+    - evidence:public:sivers:ayar-1m-development-order
+    - evidence:public:sivers:ayar-hvm-partnership
+  claims:
+    - claim:sivers:pipeline-not-backlog-or-revenue
+    - claim:sivers:customer-concentration-wireless-not-photonics
+    - claim:sivers:valuation-rerated-20260529
+    - claim:sivers:ayar-development-order-2023
+    - claim:sivers:ayar-hvm-partnership
+  relationships:
+    - relationship:sivers:supplier-to-ayar-labs-laser-arrays
+    - relationship:sivers:ayar-hvm-development-partnership
+  theses:
+    - thesis:sivers:cpo-dfb-laser-frontier-watch
+  metrics:
+    - metric:sivers:q1-2026-photonics-net-sales
+    - metric:sivers:q1-2026-opportunity-pipeline
+    - metric:sivers:market-cap-20260529
+    - metric:sivers:price-to-sales-20260529
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - proof_gap
+  - revenue_conversion_unproven
+  - valuation_conversion_unproven
+  - sole_source_unproven

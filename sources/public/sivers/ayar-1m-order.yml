@@ -1,0 +1,13 @@
+schema_version: 1
+kind: source
+id: source:public:sivers:ayar-1m-order
+source_type: press_release
+title: Sivers Photonics receives $1m Ayar Labs order
+publisher: Sivers Semiconductors via Cision
+url: https://news.cision.com/sivers-semiconductors/r/sivers-photonics-receives-new-order-worth--1m-from-ayar-labs-for-light-source-technology-to-support-%2Cc3798686
+published_at: "2023-07"
+accessed_at: "2026-06-03T00:00:00Z"
+public_status: public
+source_perspective: company_self
+content_mode: external_link
+provenance: Migrated from local stock-research source page src_sivers_ayar_order_2023.

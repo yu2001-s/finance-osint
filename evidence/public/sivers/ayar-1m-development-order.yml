@@ -1,0 +1,20 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:sivers:ayar-1m-development-order
+evidence_class: public_primary
+source: source:public:sivers:ayar-1m-order
+summary: Sivers disclosed a $1m Ayar Labs order for development of next-generation laser arrays with commercial terms for volume pricing in anticipation of larger-volume manufacturing.
+content_mode: excerpt
+excerpt: Sivers disclosed a $1m Ayar Labs order in July 2023 for development of next-generation laser arrays, with commercial terms for volume pricing in anticipation of larger-volume manufacturing.
+locator:
+  section: Cision release body
+observed_at: "2023-07-01T00:00:00Z"
+submitted_by: github:codex
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_from_local_stock_research_source_page
+risk_flags:
+  - development_order_not_volume_revenue

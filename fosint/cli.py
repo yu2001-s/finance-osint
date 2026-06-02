@@ -126,7 +126,13 @@ EVIDENCE_INTEGRITY_FIELDS = {
     "source_access",
     "verification_status",
 }
-MUTABLE_WEB_SOURCE_TYPES = {"web_page", "news_article", "research_report"}
+MUTABLE_WEB_SOURCE_TYPES = {
+    "web_page",
+    "news_article",
+    "research_report",
+    "product_page",
+    "market_data_page",
+}
 INDEPENDENT_SOURCE_PERSPECTIVES = {
     "independent_media",
     "independent_research",

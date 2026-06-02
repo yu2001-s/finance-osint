@@ -1,0 +1,15 @@
+schema_version: 1
+kind: metric_definition
+id: metric_definition:market_cap
+name: market_cap
+label: Market Capitalization
+description: Market value of listed equity at an observed point in time.
+state: registered
+ontology_version: 1
+value_type: monetary
+default_unit: USD
+allowed_units: [USD, SEK, local_currency]
+allowed_value_basis: [observed, derived, estimated, restated]
+required_dimensions: [as_of]
+optional_dimensions: [exchange, listing]
+source_requirements: [evidence]

@@ -1,0 +1,12 @@
+schema_version: 1
+kind: source
+id: source:public:poet:sivers-els-cpo-ai-collaboration
+source_type: press_release
+title: POET and Sivers collaborate on ELS for CPO and AI
+publisher: POET Technologies
+url: https://www.poet-technologies.com/news/poet-technologies-and-sivers-semiconductors-collaborate-on-external-light-sources-for-co-packaged-optics-and-next-generation-ai-market
+accessed_at: "2026-06-03T00:00:00Z"
+public_status: public
+source_perspective: counterparty_self
+content_mode: external_link
+provenance: Migrated from local stock-research source page src_poet_sivers_els_2025.

@@ -1,0 +1,21 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:sivers:jabil-1p6t-lro-collaboration
+evidence_class: public_primary
+source: source:public:sivers:jabil-1p6t-lro-collaboration
+summary: Sivers announced that Jabil plans to develop a 1.6T LRO pluggable transceiver module using Sivers high-performance DFB lasers for hyperscale AI data centers.
+content_mode: excerpt
+excerpt: Sivers announced that Jabil plans to develop a 1.6T linear receive optical pluggable transceiver module using Sivers high-performance DFB lasers for next-generation hyperscale AI data centers.
+locator:
+  section: Press release body
+observed_at: "2026-06-03T00:00:00Z"
+submitted_by: github:codex
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_from_local_stock_research_source_page
+risk_flags:
+  - planned_product
+  - not_volume_revenue

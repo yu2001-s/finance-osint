@@ -1,0 +1,21 @@
+schema_version: 1
+kind: claim
+id: claim:sivers:valuation-rerated-20260529
+statement: StockAnalysis showed SIVE at SEK68.95 on May 29, 2026 with market cap SEK20.37B, P/S 59.25, and 52-week price change +1,615.17%, while Sivers remained loss-making with negative free cash flow.
+subject: entity:company:sivers-semiconductors
+predicate: market_signal
+object: valuation_snapshot
+qualifiers:
+  market_cap_metric: metric:sivers:market-cap-20260529
+  price_to_sales_metric: metric:sivers:price-to-sales-20260529
+  share_price_sek: 68.95
+  fifty_two_week_price_change_percent: 1615.17
+support_type: observed
+evidence:
+  - id: evidence:public:sivers:valuation-20260529
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - market_data_snapshot
+  - valuation_rerated
+  - negative_free_cash_flow

@@ -1,0 +1,42 @@
+schema_version: 1
+kind: question
+id: question:sivers:pipeline-to-photonics-revenue-conversion
+question: Do Sivers' CPO/ELS/optical-I/O partnerships convert into signed backlog, named customer concentration, Photonics revenue growth, product-level gross margin, cash flow, and valuation support through 2026-2028?
+entities:
+  - entity:company:sivers-semiconductors
+  - entity:component:sivers-inp-cw-dfb-laser-arrays
+  - entity:architecture:co-packaged-optics
+  - entity:architecture:external-laser-source-els
+  - entity:market:ai-datacenter-infrastructure
+proof_type: pipeline_to_photonics_revenue_conversion
+priority: high
+related_evidence:
+  - evidence:public:sivers:q1-2026-revenue-pipeline
+  - evidence:public:sivers:fy2025-revenue-customer-concentration
+  - evidence:public:sivers:valuation-20260529
+  - evidence:public:sivers:ayar-hvm-partnership
+  - evidence:public:sivers:poet-els-cpo-collaboration
+  - evidence:public:sivers:jabil-1p6t-lro-collaboration
+related_claims:
+  - claim:sivers:pipeline-not-backlog-or-revenue
+  - claim:sivers:customer-concentration-wireless-not-photonics
+  - claim:sivers:valuation-rerated-20260529
+  - claim:sivers:dfb-lasers-support-cpo-siph-optical-io
+related_relationships:
+  - relationship:sivers:supplier-to-ayar-labs-laser-arrays
+  - relationship:sivers:ayar-hvm-development-partnership
+  - relationship:sivers:poet-els-development-partnership
+  - relationship:sivers:jabil-1p6t-lro-uses-dfb-lasers
+related_theses:
+  - thesis:sivers:cpo-dfb-laser-frontier-watch
+next_actions:
+  - Track Sivers quarterly Photonics revenue and gross margin after Q1 2026.
+  - Look for signed backlog, purchase commitments, or named customer concentration tied specifically to Photonics or optical I/O.
+  - Seek independent or counterparty evidence that distinguishes development activity from production revenue.
+  - Recheck valuation metrics after each material company update.
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - proof_gap
+  - pipeline_not_backlog
+  - valuation_rerated

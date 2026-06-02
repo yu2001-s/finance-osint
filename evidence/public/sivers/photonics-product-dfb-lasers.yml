@@ -1,0 +1,19 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:sivers:photonics-product-dfb-lasers
+evidence_class: public_primary
+source: source:public:sivers:photonics-product-page
+summary: Sivers official photonics page describes high-power InP-based DFB laser chips and arrays, including single emitters and arrays on the InP100 product platform.
+content_mode: excerpt
+excerpt: Sivers official pages state that Sivers Photonics provides high-power InP-based DFB laser chips and arrays, including single emitters and arrays on its InP100 product platform.
+locator:
+  section: Photonics product page
+observed_at: "2026-06-03T00:00:00Z"
+submitted_by: github:codex
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_from_local_stock_research_source_page
+risk_flags: []

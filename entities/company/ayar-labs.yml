@@ -1,0 +1,8 @@
+schema_version: 1
+kind: entity
+id: entity:company:ayar-labs
+entity_type: company
+name: Ayar Labs
+description: Optical I/O company referenced in Sivers partnership and development-order disclosures.
+state: active
+created_at: "2026-06-03T00:00:00Z"

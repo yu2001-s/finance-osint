@@ -1,0 +1,20 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:sivers:ayar-hvm-partnership
+evidence_class: public_primary
+source: source:public:sivers:ayar-hvm-partnership
+summary: Sivers and Ayar Labs announced an expanded partnership for high-volume manufacturing of optical I/O solutions for scalable AI infrastructure.
+content_mode: excerpt
+excerpt: Sivers and Ayar Labs announced an expanded partnership for enabling high-volume manufacturing of optical I/O solutions for scalable AI infrastructure.
+locator:
+  section: Press release body
+observed_at: "2026-06-03T00:00:00Z"
+submitted_by: github:codex
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_from_local_stock_research_source_page
+risk_flags:
+  - company_originated_partnership_disclosure

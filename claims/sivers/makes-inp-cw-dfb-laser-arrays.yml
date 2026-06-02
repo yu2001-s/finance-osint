@@ -1,0 +1,16 @@
+schema_version: 1
+kind: claim
+id: claim:sivers:makes-inp-cw-dfb-laser-arrays
+statement: Sivers official photonics pages state that Sivers provides high-power InP-based CW DFB laser chips and arrays, including single emitters and arrays on its InP100 platform.
+subject: entity:company:sivers-semiconductors
+predicate: product_signal
+object: entity:component:sivers-inp-cw-dfb-laser-arrays
+qualifiers:
+  product_platform: InP100
+  component_type: CW DFB laser chips and arrays
+support_type: direct
+evidence:
+  - id: evidence:public:sivers:photonics-product-dfb-lasers
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags: []

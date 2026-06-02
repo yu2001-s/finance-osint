@@ -1,0 +1,21 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:sivers:poet-els-cpo-collaboration
+evidence_class: public_primary
+source: source:public:poet:sivers-els-cpo-ai-collaboration
+summary: POET and Sivers announced a strategic collaboration to develop ELS modules for CPO and next-generation AI infrastructure.
+content_mode: excerpt
+excerpt: POET and Sivers announced a strategic collaboration to develop high-performance, cost-effective ELS modules for CPO and next-generation AI infrastructure, combining Sivers high-power DFB laser technology with POET's Optical Interposer platform.
+locator:
+  section: POET release body
+observed_at: "2026-06-03T00:00:00Z"
+submitted_by: github:codex
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_from_local_stock_research_source_page
+risk_flags:
+  - counterparty_originated_partnership_disclosure
+  - development_not_volume_revenue

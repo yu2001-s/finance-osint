@@ -1,0 +1,45 @@
+schema_version: 1
+kind: relationship_type
+id: development_partnership
+label: Development Partnership
+description: Two or more entities collaborate to develop, qualify, industrialize, or prepare high-volume manufacturing for a product, component, service, technology, architecture, or program.
+state: registered
+ontology_version: 1
+directional: false
+roles:
+  - name: partner
+    required: true
+    min: 2
+    max: null
+    allowed_entity_types: [company]
+    description: Entity participating in the development or industrialization collaboration.
+  - name: focus
+    required: false
+    min: 0
+    max: null
+    allowed_entity_types: [product, component, technology, service, architecture]
+    description: Product, component, technology, service, or architecture targeted by the collaboration.
+allowed_scope:
+  - product
+  - component
+  - technology
+  - architecture
+  - service
+  - market
+  - customer
+  - program
+  - manufacturing_phase
+  - time_window
+allowed_qualifiers:
+  - development
+  - strategic
+  - high_volume_manufacturing
+  - pre_production
+  - production_readiness
+  - direct_statement
+  - inferred
+inverse_type: development_partnership
+inverse_behavior: derive_local
+materiality:
+  allowed_values: [low, medium, high, critical]
+evidence_required: true

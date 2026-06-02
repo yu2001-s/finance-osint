@@ -1,0 +1,30 @@
+schema_version: 1
+kind: relationship
+id: relationship:sivers:supplier-to-ayar-labs-laser-arrays
+type: supplier_relationship
+participants:
+  - role: supplier
+    entity: entity:company:sivers-semiconductors
+  - role: buyer
+    entity: entity:company:ayar-labs
+scope:
+  component: entity:component:sivers-inp-cw-dfb-laser-arrays
+  market: entity:market:ai-datacenter-infrastructure
+qualifiers:
+  - upstream
+  - strategic_supplier
+materiality:
+  level: medium
+  basis: observed
+derived_from:
+  evidence:
+    - evidence:public:sivers:ayar-1m-development-order
+    - evidence:public:sivers:ayar-hvm-partnership
+  claims:
+    - claim:sivers:ayar-development-order-2023
+    - claim:sivers:ayar-hvm-partnership
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - sole_source_unproven
+  - development_order_not_volume_revenue

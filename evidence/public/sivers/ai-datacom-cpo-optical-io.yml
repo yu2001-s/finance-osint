@@ -1,0 +1,19 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:sivers:ai-datacom-cpo-optical-io
+evidence_class: public_primary
+source: source:public:sivers:ai-datacom-page
+summary: Sivers official AI/datacom page positions its DFB lasers for optical interconnect, CPO, optical I/O, and 800G/1.6T use cases.
+content_mode: excerpt
+excerpt: Sivers positions its high-power DFB laser chips and arrays as foundations for pluggable modules, co-packaged optics, and silicon photonics platforms; its AI/datacom page says its DFB arrays address CPO and Optical I/O integration challenges.
+locator:
+  section: Data Communications, AI and Machine Learning page
+observed_at: "2026-06-03T00:00:00Z"
+submitted_by: github:codex
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_from_local_stock_research_source_page
+risk_flags: []

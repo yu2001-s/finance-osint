@@ -1,0 +1,21 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:sivers:fy2025-revenue-customer-concentration
+evidence_class: public_primary
+source: source:public:sivers:fy2025-annual-report
+summary: Sivers FY2025 disclosed SEK306.6m net sales, SEK93.4m Photonics net sales, SEK213.1m Wireless net sales, negative EBITDA, and customer concentration that was within Wireless rather than Photonics.
+content_mode: excerpt
+excerpt: Sivers FY2025 net sales were SEK 306.6m; Photonics net sales were SEK 93.4m and Wireless was SEK 213.1m. FY2025 adjusted EBITDA was SEK -50.3m and EBITDA was SEK -93.4m. The annual report says more than 50% of group revenue came from three customers, and those customers were within Wireless.
+locator:
+  section: FY2025 annual report segment revenue and customer concentration discussion
+observed_at: "2026-05-01T00:00:00Z"
+submitted_by: github:codex
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_from_local_stock_research_source_page
+risk_flags:
+  - customer_concentration_not_photonics
+  - negative_ebitda

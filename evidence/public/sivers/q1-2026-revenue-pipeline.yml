@@ -1,0 +1,22 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:sivers:q1-2026-revenue-pipeline
+evidence_class: public_primary
+source: source:public:sivers:q1-2026-interim-report
+summary: Sivers Q1 2026 disclosed net sales of SEK61.9m, Photonics net sales of SEK17.8m, 77% opportunity-pipeline growth to about $799m, and multiple future ramps, while the pipeline was not disclosed as backlog or revenue.
+content_mode: excerpt
+excerpt: Sivers Q1 2026 net sales were SEK 61.9m, down 22% year over year; Photonics was SEK 17.8m, down 32%. Sivers disclosed 77% opportunity-pipeline growth to $799m and multiple 2027 ramps, but this is pipeline rather than disclosed backlog.
+locator:
+  section: Q1 2026 report financial and pipeline discussion
+observed_at: "2026-05-01T00:00:00Z"
+submitted_by: github:codex
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_from_local_stock_research_source_page
+risk_flags:
+  - pipeline_not_backlog
+  - revenue_decline
+  - forward_looking_ramps

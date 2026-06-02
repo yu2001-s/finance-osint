@@ -1,0 +1,18 @@
+schema_version: 1
+kind: claim
+id: claim:sivers:fy2025-revenue-metrics
+statement: Sivers reported FY2025 net sales of SEK306.6m, including SEK93.4m Photonics net sales and SEK213.1m Wireless net sales.
+subject: entity:company:sivers-semiconductors
+predicate: reported_metric
+object: metric:sivers:fy2025-net-sales
+qualifiers:
+  total_revenue_metric: metric:sivers:fy2025-net-sales
+  photonics_revenue_metric: metric:sivers:fy2025-photonics-net-sales
+  wireless_net_sales_sek: 213100000
+support_type: direct
+evidence:
+  - id: evidence:public:sivers:fy2025-revenue-customer-concentration
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - negative_ebitda

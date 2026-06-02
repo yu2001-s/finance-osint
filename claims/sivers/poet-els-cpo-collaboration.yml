@@ -1,0 +1,20 @@
+schema_version: 1
+kind: claim
+id: claim:sivers:poet-els-cpo-collaboration
+statement: POET and Sivers announced a strategic collaboration to develop external light-source modules for CPO and next-generation AI infrastructure, combining Sivers high-power DFB laser technology with POET's Optical Interposer platform.
+subject: entity:company:sivers-semiconductors
+predicate: disclosed_relationship
+object: entity:company:poet-technologies
+qualifiers:
+  relationship_focus: external_light_source_modules
+  partner: entity:company:poet-technologies
+  architecture: entity:architecture:co-packaged-optics
+  technology: entity:product:poet-optical-interposer
+support_type: direct
+evidence:
+  - id: evidence:public:sivers:poet-els-cpo-collaboration
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - counterparty_originated_partnership_disclosure
+  - development_not_volume_revenue

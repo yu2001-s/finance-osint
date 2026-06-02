@@ -1,0 +1,14 @@
+schema_version: 1
+kind: entity
+id: entity:company:sivers-semiconductors
+entity_type: company
+name: Sivers Semiconductors AB
+aliases:
+  - Sivers
+  - Sivers Semiconductors
+identifiers:
+  ticker: SIVE
+  exchange: Nasdaq Stockholm
+description: Swedish semiconductor company with Wireless and Photonics segments.
+state: active
+created_at: "2026-06-03T00:00:00Z"

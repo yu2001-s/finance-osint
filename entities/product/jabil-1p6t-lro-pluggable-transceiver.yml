@@ -1,0 +1,8 @@
+schema_version: 1
+kind: entity
+id: entity:product:jabil-1p6t-lro-pluggable-transceiver
+entity_type: product
+name: Jabil 1.6T LRO pluggable transceiver module
+description: Planned 1.6T linear receive optical pluggable transceiver module described in a Sivers/Jabil collaboration disclosure.
+state: active
+created_at: "2026-06-03T00:00:00Z"

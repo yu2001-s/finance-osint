@@ -1,0 +1,28 @@
+schema_version: 1
+kind: relationship
+id: relationship:sivers:jabil-1p6t-lro-uses-dfb-lasers
+type: uses_component
+participants:
+  - role: parent
+    entity: entity:product:jabil-1p6t-lro-pluggable-transceiver
+  - role: input
+    entity: entity:component:sivers-inp-cw-dfb-laser-arrays
+scope:
+  product_generation: 1.6T
+  market: entity:market:ai-datacenter-infrastructure
+qualifiers:
+  - direct_statement
+  - required
+materiality:
+  level: medium
+  basis: observed
+derived_from:
+  evidence:
+    - evidence:public:sivers:jabil-1p6t-lro-collaboration
+  claims:
+    - claim:sivers:jabil-1p6t-lro-uses-lasers
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - planned_product
+  - not_volume_revenue

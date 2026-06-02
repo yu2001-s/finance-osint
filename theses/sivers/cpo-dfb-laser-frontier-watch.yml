@@ -1,0 +1,58 @@
+schema_version: 1
+kind: thesis
+id: thesis:sivers:cpo-dfb-laser-frontier-watch
+title: Sivers CPO DFB laser frontier watch
+summary: Sivers has source-backed evidence that it makes high-power InP CW DFB laser arrays positioned for CPO, silicon photonics, external light sources, optical I/O, and 800G/1.6T AI/datacom use cases, with disclosed Ayar, POET, O-Net/Enablence, and Jabil collaborations. The same source pack shows that Q1 2026 Photonics revenue was down, the disclosed $799m pipeline is opportunity pipeline rather than backlog or revenue, customer concentration proof is Wireless rather than Photonics, and SIVE was already highly rerated on market-data metrics by May 29, 2026.
+stance: frontier_watch
+time_horizon: 2026-2028
+depends_on:
+  evidence:
+    - evidence:public:sivers:photonics-product-dfb-lasers
+    - evidence:public:sivers:ai-datacom-cpo-optical-io
+    - evidence:public:sivers:ayar-hvm-partnership
+    - evidence:public:sivers:ayar-1m-development-order
+    - evidence:public:sivers:poet-els-cpo-collaboration
+    - evidence:public:sivers:onet-enablence-els-module
+    - evidence:public:sivers:jabil-1p6t-lro-collaboration
+    - evidence:public:sivers:q1-2026-revenue-pipeline
+    - evidence:public:sivers:fy2025-revenue-customer-concentration
+    - evidence:public:sivers:valuation-20260529
+  claims:
+    - claim:sivers:makes-inp-cw-dfb-laser-arrays
+    - claim:sivers:dfb-lasers-support-cpo-siph-optical-io
+    - claim:sivers:ayar-development-order-2023
+    - claim:sivers:ayar-hvm-partnership
+    - claim:sivers:poet-els-cpo-collaboration
+    - claim:sivers:onet-enablence-els-module-uses-lasers
+    - claim:sivers:jabil-1p6t-lro-uses-lasers
+    - claim:sivers:fy2025-revenue-metrics
+    - claim:sivers:q1-2026-revenue-pipeline-metrics
+    - claim:sivers:pipeline-not-backlog-or-revenue
+    - claim:sivers:customer-concentration-wireless-not-photonics
+    - claim:sivers:valuation-rerated-20260529
+  relationships:
+    - relationship:sivers:manufactures-inp-cw-dfb-laser-arrays
+    - relationship:sivers:dfb-lasers-support-cpo
+    - relationship:sivers:dfb-lasers-support-silicon-photonics
+    - relationship:sivers:dfb-lasers-support-external-light-source
+    - relationship:sivers:supplier-to-ayar-labs-laser-arrays
+    - relationship:sivers:ayar-hvm-development-partnership
+    - relationship:sivers:poet-els-development-partnership
+    - relationship:sivers:onet-enablence-els-module-uses-dfb-lasers
+    - relationship:sivers:jabil-1p6t-lro-uses-dfb-lasers
+  metrics:
+    - metric:sivers:fy2025-net-sales
+    - metric:sivers:fy2025-photonics-net-sales
+    - metric:sivers:q1-2026-net-sales
+    - metric:sivers:q1-2026-photonics-net-sales
+    - metric:sivers:q1-2026-opportunity-pipeline
+    - metric:sivers:market-cap-20260529
+    - metric:sivers:price-to-sales-20260529
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - company_originated_support_heavy
+  - pipeline_not_backlog
+  - revenue_conversion_unproven
+  - valuation_rerated
+  - development_not_volume_revenue

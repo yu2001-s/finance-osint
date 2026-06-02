@@ -1,0 +1,12 @@
+schema_version: 1
+kind: entity
+id: entity:architecture:external-laser-source-els
+entity_type: architecture
+name: External laser source
+aliases:
+  - ELS
+  - External light source
+  - ELSFP
+description: External laser/light-source architecture for optical systems and co-packaged optics.
+state: active
+created_at: "2026-06-03T00:00:00Z"

@@ -1,0 +1,18 @@
+schema_version: 1
+kind: metric
+id: metric:sivers:market-cap-20260529
+entity: entity:company:sivers-semiconductors
+metric_definition: metric_definition:market_cap
+value: 20370000000
+unit: SEK
+period:
+  as_of: "2026-05-29"
+  period_type: point_in_time
+value_basis: observed
+evidence:
+  - evidence:public:sivers:valuation-20260529
+dimensions:
+  exchange: Nasdaq Stockholm
+as_of: "2026-05-29T00:00:00Z"
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"

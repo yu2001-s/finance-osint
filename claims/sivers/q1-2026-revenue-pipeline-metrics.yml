@@ -1,0 +1,19 @@
+schema_version: 1
+kind: claim
+id: claim:sivers:q1-2026-revenue-pipeline-metrics
+statement: Sivers reported Q1 2026 net sales of SEK61.9m, Photonics net sales of SEK17.8m, and opportunity-pipeline value of about $799m.
+subject: entity:company:sivers-semiconductors
+predicate: reported_metric
+object: metric:sivers:q1-2026-net-sales
+qualifiers:
+  total_revenue_metric: metric:sivers:q1-2026-net-sales
+  photonics_revenue_metric: metric:sivers:q1-2026-photonics-net-sales
+  opportunity_pipeline_metric: metric:sivers:q1-2026-opportunity-pipeline
+support_type: direct
+evidence:
+  - id: evidence:public:sivers:q1-2026-revenue-pipeline
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - pipeline_not_backlog
+  - revenue_decline

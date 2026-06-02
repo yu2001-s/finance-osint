@@ -1,0 +1,19 @@
+schema_version: 1
+kind: claim
+id: claim:sivers:ayar-development-order-2023
+statement: Sivers disclosed a $1m Ayar Labs order in July 2023 for development of next-generation laser arrays, with commercial terms for volume pricing in anticipation of larger-volume manufacturing.
+subject: entity:company:sivers-semiconductors
+predicate: transaction_disclosure
+object: entity:company:ayar-labs
+qualifiers:
+  order_value_usd: 1000000
+  order_type: development_order
+  customer: entity:company:ayar-labs
+  product: entity:component:sivers-inp-cw-dfb-laser-arrays
+support_type: direct
+evidence:
+  - id: evidence:public:sivers:ayar-1m-development-order
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - development_order_not_volume_revenue

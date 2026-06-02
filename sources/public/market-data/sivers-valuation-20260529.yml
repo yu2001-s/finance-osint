@@ -1,0 +1,13 @@
+schema_version: 1
+kind: source
+id: source:public:market-data:sivers-valuation-20260529
+source_type: market_data_page
+title: Sivers market cap and valuation metrics on May 29, 2026
+publisher: StockAnalysis.com / S&P Global Market Intelligence
+url: https://stockanalysis.com/quote/sto/SIVE/statistics/
+published_at: "2026-05-29"
+accessed_at: "2026-06-03T00:00:00Z"
+public_status: public
+source_perspective: aggregator
+content_mode: external_link
+provenance: Migrated from local stock-research source page src_stockanalysis_sive_2026_05_29.

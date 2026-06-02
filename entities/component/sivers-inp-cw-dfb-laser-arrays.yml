@@ -1,0 +1,11 @@
+schema_version: 1
+kind: entity
+id: entity:component:sivers-inp-cw-dfb-laser-arrays
+entity_type: component
+name: Sivers InP CW DFB laser chips and arrays
+aliases:
+  - Sivers DFB laser arrays
+  - InP100 DFB laser arrays
+description: High-power InP-based CW DFB laser chips and arrays disclosed by Sivers for optical interconnect, silicon photonics, CPO, and optical I/O use cases.
+state: active
+created_at: "2026-06-03T00:00:00Z"

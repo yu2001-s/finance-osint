@@ -1,0 +1,21 @@
+schema_version: 1
+kind: metric
+id: metric:sivers:q1-2026-opportunity-pipeline
+entity: entity:company:sivers-semiconductors
+metric_definition: metric_definition:opportunity_pipeline_value
+value: 799000000
+unit: USD
+period:
+  fiscal_year: 2026
+  fiscal_quarter: 1
+  period_type: fiscal_quarter
+value_basis: reported
+evidence:
+  - evidence:public:sivers:q1-2026-revenue-pipeline
+dimensions:
+  segment: total
+  limitation: opportunity_pipeline_not_backlog
+reported_at: "2026-05-01T00:00:00Z"
+limitations: Company-disclosed opportunity pipeline is not signed backlog, revenue, or product-level gross-margin proof unless separately evidenced.
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
