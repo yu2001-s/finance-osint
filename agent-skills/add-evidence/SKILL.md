@@ -24,6 +24,7 @@ uv run fo new source \
   --source-type SOURCE_TYPE \
   --title "TITLE" \
   --public-status public \
+  --source-perspective independent_research \
   --accessed-at "YYYY-MM-DDTHH:MM:SSZ" \
   --content-mode external_link \
   --submitted-by github:USERNAME \
@@ -39,6 +40,7 @@ uv run fo new source \
   --source-type web_page \
   --title "TITLE" \
   --public-status public \
+  --source-perspective independent_media \
   --accessed-at "YYYY-MM-DDTHH:MM:SSZ" \
   --content-mode external_link \
   --source-artifact artifacts/sources/source-slug/screenshot-YYYY-MM-DD.png \
@@ -71,6 +73,7 @@ uv run fo lint --json
 Pick evidence fields conservatively:
 
 - `evidence_class`: provenance, not truth.
+- `source_perspective`: source-side perspective, not credibility.
 - `source_attribution`: visible to public repo readers.
 - `content_mode`: how much content is stored.
 - `risk_flags`: required for private, anonymous, rumor, or sensitive evidence.

@@ -14,6 +14,7 @@ depends_on:
     - claim:aaoi:800g-order-20260402
   relationships:
     - relationship:aaoi:manufactures-800g-1p6t-transceiver-ramp
+    - relationship:aaoi:capacity-expansion-for-800g-transceivers
   theses:
     - thesis:aaoi:order-backed-ramp-watch
   metrics:

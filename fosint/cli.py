@@ -127,6 +127,27 @@ EVIDENCE_INTEGRITY_FIELDS = {
     "verification_status",
 }
 MUTABLE_WEB_SOURCE_TYPES = {"web_page", "news_article", "research_report"}
+INDEPENDENT_SOURCE_PERSPECTIVES = {
+    "independent_media",
+    "independent_research",
+    "government_or_regulator",
+    "court_or_legal_record",
+}
+COMPANY_ORIGINATED_SOURCE_PERSPECTIVES = {"company_self", "counterparty_self"}
+OTHER_SOURCE_PERSPECTIVES = {
+    "social_media_author",
+    "firsthand_observer",
+    "anonymous_source",
+    "internal_source",
+    "aggregator",
+    "synthetic_fixture",
+    "unknown",
+}
+SOURCE_PERSPECTIVES = sorted(
+    INDEPENDENT_SOURCE_PERSPECTIVES
+    | COMPANY_ORIGINATED_SOURCE_PERSPECTIVES
+    | OTHER_SOURCE_PERSPECTIVES
+)
 ARTIFACTS_ROOT = Path("artifacts")
 SOURCE_ARTIFACTS_ROOT = Path("artifacts/sources")
 SOURCE_ARTIFACT_SUFFIXES = {".png", ".jpg", ".jpeg", ".pdf"}
@@ -1949,6 +1970,56 @@ def source_id_for_evidence(record_id: str, id_map: dict[str, Record]) -> str | N
     return None
 
 
+def source_perspective_for_source(source_id: str, id_map: dict[str, Record]) -> str:
+    record = id_map.get(source_id)
+    if not record or record.kind != "source":
+        return "unknown"
+    perspective = record.data.get("source_perspective")
+    return str(perspective) if isinstance(perspective, str) and perspective else "unknown"
+
+
+def source_perspective_summary(
+    source_ids: list[str], id_map: dict[str, Record]
+) -> dict[str, Any]:
+    unique_source_ids = sorted(set(source_ids))
+    perspective_by_source = {
+        source_id: source_perspective_for_source(source_id, id_map)
+        for source_id in unique_source_ids
+    }
+    independent_ids = sorted(
+        source_id
+        for source_id, perspective in perspective_by_source.items()
+        if perspective in INDEPENDENT_SOURCE_PERSPECTIVES
+    )
+    company_originated_ids = sorted(
+        source_id
+        for source_id, perspective in perspective_by_source.items()
+        if perspective in COMPANY_ORIGINATED_SOURCE_PERSPECTIVES
+    )
+    unknown_ids = sorted(
+        source_id
+        for source_id, perspective in perspective_by_source.items()
+        if perspective == "unknown"
+    )
+    other_ids = sorted(
+        source_id
+        for source_id in unique_source_ids
+        if source_id not in independent_ids
+        and source_id not in company_originated_ids
+        and source_id not in unknown_ids
+    )
+    return {
+        "source_perspective_counts": sorted_counts(list(perspective_by_source.values())),
+        "source_perspective_by_source": perspective_by_source,
+        "independent_source_count": len(independent_ids),
+        "independent_source_ids": independent_ids,
+        "company_originated_source_count": len(company_originated_ids),
+        "company_originated_source_ids": company_originated_ids,
+        "other_source_ids": other_ids,
+        "unknown_perspective_source_ids": unknown_ids,
+    }
+
+
 def record_stub(record: Record) -> dict[str, Any]:
     return {
         "id": record.id,
@@ -1988,6 +2059,7 @@ def evidence_summary(evidence_ids: list[str], id_map: dict[str, Record]) -> dict
         )
 
     evidence_per_source = sorted_counts(source_ids)
+    perspective_summary = source_perspective_summary(source_ids, id_map)
     low_trust_ids = [
         item["id"] for item in items if item["evidence_class"] in LOW_TRUST_EVIDENCE_CLASSES
     ]
@@ -2006,6 +2078,7 @@ def evidence_summary(evidence_ids: list[str], id_map: dict[str, Record]) -> dict
             "reused_source_ids": sorted(
                 source_id for source_id, count in evidence_per_source.items() if count > 1
             ),
+            **perspective_summary,
         },
         "risk_flags": sorted(set(risk_flags)),
         "items": items,
@@ -2242,6 +2315,7 @@ def scope_summary(
 
 
 def derive_review_state(
+    target_kind: str,
     support_summary: dict[str, Any],
     validation_summary: dict[str, Any],
     challenge_summary: dict[str, Any],
@@ -2258,6 +2332,14 @@ def derive_review_state(
         flags.append("has_low_trust_support")
     if support_summary["private_evidence_ids"]:
         flags.append("has_private_support")
+    source_independence = support_summary["source_independence"]
+    if (
+        target_kind != "evidence"
+        and support_summary["evidence_ids"]
+        and source_independence["company_originated_source_count"]
+        and not source_independence["independent_source_count"]
+    ):
+        flags.append("company_originated_only_support")
     if contradiction["has_contradiction"]:
         flags.append("has_contradiction")
     if scope["has_scope_limitation"]:
@@ -2323,6 +2405,7 @@ def build_review_analysis(
     staleness = staleness_summary(target, support_summary, validation_summary, challenge_summary)
     scope = scope_summary(target, validation_summary, challenge_summary)
     review_state = derive_review_state(
+        target.kind,
         support_summary,
         validation_summary,
         challenge_summary,
@@ -3277,6 +3360,7 @@ def run_new_source(root: Path, args: argparse.Namespace) -> int:
         "source_type": args.source_type,
         "title": args.title,
         "public_status": args.public_status,
+        "source_perspective": getattr(args, "source_perspective", "unknown"),
         "accessed_at": args.accessed_at,
         "content_mode": args.content_mode,
         "submitted_by": args.submitted_by,
@@ -4173,6 +4257,11 @@ def build_parser() -> argparse.ArgumentParser:
     source_parser.add_argument("--source-type", required=True)
     source_parser.add_argument("--title", required=True)
     source_parser.add_argument("--public-status", required=True, choices=["public", "nonpublic", "unknown"])
+    source_parser.add_argument(
+        "--source-perspective",
+        choices=SOURCE_PERSPECTIVES,
+        default="unknown",
+    )
     source_parser.add_argument("--accessed-at", required=True)
     source_parser.add_argument(
         "--content-mode",

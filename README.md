@@ -57,6 +57,9 @@ fo lint
 Evidence is the strict layer. Claims, relationships, theses, validations, and challenges can be contested, but they must preserve their dependency chain.
 
 - Public evidence should be source-backed and reviewable.
+- New sources should declare `source_perspective` so review output can separate
+  company-originated, independent, social, first-hand, anonymous, internal, and
+  fixture sources without changing the underlying evidence.
 - First-hand evidence must declare access, attribution, public status, and risk flags.
 - Anonymous or internal-source reports can be recorded, but remain visibly low-trust unless independently supported.
 - Claims use `support_type` to describe reasoning distance from evidence.
@@ -82,7 +85,7 @@ uv run fo graph inspect exdev  # find graph records mentioning a string
 
 `fo review` is the deterministic truth-surface command. It does not decide
 truth. It derives a local label and supporting details from evidence classes,
-source independence, validation dependency paths, open challenges,
+source independence and source perspective, validation dependency paths, open challenges,
 contradictions, supersession, stale markers, and low-trust/private evidence.
 
 `fo diff-review BASE` compares the current working tree against a Git base ref
@@ -96,6 +99,22 @@ records that share deterministic signatures such as entity identifiers, source
 URLs, evidence locators, claim structure, or relationship structure. These do
 not fail lint; contributors should either clarify the distinction or merge and
 archive one record with `duplicate_of` or `superseded_by`.
+
+## Supply-Chain Ontology
+
+Prefer precise relationship types when the evidence supports them. The initial
+supply-chain set includes:
+
+- `supplier_relationship` / `customer_relationship`: broad buyer-seller edges.
+- `qualified_supplier`: supplier approval or qualification by a buyer/OEM.
+- `design_win`: designed-in product, component, technology, or service.
+- `capacity_expansion_for`: capacity tied to output, market, customer, or time window.
+- `uses_component`: product/architecture/component composition or dependency.
+- `substitutes_for`: functional or economic substitution.
+- `manufacturing_partner`: foundry, contract manufacturing, assembly, packaging, or test.
+
+Use broad relationship types only when the source does not support a narrower
+edge. Use `provisional:` for genuinely new relationship semantics.
 
 ## Source Preservation
 

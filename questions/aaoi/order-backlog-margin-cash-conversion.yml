@@ -17,6 +17,7 @@ related_claims:
   - claim:aaoi:800g-order-20260402
 related_relationships:
   - relationship:aaoi:manufactures-800g-1p6t-transceiver-ramp
+  - relationship:aaoi:capacity-expansion-for-800g-transceivers
 related_theses:
   - thesis:aaoi:order-backed-ramp-watch
 next_actions:

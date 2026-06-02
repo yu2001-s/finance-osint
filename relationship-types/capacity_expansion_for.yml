@@ -1,0 +1,54 @@
+schema_version: 1
+kind: relationship_type
+id: capacity_expansion_for
+label: Capacity Expansion For
+description: An entity is adding, ramping, qualifying, or reserving capacity tied to an output product, component, service, technology, customer, market, or geography.
+state: registered
+ontology_version: 1
+directional: true
+roles:
+  - name: operator
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types: [company]
+    description: Entity operating or controlling the capacity.
+  - name: capacity_asset
+    required: false
+    min: 0
+    max: 1
+    allowed_entity_types: [facility, product, component, technology, service, manufacturing_process]
+    description: Facility, line, process, product family, component family, technology, or service capacity being expanded.
+  - name: output
+    required: false
+    min: 0
+    max: 1
+    allowed_entity_types: [product, component, technology, service]
+    description: Output that the capacity is expected to produce or support.
+allowed_scope:
+  - product
+  - component
+  - technology
+  - service
+  - customer
+  - market
+  - geography
+  - facility
+  - manufacturing_process
+  - time_window
+allowed_qualifiers:
+  - announced
+  - under_construction
+  - installed
+  - qualified
+  - ramping
+  - volume_ready
+  - expected
+  - reserved
+  - direct_statement
+  - inferred
+inverse_type: null
+inverse_behavior: none
+materiality:
+  allowed_values: [low, medium, high, critical]
+evidence_required: true

@@ -159,6 +159,27 @@ Use `source_type: social_media_post` for public posts. The post directly
 supports attribution claims about what the account said; underlying company
 facts need separate source-backed evidence.
 
+`source_perspective` is recommended for new sources:
+
+```text
+company_self
+counterparty_self
+independent_media
+independent_research
+government_or_regulator
+court_or_legal_record
+social_media_author
+firsthand_observer
+anonymous_source
+internal_source
+aggregator
+synthetic_fixture
+unknown
+```
+
+This is provenance metadata only. It lets deterministic review output separate
+company-originated support from independent support without storing truth status.
+
 Mutable web-like source types:
 
 ```text
@@ -373,6 +394,12 @@ unreviewed
 Validations are not votes. Derived review state should de-duplicate repeated
 reviews that rely on the same evidence path and should prefer source
 independence over volume.
+
+Review summaries include source perspective buckets, including
+`independent_source_count`, `company_originated_source_count`,
+`source_perspective_counts`, and source IDs in each bucket. When support exists
+only through company/counterparty-originated sources and no independent source,
+review flags include `company_originated_only_support`.
 
 Example:
 

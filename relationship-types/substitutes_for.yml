@@ -1,0 +1,43 @@
+schema_version: 1
+kind: relationship_type
+id: substitutes_for
+label: Substitutes For
+description: Two products, components, technologies, services, commodities, or manufacturing processes can substitute for each other within a stated scope.
+state: registered
+ontology_version: 1
+directional: false
+roles:
+  - name: substitute_a
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types: [product, component, technology, service, commodity, manufacturing_process]
+    description: One substitute candidate.
+  - name: substitute_b
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types: [product, component, technology, service, commodity, manufacturing_process]
+    description: Another substitute candidate.
+allowed_scope:
+  - product
+  - component
+  - architecture
+  - market
+  - customer
+  - geography
+  - performance_class
+allowed_qualifiers:
+  - functional_substitute
+  - economic_substitute
+  - partial_substitute
+  - drop_in
+  - non_drop_in
+  - emerging
+  - direct_statement
+  - inferred
+inverse_type: substitutes_for
+inverse_behavior: derive_local
+materiality:
+  allowed_values: [low, medium, high, critical]
+evidence_required: true

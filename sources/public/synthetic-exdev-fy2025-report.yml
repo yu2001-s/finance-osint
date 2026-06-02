@@ -7,6 +7,7 @@ publisher: Finance OSINT scaffold
 published_at: "2026-06-02"
 accessed_at: "2026-06-02T00:00:00Z"
 public_status: public
+source_perspective: synthetic_fixture
 content_mode: small_fixture
 provenance: Synthetic fixture for validating the repo data model.
 risk_flags:

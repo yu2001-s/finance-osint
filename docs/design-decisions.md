@@ -159,6 +159,7 @@ Derived review state must not be vote-counting. Multiple validations do not crea
 ```text
 evidence class
 source independence
+source_perspective
 support_type
 validations
 challenges
@@ -169,6 +170,12 @@ time freshness
 ```
 
 The first review algorithm can be simple, but it must be deterministic and documented before public launch.
+
+Source perspective is provenance metadata, not credibility. It lets tools expose
+whether support is company-originated, counterparty-originated, independent,
+first-hand/social, anonymous/internal, synthetic, or unknown. A derived flag such
+as `company_originated_only_support` is allowed when support exists but has no
+independent source path.
 
 ### Support Type
 
@@ -459,7 +466,11 @@ participants:
     entity: entity:market:C
 ```
 
-Use broad registered types plus rich scope instead of many one-off specific types.
+Use the narrowest registered type the evidence supports. For supply-chain work,
+important registered types include `qualified_supplier`, `design_win`,
+`capacity_expansion_for`, `uses_component`, `substitutes_for`, and
+`manufacturing_partner`. Use broad registered types plus rich scope when the
+source only supports a broad edge.
 
 Inverse relationships should usually be derived locally, not duplicated in canonical records.
 

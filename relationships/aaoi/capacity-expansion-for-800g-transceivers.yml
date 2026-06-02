@@ -1,0 +1,25 @@
+schema_version: 1
+kind: relationship
+id: relationship:aaoi:capacity-expansion-for-800g-transceivers
+type: capacity_expansion_for
+participants:
+  - role: operator
+    entity: entity:company:applied-optoelectronics
+  - role: output
+    entity: entity:product:aaoi-800g-1p6t-datacenter-transceiver-ramp
+scope:
+  market: entity:market:ai-datacenter-infrastructure
+  time_window: exiting_q1_2026
+qualifiers:
+  - volume_ready
+  - direct_statement
+materiality:
+  level: high
+  basis: observed
+derived_from:
+  evidence:
+    - evidence:public:aaoi:q1-2026-revenue-datacenter-capacity
+  claims:
+    - claim:aaoi:q1-2026-800g-volume-ramp
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"

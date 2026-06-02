@@ -7,8 +7,8 @@ publisher: Example corpus
 published_at: "2026-03-15"
 accessed_at: "2026-06-03T00:00:00Z"
 public_status: public
+source_perspective: company_self
 content_mode: small_fixture
 provenance: Fictional public primary source for the supplier-risk example corpus.
 risk_flags:
   - example_fixture
-

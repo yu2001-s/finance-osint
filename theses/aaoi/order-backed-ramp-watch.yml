@@ -18,6 +18,7 @@ depends_on:
     - claim:aaoi:400mw-laser-cpo-siph-product-fit
   relationships:
     - relationship:aaoi:manufactures-800g-1p6t-transceiver-ramp
+    - relationship:aaoi:capacity-expansion-for-800g-transceivers
     - relationship:aaoi:manufactures-400mw-pump-laser
     - relationship:aaoi:400mw-laser-supports-cpo
     - relationship:aaoi:400mw-laser-supports-silicon-photonics

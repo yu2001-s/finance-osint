@@ -75,6 +75,21 @@ Thesis
 
 Registered relationship types live in `relationship-types/`.
 
+For supply-chain research, prefer precise relationship types when evidence
+supports them:
+
+- `supplier_relationship` / `customer_relationship`: broad buyer-seller edges.
+- `qualified_supplier`: supplier approval or qualification.
+- `design_win`: designed-in product, component, technology, or service.
+- `capacity_expansion_for`: capacity tied to output, market, customer, or time window.
+- `uses_component`: composition or product/architecture dependency.
+- `substitutes_for`: functional or economic substitution.
+- `manufacturing_partner`: foundry, contract manufacturing, assembly, packaging, or test.
+
+Use broad relationship types when the source only supports a broad edge. Do not
+turn a broad supplier mention into qualification, design-in, or capacity linkage
+without evidence for that narrower relationship.
+
 If the graph needs a new type, contributors may use a provisional type:
 
 ```yaml
@@ -112,6 +127,10 @@ describe reasoning distance from the evidence.
 First-hand, private, anonymous, and rumor evidence should declare
 `source_attribution`, `source_access`, and `risk_flags` so readers and agents can
 filter or discount it locally.
+
+Sources may also declare `source_perspective`. This is provenance metadata, not
+truth status. Review output uses it to expose whether support is company-originated,
+independent, first-hand/social, anonymous/internal, synthetic, or unknown.
 
 ## Source Preservation
 

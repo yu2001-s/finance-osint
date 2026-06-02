@@ -20,6 +20,8 @@
         "market",
         "geography",
         "architecture",
+        "facility",
+        "manufacturing_process",
         "commodity",
         "technology",
         "regulation",

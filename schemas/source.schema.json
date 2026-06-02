@@ -44,6 +44,24 @@
     "published_at": { "type": "string" },
     "accessed_at": { "type": "string" },
     "public_status": { "type": "string", "enum": ["public", "nonpublic", "unknown"] },
+    "source_perspective": {
+      "type": "string",
+      "enum": [
+        "company_self",
+        "counterparty_self",
+        "independent_media",
+        "independent_research",
+        "government_or_regulator",
+        "court_or_legal_record",
+        "social_media_author",
+        "firsthand_observer",
+        "anonymous_source",
+        "internal_source",
+        "aggregator",
+        "synthetic_fixture",
+        "unknown"
+      ]
+    },
     "content_mode": {
       "type": "string",
       "enum": [

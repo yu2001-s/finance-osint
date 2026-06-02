@@ -1,0 +1,43 @@
+schema_version: 1
+kind: relationship_type
+id: uses_component
+label: Uses Component
+description: A product, component, architecture, or technology uses another component, product, technology, service, commodity, or manufacturing process.
+state: registered
+ontology_version: 1
+directional: true
+roles:
+  - name: parent
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types: [product, component, architecture, technology]
+    description: Product, component, architecture, or technology that uses the input.
+  - name: input
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types: [component, product, technology, service, commodity, manufacturing_process]
+    description: Component, product, technology, service, commodity, or process used by the parent.
+allowed_scope:
+  - product
+  - product_generation
+  - component
+  - architecture
+  - market
+  - geography
+  - version
+allowed_qualifiers:
+  - bill_of_material
+  - teardown_observed
+  - direct_statement
+  - inferred
+  - optional
+  - required
+  - single_source
+  - multi_source
+inverse_type: null
+inverse_behavior: none
+materiality:
+  allowed_values: [low, medium, high, critical]
+evidence_required: true

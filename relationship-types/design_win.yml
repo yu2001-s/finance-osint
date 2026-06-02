@@ -1,0 +1,56 @@
+schema_version: 1
+kind: relationship_type
+id: design_win
+label: Design Win
+description: A product, component, technology, service, or supplier has been designed into a customer product, platform, architecture, or program.
+state: registered
+ontology_version: 1
+directional: true
+roles:
+  - name: provider
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types: [company]
+    description: Entity receiving or associated with the design win.
+  - name: designed_item
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types: [product, component, technology, service]
+    description: Product, component, technology, or service designed into the target.
+  - name: customer
+    required: false
+    min: 0
+    max: 1
+    allowed_entity_types: [company]
+    description: Customer or platform owner, when known.
+  - name: target
+    required: false
+    min: 0
+    max: 1
+    allowed_entity_types: [product, component, architecture, technology]
+    description: Product, component, architecture, technology, or platform receiving the designed item.
+allowed_scope:
+  - product
+  - component
+  - architecture
+  - platform
+  - program
+  - market
+  - geography
+  - generation
+allowed_qualifiers:
+  - awarded
+  - sampled
+  - qualified
+  - in_production
+  - named_customer
+  - unnamed_customer
+  - direct_statement
+  - inferred
+inverse_type: null
+inverse_behavior: none
+materiality:
+  allowed_values: [low, medium, high, critical]
+evidence_required: true

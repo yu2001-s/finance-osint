@@ -554,6 +554,12 @@ class CliValidationTests(unittest.TestCase):
                 review["support_summary"]["source_independence"]["unique_source_count"],
                 1,
             )
+            self.assertEqual(
+                review["support_summary"]["source_independence"][
+                    "source_perspective_counts"
+                ],
+                {"synthetic_fixture": 1},
+            )
 
             status, neighbors = run_json_command(
                 cli.run_graph_neighbors,
@@ -566,6 +572,27 @@ class CliValidationTests(unittest.TestCase):
             "entity:company:exdev",
             {neighbor["id"] for neighbor in neighbors["neighbors"]},
         )
+
+    def test_review_surfaces_company_originated_only_support(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            status, build_payload = run_json_command(cli.run_index_build, repo)
+            self.assertEqual(status, 0, build_payload)
+
+            status, review = run_json_command(
+                cli.run_review,
+                repo,
+                "thesis:aaoi:order-backed-ramp-watch",
+            )
+
+        self.assertEqual(status, 0, review)
+        self.assertEqual(review["review_state"]["primary_label"], "contested")
+        self.assertIn("company_originated_only_support", review["review_state"]["flags"])
+        source_summary = review["support_summary"]["source_independence"]
+        self.assertEqual(source_summary["unique_source_count"], 3)
+        self.assertEqual(source_summary["company_originated_source_count"], 3)
+        self.assertEqual(source_summary["independent_source_count"], 0)
+        self.assertEqual(source_summary["source_perspective_counts"], {"company_self": 3})
 
     def test_review_deduplicates_validation_paths_and_counts_independent_sources(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -581,6 +608,7 @@ class CliValidationTests(unittest.TestCase):
                     "public_status": "public",
                     "accessed_at": "2026-06-02T00:00:00Z",
                     "content_mode": "small_fixture",
+                    "source_perspective": "independent_research",
                     "risk_flags": ["synthetic_fixture"],
                 },
             )
@@ -656,6 +684,10 @@ class CliValidationTests(unittest.TestCase):
         self.assertEqual(
             review["support_summary"]["evidence_class_counts"],
             {"public_primary": 1, "public_secondary": 1},
+        )
+        self.assertEqual(
+            review["support_summary"]["source_independence"]["independent_source_count"],
+            1,
         )
 
     def test_review_derives_stale_from_explicit_validation(self) -> None:
@@ -889,6 +921,7 @@ class CliValidationTests(unittest.TestCase):
                 source_type="other",
                 title="Helper Source",
                 public_status="public",
+                source_perspective="independent_research",
                 accessed_at="2026-06-02T00:00:00Z",
                 content_mode="small_fixture",
                 submitted_by="github:tester",
@@ -938,6 +971,7 @@ class CliValidationTests(unittest.TestCase):
             status, output = run_lint(repo)
 
         self.assertEqual(status, 0, output)
+        self.assertEqual(source["record"]["source_perspective"], "independent_research")
         self.assertEqual(claim["record"]["evidence"], [{"id": evidence["id"]}])
         self.assertTrue(claim["path"].startswith("claims/generated/"))
 
@@ -954,6 +988,7 @@ class CliValidationTests(unittest.TestCase):
                 source_type="web_page",
                 title="Helper Source With Artifact",
                 public_status="public",
+                source_perspective="independent_media",
                 accessed_at="2026-06-03T00:00:00Z",
                 content_mode="external_link",
                 submitted_by="github:tester",

@@ -8,6 +8,7 @@ url: https://www.sec.gov/Archives/edgar/data/1158114/000168316826003562/aaoi_ex9
 published_at: "2026-05-07"
 accessed_at: "2026-06-03T00:00:00Z"
 public_status: public
+source_perspective: company_self
 content_mode: external_link
 provenance: Verified from SEC EDGAR exhibit 99.1 for Applied Optoelectronics.
 accession_number: "0001683168-26-003562"
