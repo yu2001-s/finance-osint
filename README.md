@@ -89,6 +89,12 @@ mutations, reference impact, derived review-state movement, graph edge changes,
 ontology changes, and deterministic warnings. Warnings are review pressure;
 schema/reference failures are hard errors.
 
+`fo lint` also emits advisory `possible_duplicate_*` warnings for current
+records that share deterministic signatures such as entity identifiers, source
+URLs, evidence locators, claim structure, or relationship structure. These do
+not fail lint; contributors should either clarify the distinction or merge and
+archive one record with `duplicate_of` or `superseded_by`.
+
 ## Source Preservation
 
 Mutable web-like sources should not rely on `url` alone. Prefer `archive_url`.

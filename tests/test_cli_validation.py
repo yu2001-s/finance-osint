@@ -323,6 +323,80 @@ class CliValidationTests(unittest.TestCase):
         self.assertIn("source_artifacts", output)
         self.assertIn("artifacts/sources", output)
 
+    def test_lint_warns_for_possible_current_duplicates(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+
+            entity = load_yaml(repo / "entities" / "company" / "exdev.yml")
+            entity["id"] = "entity:company:exdev-alt"
+            entity["name"] = "Synthetic Example Devices Alternate"
+            write_yaml(repo / "entities" / "company" / "exdev-alt.yml", entity)
+
+            source = load_yaml(
+                repo / "sources" / "public" / "synthetic-exdev-fy2025-report.yml"
+            )
+            source["url"] = "https://example.test/reports/exdev-fy2025"
+            write_yaml(repo / "sources" / "public" / "synthetic-exdev-fy2025-report.yml", source)
+            source["id"] = "source:public:synthetic:exdev-fy2025-report-alt"
+            source["title"] = "Synthetic Example Devices FY2025 Report Alternate"
+            write_yaml(
+                repo / "sources" / "public" / "synthetic-exdev-fy2025-report-alt.yml",
+                source,
+            )
+
+            evidence = load_yaml(
+                repo / "evidence" / "public" / "synthetic-exdev-fy2025-supplier-note.yml"
+            )
+            evidence["id"] = "evidence:synthetic:exdev-fy2025-supplier-note-alt"
+            write_yaml(
+                repo / "evidence" / "public" / "synthetic-exdev-fy2025-supplier-note-alt.yml",
+                evidence,
+            )
+
+            claim = load_yaml(repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml")
+            claim["id"] = "claim:synthetic:exdev-uses-fndwy-for-x1-alt"
+            write_yaml(repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1-alt.yml", claim)
+
+            relationship = load_yaml(
+                repo / "relationships" / "synthetic-exdev-fndwy-x1-supply.yml"
+            )
+            relationship["id"] = "relationship:synthetic:exdev-fndwy-x1-supply-alt"
+            write_yaml(
+                repo / "relationships" / "synthetic-exdev-fndwy-x1-supply-alt.yml",
+                relationship,
+            )
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        warning_codes = {warning["code"] for warning in payload["warnings"]}
+        self.assertIn("possible_duplicate_entity_identifier", warning_codes)
+        self.assertIn("possible_duplicate_source_url", warning_codes)
+        self.assertIn("possible_duplicate_evidence_locator", warning_codes)
+        self.assertIn("possible_duplicate_claim_core", warning_codes)
+        self.assertIn("possible_duplicate_relationship_core", warning_codes)
+        entity_warning = next(
+            warning
+            for warning in payload["warnings"]
+            if warning["code"] == "possible_duplicate_entity_identifier"
+        )
+        self.assertEqual(entity_warning["record_id"], "entity:company:exdev")
+        self.assertEqual(entity_warning["related_ids"], ["entity:company:exdev-alt"])
+
+    def test_lint_duplicate_detection_ignores_archive_records(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            claim = load_yaml(repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml")
+            claim["id"] = "claim:synthetic:archived-duplicate"
+            claim["duplicate_of"] = "claim:synthetic:exdev-uses-fndwy-for-x1"
+            write_yaml(repo / "archive" / "claims" / "archived-duplicate.yml", claim)
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        warning_codes = {warning["code"] for warning in payload["warnings"]}
+        self.assertNotIn("possible_duplicate_claim_core", warning_codes)
+
     def test_archive_record_requires_reason_or_replacement(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))

@@ -590,6 +590,11 @@ JSON result envelope:
 }
 ```
 
+Warnings are advisory review pressure and do not set `ok` to false. Duplicate
+warnings use `possible_duplicate_*` codes and include the first canonical
+`record_id` plus sorted `related_ids`; archive records are excluded from this
+duplicate pass.
+
 Error shape:
 
 ```json

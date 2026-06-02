@@ -185,6 +185,14 @@ shows reference and graph impact, reports before/after derived review-state
 movement, and highlights ontology changes. It uses Git only as the versioned
 transport; the interpretation is based on OSINT records and graph structure.
 
+`fo lint` emits advisory duplicate warnings for current records. It checks stable
+deterministic signatures: entity names and key identifiers, source URLs and
+hashes, evidence source plus locator/excerpt, claim subject/predicate/object
+plus scope/evidence, and relationship type/participants/scope/time. Archived
+records are ignored for duplicate warnings. Duplicate warnings do not fail lint;
+contributors should clarify distinct records or archive/merge duplicates with
+`duplicate_of` or `superseded_by`.
+
 `fo new` helpers are deterministic record constructors. They create schema-valid
 YAML from explicit arguments and then rely on the same validators used by CI.
 They should not perform ingestion, summarization, or semantic inference.

@@ -137,6 +137,12 @@ CURRENT_TO_ARCHIVE_ALLOWED_FIELDS = {
     "broadens",
     "contradicts",
 }
+DUPLICATE_ENTITY_IDENTIFIER_KEYS = ("cik", "lei", "isin", "figi", "ticker")
+DUPLICATE_WARNING_HINT = (
+    "If duplicate, keep one canonical record and move obsolete records under archive/ "
+    "with duplicate_of or superseded_by. If distinct, add clarifying fields such as "
+    "exchange, period, scope, locator, or methodology."
+)
 
 
 @dataclass(frozen=True)
@@ -815,6 +821,244 @@ def preservation_policy_warnings(root: Path, records: list[Record]) -> list[dict
             )
         )
     return warnings
+
+
+def normalize_duplicate_text(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, (str, int, float, bool)):
+        text = str(value)
+    else:
+        text = json_dumps(value)
+    return re.sub(r"\s+", " ", text.strip().lower())
+
+
+def normalize_duplicate_name(value: Any) -> str:
+    text = normalize_duplicate_text(value)
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def normalize_duplicate_url(value: Any) -> str:
+    text = normalize_duplicate_text(value)
+    if not text:
+        return ""
+    text = re.sub(r"#.*$", "", text)
+    return text.rstrip("/")
+
+
+def duplicate_scalar_values(value: Any) -> list[str]:
+    if isinstance(value, list):
+        texts = [
+            normalize_duplicate_text(item)
+            for item in value
+            if isinstance(item, (str, int, float, bool))
+        ]
+        return sorted({text for text in texts if text})
+    text = normalize_duplicate_text(value)
+    return [text] if text else []
+
+
+def duplicate_resolved(record: Record) -> bool:
+    state = record.data.get("state")
+    return bool(
+        record.data.get("duplicate_of")
+        or record.data.get("superseded_by")
+        or record.data.get("withdrawn_by")
+        or state in {"merged", "retired"}
+    )
+
+
+def add_duplicate_signature(
+    groups: dict[tuple[str, ...], list[Record]],
+    record: Record,
+    code: str,
+    message: str,
+    signature: tuple[str, ...],
+) -> None:
+    if not record.id or not signature or any(part == "" for part in signature):
+        return
+    groups.setdefault((code, message, *signature), []).append(record)
+
+
+def add_entity_duplicate_signatures(
+    groups: dict[tuple[str, ...], list[Record]], record: Record
+) -> None:
+    entity_type = normalize_duplicate_text(record.data.get("entity_type"))
+    name = normalize_duplicate_name(record.data.get("name"))
+    if entity_type and name:
+        add_duplicate_signature(
+            groups,
+            record,
+            "possible_duplicate_entity_name",
+            "Possible duplicate entity: same normalized name and entity_type.",
+            (entity_type, name),
+        )
+
+    identifiers = record.data.get("identifiers", {})
+    if not isinstance(identifiers, dict):
+        return
+    for key in DUPLICATE_ENTITY_IDENTIFIER_KEYS:
+        for value in duplicate_scalar_values(identifiers.get(key)):
+            add_duplicate_signature(
+                groups,
+                record,
+                "possible_duplicate_entity_identifier",
+                f"Possible duplicate entity: same {key} and entity_type.",
+                (entity_type, key, value),
+            )
+
+
+def add_source_duplicate_signatures(
+    groups: dict[tuple[str, ...], list[Record]], record: Record
+) -> None:
+    source_fields = (
+        ("url", "possible_duplicate_source_url", "Possible duplicate source: same URL."),
+        (
+            "archive_url",
+            "possible_duplicate_source_archive_url",
+            "Possible duplicate source: same archive_url.",
+        ),
+        (
+            "accession_number",
+            "possible_duplicate_source_accession",
+            "Possible duplicate source: same accession_number.",
+        ),
+        (
+            "content_hash",
+            "possible_duplicate_source_content_hash",
+            "Possible duplicate source: same content_hash.",
+        ),
+    )
+    for field, code, message in source_fields:
+        values = duplicate_scalar_values(record.data.get(field))
+        if field in {"url", "archive_url"}:
+            values = [normalize_duplicate_url(value) for value in values]
+        for value in values:
+            if value:
+                add_duplicate_signature(groups, record, code, message, (field, value))
+
+
+def add_evidence_duplicate_signatures(
+    groups: dict[tuple[str, ...], list[Record]], record: Record
+) -> None:
+    source = normalize_duplicate_text(record.data.get("source"))
+    locator = record.data.get("locator")
+    if source and isinstance(locator, dict) and locator:
+        add_duplicate_signature(
+            groups,
+            record,
+            "possible_duplicate_evidence_locator",
+            "Possible duplicate evidence: same source and locator.",
+            (source, json_dumps(locator)),
+        )
+
+    excerpt = normalize_duplicate_text(record.data.get("excerpt"))
+    if source and len(excerpt) >= 20:
+        add_duplicate_signature(
+            groups,
+            record,
+            "possible_duplicate_evidence_excerpt",
+            "Possible duplicate evidence: same source and normalized excerpt.",
+            (source, excerpt),
+        )
+
+
+def add_claim_duplicate_signatures(
+    groups: dict[tuple[str, ...], list[Record]], record: Record
+) -> None:
+    subject = normalize_duplicate_text(record.data.get("subject"))
+    predicate = normalize_duplicate_text(record.data.get("predicate"))
+    evidence_signature = "\x1f".join(sorted(set(evidence_ids_for_claim(record))))
+    add_duplicate_signature(
+        groups,
+        record,
+        "possible_duplicate_claim_core",
+        "Possible duplicate claim: same subject, predicate, object, scope, and evidence set.",
+        (
+            subject,
+            predicate,
+            json_dumps(record.data.get("object")),
+            json_dumps(record.data.get("qualifiers", {})),
+            json_dumps(record.data.get("time_scope", {})),
+            json_dumps(record.data.get("period", {})),
+            json_dumps(record.data.get("as_of")),
+            evidence_signature,
+        ),
+    )
+
+    statement = normalize_duplicate_name(record.data.get("statement"))
+    if statement:
+        add_duplicate_signature(
+            groups,
+            record,
+            "possible_duplicate_claim_statement",
+            "Possible duplicate claim: same normalized statement.",
+            (statement,),
+        )
+
+
+def add_relationship_duplicate_signatures(
+    groups: dict[tuple[str, ...], list[Record]], record: Record
+) -> None:
+    participants = "\x1f".join(
+        f"{role}={entity_id}" for role, entity_id in sorted(relationship_participant_items(record))
+    )
+    add_duplicate_signature(
+        groups,
+        record,
+        "possible_duplicate_relationship_core",
+        "Possible duplicate relationship: same type, participants, scope, direction, and time.",
+        (
+            normalize_duplicate_text(record.data.get("type")),
+            participants,
+            json_dumps(record.data.get("scope", {})),
+            json_dumps(record.data.get("direction", {})),
+            json_dumps(record.data.get("time_scope", {})),
+            json_dumps(record.data.get("effective_at")),
+        ),
+    )
+
+
+def duplicate_detection_warnings(root: Path, records: list[Record]) -> list[dict[str, Any]]:
+    groups: dict[tuple[str, ...], list[Record]] = {}
+    for record in records:
+        if not record.id or is_archived_path(root, record.path) or duplicate_resolved(record):
+            continue
+        if record.kind == "entity":
+            add_entity_duplicate_signatures(groups, record)
+        elif record.kind == "source":
+            add_source_duplicate_signatures(groups, record)
+        elif record.kind == "evidence":
+            add_evidence_duplicate_signatures(groups, record)
+        elif record.kind == "claim":
+            add_claim_duplicate_signatures(groups, record)
+        elif record.kind == "relationship":
+            add_relationship_duplicate_signatures(groups, record)
+
+    warnings: list[dict[str, Any]] = []
+    for key in sorted(groups):
+        code, message, *_ = key
+        unique_records = {
+            record.id: record
+            for record in groups[key]
+            if record.id and not duplicate_resolved(record)
+        }
+        if len(unique_records) < 2:
+            continue
+        group = sorted(unique_records.values(), key=lambda item: item.id)
+        primary = group[0]
+        warnings.append(
+            lint_warning(
+                root,
+                primary,
+                code,
+                message,
+                DUPLICATE_WARNING_HINT,
+                [record.id for record in group[1:]],
+            )
+        )
+    return sorted(warnings, key=lambda item: (item["path"], item["code"], item["related_ids"]))
 
 
 def validate_archive_policy(root: Path, records: list[Record], id_map: dict[str, Record]) -> list[str]:
@@ -3340,7 +3584,10 @@ def run_new_thesis(root: Path, args: argparse.Namespace) -> int:
 
 def run_lint(root: Path, json_output: bool = False, current_only: bool = False) -> int:
     records, errors = validate_repo(root, current_only=current_only)
-    warnings = preservation_policy_warnings(root, records)
+    warnings = [
+        *preservation_policy_warnings(root, records),
+        *duplicate_detection_warnings(root, records),
+    ]
     if json_output:
         print(
             json.dumps(
