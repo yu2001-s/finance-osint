@@ -120,8 +120,22 @@ repo data and ignored by git. Agent-facing read commands use the index:
 fo search QUERY --json
 fo context ID --json
 fo review ID --json
+fo diff-review BASE --json
 fo graph neighbors ID --json
 ```
+
+`fo review` reports deterministic review state without writing truth back into
+canonical records. The JSON includes `review_state` plus summaries for support
+evidence, source independence, validation dependency paths, challenges,
+contradictions, supersession, staleness, and scope limitations. Staleness is v1
+explicit-signal only: a `marks_stale` validation, `outdated` challenge, or
+matching risk flag.
+
+`fo diff-review BASE` is the deterministic PR review layer. It compares records
+by canonical ID, validates the current tree, flags canonical evidence edits,
+shows reference and graph impact, reports before/after derived review-state
+movement, and highlights ontology changes. It uses Git only as the versioned
+transport; the interpretation is based on OSINT records and graph structure.
 
 `fo new` helpers are deterministic record constructors. They create schema-valid
 YAML from explicit arguments and then rely on the same validators used by CI.

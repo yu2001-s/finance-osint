@@ -544,6 +544,7 @@ fo index build --json
 fo search QUERY --json
 fo context ID --json
 fo review ID --json
+fo diff-review BASE --json
 ```
 
 JSON result envelope:

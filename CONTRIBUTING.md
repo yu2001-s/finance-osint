@@ -9,6 +9,7 @@ Use `uv` for local tooling:
 ```bash
 uv sync
 uv run fo lint
+uv run fo diff-review main --json
 uv run fo index build --json
 uv run fo graph build
 ```
@@ -23,7 +24,7 @@ uv run fo graph build
 6. Add validations or challenges as append-only review records when you support, dispute, or pressure an object.
 7. Add relationships when a typed connection is supported by claims or evidence.
 8. Add theses as the interpretive layer.
-9. Run `uv run fo lint` before opening a PR.
+9. Run `uv run fo lint` and `uv run fo diff-review BASE --json` before opening a PR.
 
 You may use deterministic constructors instead of hand-writing YAML:
 
@@ -57,6 +58,10 @@ uv run fo graph build --json
 
 CI validates structure, references, ontology usage, tests, and derived local
 read artifacts. It does not decide investment truth.
+
+`fo diff-review` is useful before CI because it summarizes what a PR changes as
+OSINT records: evidence edits, review-state movement, graph impact, reference
+impact, ontology changes, and deterministic warnings.
 
 ## Evidence Classes
 

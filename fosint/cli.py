@@ -4,6 +4,7 @@ import argparse
 import json
 import re
 import sqlite3
+import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -89,6 +90,39 @@ OLD_EVIDENCE_CLASSES = {
 }
 NO_TRUTH_FIELDS_KINDS = {"claim", "relationship", "thesis", "metric", "event", "evidence"}
 NO_AUTHOR_FIELD_KINDS = {"validation", "challenge", "thesis"}
+SUPPORTING_VERDICTS = {"attests", "supports"}
+PARTIAL_VERDICTS = {"partially_supports"}
+CONTESTING_VERDICTS = {"disputes", "falsifies"}
+STALE_VERDICTS = {"marks_stale"}
+WITHDRAWAL_VERDICTS = {"withdraws"}
+STALE_CHALLENGE_TYPES = {"outdated"}
+SCOPE_CHALLENGE_TYPES = {"scope_error", "materiality_dispute"}
+PRIVATE_EVIDENCE_CLASSES = {"firsthand_private", "anonymous_internal"}
+STALE_RISK_FLAGS = {"stale", "outdated", "needs_refresh", "staleness_risk"}
+SCOPE_RISK_FLAGS = {"scope_limit", "scope_limitation", "scope_error", "materiality_dispute"}
+DEPENDENCY_KEYS = ("evidence", "claims", "relationships", "theses", "metrics", "events", "datasets")
+LINK_FIELDS = (
+    "contradicts",
+    "supersedes",
+    "corrects",
+    "restates",
+    "narrows",
+    "broadens",
+)
+REVIEWABLE_KINDS = {"evidence", "claim", "relationship", "thesis", "metric", "event", "dataset"}
+ONTOLOGY_KINDS = {"claim_predicate", "relationship_type", "metric_definition"}
+EVIDENCE_INTEGRITY_FIELDS = {
+    "source",
+    "evidence_class",
+    "summary",
+    "content_mode",
+    "excerpt",
+    "locator",
+    "observed_at",
+    "source_attribution",
+    "source_access",
+    "verification_status",
+}
 
 
 @dataclass(frozen=True)
@@ -1392,7 +1426,14 @@ def graph_edge_rows(conn: sqlite3.Connection, record_id: str) -> list[dict[str, 
     ]
 
 
-def evidence_ids_for_record(record: Record, id_map: dict[str, Record]) -> list[str]:
+def evidence_ids_for_record(
+    record: Record, id_map: dict[str, Record], seen: set[str] | None = None
+) -> list[str]:
+    seen = set(seen or set())
+    if record.id in seen:
+        return []
+    seen.add(record.id)
+
     if record.kind == "evidence":
         return [record.id]
     if record.kind == "claim":
@@ -1406,22 +1447,33 @@ def evidence_ids_for_record(record: Record, id_map: dict[str, Record]) -> list[s
     if record.kind == "challenge":
         depends_on = record.data.get("depends_on", {})
         if isinstance(depends_on, dict):
-            return as_reference_list(depends_on.get("evidence"))
+            return evidence_ids_from_dependencies(dependency_ids(depends_on), id_map, seen)
     if record.kind == "thesis":
         depends_on = record.data.get("depends_on", {})
-        evidence_ids: list[str] = []
         if isinstance(depends_on, dict):
-            evidence_ids.extend(as_reference_list(depends_on.get("evidence")))
-            for claim_id in as_string_list(depends_on.get("claims")):
-                claim = id_map.get(claim_id)
-                if claim:
-                    evidence_ids.extend(evidence_ids_for_claim(claim))
-            for relationship_id in as_string_list(depends_on.get("relationships")):
-                relationship = id_map.get(relationship_id)
-                if relationship:
-                    evidence_ids.extend(evidence_ids_for_relationship(relationship, id_map))
-        return sorted(set(evidence_ids))
+            return evidence_ids_from_dependencies(dependency_ids(depends_on), id_map, seen)
     return []
+
+
+def dependency_ids(value: Any) -> dict[str, list[str]]:
+    if not isinstance(value, dict):
+        return {key: [] for key in DEPENDENCY_KEYS}
+    return {key: sorted(set(as_reference_list(value.get(key)))) for key in DEPENDENCY_KEYS}
+
+
+def evidence_ids_from_dependencies(
+    dependencies: dict[str, list[str]],
+    id_map: dict[str, Record],
+    seen: set[str] | None = None,
+) -> list[str]:
+    seen = set(seen or set())
+    evidence_ids: set[str] = set(dependencies.get("evidence", []))
+    for key in ("claims", "relationships", "theses", "metrics", "events"):
+        for record_id in dependencies.get(key, []):
+            record = id_map.get(record_id)
+            if record:
+                evidence_ids.update(evidence_ids_for_record(record, id_map, seen))
+    return sorted(evidence_ids)
 
 
 def is_open_challenge(record: dict[str, Any]) -> bool:
@@ -1429,45 +1481,419 @@ def is_open_challenge(record: dict[str, Any]) -> bool:
     return not any(data.get(key) for key in ("addressed_by", "withdrawn_by", "superseded_by"))
 
 
-def derive_review_state(
-    target: Record,
-    validations: list[dict[str, Any]],
-    challenges: list[dict[str, Any]],
-    evidence_classes: set[str],
+def sorted_counts(values: list[str]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for value in values:
+        counts[value] = counts.get(value, 0) + 1
+    return {key: counts[key] for key in sorted(counts)}
+
+
+def risk_flags_for(data: dict[str, Any]) -> list[str]:
+    return sorted({str(flag) for flag in data.get("risk_flags", []) if isinstance(flag, str)})
+
+
+def source_id_for_evidence(record_id: str, id_map: dict[str, Record]) -> str | None:
+    record = id_map.get(record_id)
+    if record and record.kind == "evidence":
+        source_id = record.data.get("source")
+        return str(source_id) if isinstance(source_id, str) else None
+    return None
+
+
+def record_stub(record: Record) -> dict[str, Any]:
+    return {
+        "id": record.id,
+        "kind": record.kind,
+        "label": record_label(record),
+        "path": str(record.path),
+    }
+
+
+def evidence_summary(evidence_ids: list[str], id_map: dict[str, Record]) -> dict[str, Any]:
+    unique_ids = sorted(set(evidence_ids))
+    items: list[dict[str, Any]] = []
+    class_values: list[str] = []
+    source_ids: list[str] = []
+    risk_flags: list[str] = []
+
+    for evidence_id in unique_ids:
+        record = id_map.get(evidence_id)
+        if not record or record.kind != "evidence":
+            continue
+        evidence_class = str(record.data.get("evidence_class", ""))
+        source_id = source_id_for_evidence(evidence_id, id_map)
+        if evidence_class:
+            class_values.append(evidence_class)
+        if source_id:
+            source_ids.append(source_id)
+        risk_flags.extend(risk_flags_for(record.data))
+        items.append(
+            {
+                "id": evidence_id,
+                "evidence_class": evidence_class,
+                "source_id": source_id,
+                "content_mode": record.data.get("content_mode"),
+                "observed_at": record.data.get("observed_at"),
+                "risk_flags": risk_flags_for(record.data),
+            }
+        )
+
+    evidence_per_source = sorted_counts(source_ids)
+    low_trust_ids = [
+        item["id"] for item in items if item["evidence_class"] in LOW_TRUST_EVIDENCE_CLASSES
+    ]
+    private_ids = [item["id"] for item in items if item["evidence_class"] in PRIVATE_EVIDENCE_CLASSES]
+
+    return {
+        "evidence_ids": unique_ids,
+        "evidence_count": len(items),
+        "evidence_class_counts": sorted_counts(class_values),
+        "low_trust_evidence_ids": sorted(low_trust_ids),
+        "private_evidence_ids": sorted(private_ids),
+        "source_independence": {
+            "unique_source_count": len(set(source_ids)),
+            "source_ids": sorted(set(source_ids)),
+            "evidence_per_source": evidence_per_source,
+            "reused_source_ids": sorted(
+                source_id for source_id, count in evidence_per_source.items() if count > 1
+            ),
+        },
+        "risk_flags": sorted(set(risk_flags)),
+        "items": items,
+    }
+
+
+def validation_path_summary(record: dict[str, Any], id_map: dict[str, Record]) -> dict[str, Any]:
+    data = record.get("data", {})
+    dependencies = dependency_ids(data.get("depends_on", {}))
+    evidence_ids = evidence_ids_from_dependencies(dependencies, id_map)
+    source_ids = sorted(
+        {
+            source_id
+            for evidence_id in evidence_ids
+            if (source_id := source_id_for_evidence(evidence_id, id_map))
+        }
+    )
+    dependency_parts = [
+        f"{key}:{record_id}"
+        for key in DEPENDENCY_KEYS
+        for record_id in dependencies.get(key, [])
+    ]
+    signature = "|".join(dependency_parts) or "empty"
+    return {
+        "id": record["id"],
+        "verdict": data.get("verdict"),
+        "submitted_by": data.get("submitted_by"),
+        "dependency_signature": signature,
+        "dependencies": dependencies,
+        "evidence_ids": evidence_ids,
+        "source_ids": source_ids,
+        "risk_flags": risk_flags_for(data),
+    }
+
+
+def summarize_validations(
+    validations: list[dict[str, Any]], id_map: dict[str, Record]
 ) -> dict[str, Any]:
-    verdicts = {str(item["data"].get("verdict")) for item in validations}
-    open_challenges = [challenge for challenge in challenges if is_open_challenge(challenge)]
+    paths = [validation_path_summary(validation, id_map) for validation in validations]
+    signature_counts = sorted_counts([str(path["dependency_signature"]) for path in paths])
+    repeated_signatures = {
+        signature: count for signature, count in signature_counts.items() if count > 1
+    }
+    supporting = [
+        path
+        for path in paths
+        if path["verdict"] in SUPPORTING_VERDICTS or path["verdict"] in PARTIAL_VERDICTS
+    ]
+    contesting = [path for path in paths if path["verdict"] in CONTESTING_VERDICTS]
+    stale = [path for path in paths if path["verdict"] in STALE_VERDICTS]
+    withdrawals = [path for path in paths if path["verdict"] in WITHDRAWAL_VERDICTS]
+
+    return {
+        "total_count": len(paths),
+        "by_verdict": sorted_counts([str(path["verdict"]) for path in paths]),
+        "supporting_count": len(supporting),
+        "contesting_count": len(contesting),
+        "stale_count": len(stale),
+        "withdrawal_count": len(withdrawals),
+        "unique_dependency_path_count": len(signature_counts),
+        "repeated_dependency_path_count": sum(count - 1 for count in repeated_signatures.values()),
+        "repeated_dependency_paths": repeated_signatures,
+        "support_evidence_ids": sorted(
+            {evidence_id for path in supporting for evidence_id in path["evidence_ids"]}
+        ),
+        "contesting_validation_ids": [path["id"] for path in contesting],
+        "stale_validation_ids": [path["id"] for path in stale],
+        "withdrawal_validation_ids": [path["id"] for path in withdrawals],
+        "risk_flags": sorted({flag for path in paths for flag in path["risk_flags"]}),
+        "paths": paths,
+    }
+
+
+def challenge_path_summary(record: dict[str, Any], id_map: dict[str, Record]) -> dict[str, Any]:
+    data = record.get("data", {})
+    dependencies = dependency_ids(data.get("depends_on", {}))
+    evidence_ids = evidence_ids_from_dependencies(dependencies, id_map)
+    return {
+        "id": record["id"],
+        "challenge_type": data.get("challenge_type"),
+        "submitted_by": data.get("submitted_by"),
+        "open": is_open_challenge(record),
+        "closure": {
+            "addressed_by": data.get("addressed_by"),
+            "withdrawn_by": data.get("withdrawn_by"),
+            "superseded_by": data.get("superseded_by"),
+        },
+        "dependencies": dependencies,
+        "evidence_ids": evidence_ids,
+        "risk_flags": risk_flags_for(data),
+    }
+
+
+def summarize_challenges(
+    challenges: list[dict[str, Any]], id_map: dict[str, Record]
+) -> dict[str, Any]:
+    paths = [challenge_path_summary(challenge, id_map) for challenge in challenges]
+    open_paths = [path for path in paths if path["open"]]
+    closed_paths = [path for path in paths if not path["open"]]
+    return {
+        "total_count": len(paths),
+        "open_count": len(open_paths),
+        "closed_count": len(closed_paths),
+        "by_type": sorted_counts([str(path["challenge_type"]) for path in paths]),
+        "open_by_type": sorted_counts([str(path["challenge_type"]) for path in open_paths]),
+        "open_challenge_ids": [path["id"] for path in open_paths],
+        "closed_challenge_ids": [path["id"] for path in closed_paths],
+        "contradiction_challenge_ids": [
+            path["id"] for path in paths if path["challenge_type"] == "contradiction"
+        ],
+        "stale_challenge_ids": [
+            path["id"] for path in paths if path["challenge_type"] in STALE_CHALLENGE_TYPES
+        ],
+        "scope_challenge_ids": [
+            path["id"] for path in paths if path["challenge_type"] in SCOPE_CHALLENGE_TYPES
+        ],
+        "challenge_evidence_ids": sorted(
+            {evidence_id for path in paths for evidence_id in path["evidence_ids"]}
+        ),
+        "risk_flags": sorted({flag for path in paths for flag in path["risk_flags"]}),
+        "items": paths,
+    }
+
+
+def records_linking_to(
+    target_id: str, id_map: dict[str, Record], field_names: tuple[str, ...]
+) -> list[dict[str, Any]]:
+    records: list[dict[str, Any]] = []
+    for record in sorted(id_map.values(), key=lambda item: item.id):
+        if record.id == target_id:
+            continue
+        for field_name in field_names:
+            if target_id in as_reference_list(record.data.get(field_name)):
+                records.append({**record_stub(record), "field": field_name})
+    return records
+
+
+def contradiction_summary(
+    target: Record,
+    challenges_summary: dict[str, Any],
+    id_map: dict[str, Record],
+) -> dict[str, Any]:
+    outgoing_ids = sorted(set(as_reference_list(target.data.get("contradicts"))))
+    contradicting_evidence_ids = sorted(
+        set(as_reference_list(target.data.get("contradicting_evidence")))
+    )
+    incoming = records_linking_to(target.id, id_map, ("contradicts",))
+    challenge_ids = challenges_summary["contradiction_challenge_ids"]
+    return {
+        "has_contradiction": bool(outgoing_ids or contradicting_evidence_ids or incoming or challenge_ids),
+        "outgoing_contradicts": outgoing_ids,
+        "incoming_contradicts": incoming,
+        "contradicting_evidence_ids": contradicting_evidence_ids,
+        "challenge_ids": challenge_ids,
+    }
+
+
+def supersession_summary(target: Record, target_archived: bool, id_map: dict[str, Record]) -> dict[str, Any]:
+    outgoing = {
+        "supersedes": sorted(set(as_reference_list(target.data.get("supersedes")))),
+        "superseded_by": as_reference_list(target.data.get("superseded_by")),
+        "duplicate_of": as_reference_list(target.data.get("duplicate_of")),
+        "corrects": sorted(set(as_reference_list(target.data.get("corrects")))),
+        "restates": sorted(set(as_reference_list(target.data.get("restates")))),
+        "narrows": sorted(set(as_reference_list(target.data.get("narrows")))),
+        "broadens": sorted(set(as_reference_list(target.data.get("broadens")))),
+        "withdrawn_by": as_reference_list(target.data.get("withdrawn_by")),
+    }
+    incoming = records_linking_to(target.id, id_map, LINK_FIELDS)
+    incoming_superseding = [
+        item for item in incoming if item["field"] in {"supersedes", "corrects", "narrows", "broadens"}
+    ]
+    return {
+        "archived": target_archived,
+        "archive_reason": target.data.get("archive_reason"),
+        "outgoing": outgoing,
+        "incoming_links": incoming,
+        "incoming_superseding_records": incoming_superseding,
+        "has_superseding_record": bool(
+            outgoing["superseded_by"]
+            or outgoing["duplicate_of"]
+            or incoming_superseding
+            or (target_archived and (outgoing["superseded_by"] or outgoing["duplicate_of"]))
+        ),
+        "withdrawn_by": outgoing["withdrawn_by"],
+    }
+
+
+def staleness_summary(
+    target: Record,
+    support_summary: dict[str, Any],
+    validation_summary: dict[str, Any],
+    challenge_summary: dict[str, Any],
+) -> dict[str, Any]:
+    all_flags = set(risk_flags_for(target.data))
+    all_flags.update(support_summary["risk_flags"])
+    all_flags.update(validation_summary["risk_flags"])
+    all_flags.update(challenge_summary["risk_flags"])
+    stale_risk_flags = sorted(flag for flag in all_flags if flag.lower() in STALE_RISK_FLAGS)
+    return {
+        "has_staleness_risk": bool(
+            stale_risk_flags
+            or validation_summary["stale_validation_ids"]
+            or challenge_summary["stale_challenge_ids"]
+        ),
+        "stale_validation_ids": validation_summary["stale_validation_ids"],
+        "stale_challenge_ids": challenge_summary["stale_challenge_ids"],
+        "stale_risk_flags": stale_risk_flags,
+        "time_window_policy": "explicit_signals_only",
+    }
+
+
+def scope_summary(
+    target: Record,
+    validation_summary: dict[str, Any],
+    challenge_summary: dict[str, Any],
+) -> dict[str, Any]:
+    risk_flags = set(risk_flags_for(target.data))
+    risk_flags.update(validation_summary["risk_flags"])
+    risk_flags.update(challenge_summary["risk_flags"])
+    scope_risk_flags = sorted(flag for flag in risk_flags if flag.lower() in SCOPE_RISK_FLAGS)
+    return {
+        "has_scope_limitation": bool(
+            validation_summary["by_verdict"].get("partially_supports", 0)
+            or challenge_summary["scope_challenge_ids"]
+            or scope_risk_flags
+        ),
+        "partial_validation_ids": [
+            path["id"] for path in validation_summary["paths"] if path["verdict"] in PARTIAL_VERDICTS
+        ],
+        "scope_challenge_ids": challenge_summary["scope_challenge_ids"],
+        "scope_risk_flags": scope_risk_flags,
+    }
+
+
+def derive_review_state(
+    support_summary: dict[str, Any],
+    validation_summary: dict[str, Any],
+    challenge_summary: dict[str, Any],
+    contradiction: dict[str, Any],
+    supersession: dict[str, Any],
+    staleness: dict[str, Any],
+    scope: dict[str, Any],
+) -> dict[str, Any]:
     flags: list[str] = []
 
-    if open_challenges:
+    if challenge_summary["open_count"]:
         flags.append("has_open_challenge")
-    if evidence_classes & LOW_TRUST_EVIDENCE_CLASSES:
+    if support_summary["low_trust_evidence_ids"]:
         flags.append("has_low_trust_support")
-    if evidence_classes & {"firsthand_private", "anonymous_internal"}:
+    if support_summary["private_evidence_ids"]:
         flags.append("has_private_support")
-    if target.data.get("contradicts") or any(
-        challenge["data"].get("challenge_type") == "contradiction" for challenge in challenges
-    ):
+    if contradiction["has_contradiction"]:
         flags.append("has_contradiction")
-    if target.data.get("superseded_by") or target.data.get("duplicate_of"):
+    if scope["has_scope_limitation"]:
+        flags.append("has_scope_limitation")
+    if staleness["has_staleness_risk"]:
+        flags.append("has_staleness_risk")
+    if supersession["has_superseding_record"]:
         flags.append("has_superseding_record")
 
-    if target.data.get("withdrawn_by") or "withdraws" in verdicts:
+    has_support = bool(support_summary["evidence_ids"])
+    has_non_low_trust_support = bool(
+        set(support_summary["evidence_ids"]) - set(support_summary["low_trust_evidence_ids"])
+    )
+
+    if supersession["withdrawn_by"] or validation_summary["withdrawal_validation_ids"]:
         primary_label = "withdrawn"
-    elif target.data.get("superseded_by") or target.data.get("duplicate_of"):
+    elif supersession["has_superseding_record"]:
         primary_label = "superseded"
-    elif open_challenges or verdicts & {"disputes", "falsifies"}:
+    elif staleness["has_staleness_risk"]:
+        primary_label = "stale"
+    elif (
+        challenge_summary["open_count"]
+        or validation_summary["contesting_validation_ids"]
+        or contradiction["has_contradiction"]
+    ):
         primary_label = "contested"
-    elif evidence_classes and evidence_classes <= LOW_TRUST_EVIDENCE_CLASSES:
+    elif has_support and not has_non_low_trust_support:
         primary_label = "low_trust_only"
-    elif "partially_supports" in verdicts:
+    elif scope["has_scope_limitation"]:
         primary_label = "partially_supported"
-    elif verdicts & {"attests", "supports"}:
+    elif has_non_low_trust_support:
         primary_label = "supported"
     else:
         primary_label = "unreviewed"
 
     return {"primary_label": primary_label, "flags": sorted(set(flags))}
+
+
+def build_review_analysis(
+    target: Record,
+    validations: list[dict[str, Any]],
+    challenges: list[dict[str, Any]],
+    id_map: dict[str, Record],
+    target_archived: bool,
+) -> dict[str, Any]:
+    target_evidence_ids = evidence_ids_for_record(target, id_map)
+    validation_summary = summarize_validations(validations, id_map)
+    challenge_summary = summarize_challenges(challenges, id_map)
+    support_ids = sorted(set(target_evidence_ids + validation_summary["support_evidence_ids"]))
+    support_summary = evidence_summary(support_ids, id_map)
+    target_evidence_summary = evidence_summary(target_evidence_ids, id_map)
+    review_evidence_summary = evidence_summary(
+        sorted(
+            set(
+                validation_summary["support_evidence_ids"]
+                + challenge_summary["challenge_evidence_ids"]
+            )
+        ),
+        id_map,
+    )
+    contradictions = contradiction_summary(target, challenge_summary, id_map)
+    supersession = supersession_summary(target, target_archived, id_map)
+    staleness = staleness_summary(target, support_summary, validation_summary, challenge_summary)
+    scope = scope_summary(target, validation_summary, challenge_summary)
+    review_state = derive_review_state(
+        support_summary,
+        validation_summary,
+        challenge_summary,
+        contradictions,
+        supersession,
+        staleness,
+        scope,
+    )
+    return {
+        "review_state": review_state,
+        "support_summary": support_summary,
+        "target_evidence_summary": target_evidence_summary,
+        "review_evidence_summary": review_evidence_summary,
+        "validation_summary": validation_summary,
+        "challenge_summary": challenge_summary,
+        "contradiction_summary": contradictions,
+        "supersession_summary": supersession,
+        "staleness_summary": staleness,
+        "scope_summary": scope,
+    }
 
 
 def json_error(error: str) -> dict[str, Any]:
@@ -1503,6 +1929,672 @@ def validate_repo(root: Path, current_only: bool = False) -> tuple[list[Record],
     errors.extend(validate_relationships(root, records, id_map))
     errors.extend(validate_evidence_policy(root, records, id_map))
     return records, errors
+
+
+def relative_path(root: Path, path: Path) -> str:
+    try:
+        return str(path.relative_to(root))
+    except ValueError:
+        return str(path)
+
+
+def record_doc(root: Path, record: Record, include_data: bool = False) -> dict[str, Any]:
+    doc = {
+        "id": record.id,
+        "kind": record.kind,
+        "schema_version": record.data.get("schema_version"),
+        "path": relative_path(root, record.path),
+        "archived": is_archived_path(root, record.path),
+        "label": record_label(record),
+    }
+    if include_data:
+        doc["data"] = record.data
+    return doc
+
+
+def record_map(records: list[Record]) -> dict[str, Record]:
+    return {record.id: record for record in records if record.id}
+
+
+def is_record_yaml_path(path: str) -> bool:
+    relative = Path(path)
+    if relative.suffix not in {".yml", ".yaml"}:
+        return False
+    return bool(relative.parts) and relative.parts[0] in {*DATA_DIRS, "archive"}
+
+
+def run_git(root: Path, args: list[str]) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["git", "-C", str(root), *args],
+        check=False,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+
+def git_lines(root: Path, args: list[str]) -> tuple[list[str], str | None]:
+    result = run_git(root, args)
+    if result.returncode != 0:
+        message = result.stderr.strip() or result.stdout.strip() or "git command failed"
+        return [], message
+    return [line for line in result.stdout.splitlines() if line], None
+
+
+def load_records_from_git(root: Path, base_ref: str) -> tuple[list[Record], list[str]]:
+    paths, error = git_lines(root, ["ls-tree", "-r", "--name-only", base_ref])
+    if error:
+        return [], [f"failed to list `{base_ref}`: {error}"]
+
+    records: list[Record] = []
+    errors: list[str] = []
+    for path_text in sorted(path for path in paths if is_record_yaml_path(path)):
+        result = run_git(root, ["show", f"{base_ref}:{path_text}"])
+        if result.returncode != 0:
+            message = result.stderr.strip() or result.stdout.strip() or "git show failed"
+            errors.append(f"{path_text}: failed to read `{base_ref}`: {message}")
+            continue
+        try:
+            loaded = yaml.safe_load(result.stdout)
+            if loaded is None:
+                loaded = {}
+            if not isinstance(loaded, dict):
+                raise ValueError("YAML document must be an object")
+            records.append(Record(path=root / path_text, data=loaded))
+        except Exception as exc:
+            errors.append(f"{path_text}: failed to load YAML from `{base_ref}`: {exc}")
+    return records, errors
+
+
+def changed_git_paths(root: Path, base_ref: str) -> tuple[list[dict[str, Any]], str | None]:
+    rows, error = git_lines(root, ["diff", "--name-status", base_ref, "--"])
+    if error:
+        return [], error
+
+    changes: list[dict[str, Any]] = []
+    seen_paths: set[str] = set()
+    for row in rows:
+        parts = row.split("\t")
+        if not parts:
+            continue
+        status = parts[0]
+        if status.startswith("R") and len(parts) >= 3:
+            old_path, new_path = parts[1], parts[2]
+            if is_record_yaml_path(old_path) or is_record_yaml_path(new_path):
+                changes.append({"status": "R", "old_path": old_path, "path": new_path})
+                seen_paths.add(new_path)
+            continue
+        if len(parts) >= 2:
+            path = parts[1]
+            if is_record_yaml_path(path):
+                changes.append({"status": status[:1], "path": path})
+                seen_paths.add(path)
+
+    untracked, untracked_error = git_lines(root, ["ls-files", "--others", "--exclude-standard"])
+    if untracked_error:
+        return changes, untracked_error
+    for path in sorted(path for path in untracked if is_record_yaml_path(path)):
+        if path not in seen_paths:
+            changes.append({"status": "A", "path": path, "untracked": True})
+    return sorted(changes, key=lambda item: (item.get("path", ""), item.get("old_path", ""))), None
+
+
+def record_signature(record: Record) -> str:
+    return json_dumps(record.data)
+
+
+def delta_item(root: Path, record: Record, previous: Record | None = None) -> dict[str, Any]:
+    item = record_doc(root, record)
+    if previous is not None:
+        previous_path = relative_path(root, previous.path)
+        if previous_path != item["path"]:
+            item["previous_path"] = previous_path
+            item["path_changed"] = True
+    return item
+
+
+def summarize_record_delta(
+    root: Path, base_records: list[Record], current_records: list[Record]
+) -> dict[str, Any]:
+    before = record_map(base_records)
+    after = record_map(current_records)
+    added: list[dict[str, Any]] = []
+    modified: list[dict[str, Any]] = []
+    deleted: list[dict[str, Any]] = []
+    renamed: list[dict[str, Any]] = []
+
+    for record_id in sorted(set(after) - set(before)):
+        added.append(delta_item(root, after[record_id]))
+    for record_id in sorted(set(before) - set(after)):
+        deleted.append(delta_item(root, before[record_id]))
+    for record_id in sorted(set(before) & set(after)):
+        old = before[record_id]
+        new = after[record_id]
+        data_changed = record_signature(old) != record_signature(new)
+        path_changed = relative_path(root, old.path) != relative_path(root, new.path)
+        if data_changed:
+            modified.append(delta_item(root, new, previous=old if path_changed else None))
+        elif path_changed:
+            renamed.append(delta_item(root, new, previous=old))
+
+    counts = {
+        "added": sorted_counts([item["kind"] for item in added]),
+        "modified": sorted_counts([item["kind"] for item in modified]),
+        "deleted": sorted_counts([item["kind"] for item in deleted]),
+        "renamed": sorted_counts([item["kind"] for item in renamed]),
+    }
+    return {
+        "counts": counts,
+        "total": {
+            "added": len(added),
+            "modified": len(modified),
+            "deleted": len(deleted),
+            "renamed": len(renamed),
+        },
+        "added": added,
+        "modified": modified,
+        "deleted": deleted,
+        "renamed": renamed,
+    }
+
+
+def refs_for_records(records: list[Record]) -> dict[str, set[str]]:
+    refs: dict[str, set[str]] = {}
+    for record in records:
+        if record.id:
+            refs[record.id] = {target for _, target, _ in record_ref_rows(record)}
+    return refs
+
+
+def records_referencing(records: list[Record], target_ids: set[str]) -> list[dict[str, Any]]:
+    impacted: list[dict[str, Any]] = []
+    for record in sorted(records, key=lambda item: item.id):
+        if not record.id or record.id in target_ids:
+            continue
+        referenced = sorted(ref for _, ref, _ in record_ref_rows(record) if ref in target_ids)
+        if referenced:
+            impacted.append(
+                {
+                    "id": record.id,
+                    "kind": record.kind,
+                    "label": record_label(record),
+                    "path": str(record.path),
+                    "referenced_changed_ids": referenced,
+                }
+            )
+    return impacted
+
+
+def reference_impact(
+    base_records: list[Record],
+    current_records: list[Record],
+    changed_ids: set[str],
+    deleted_ids: set[str],
+) -> dict[str, Any]:
+    before_refs = refs_for_records(base_records)
+    after_refs = refs_for_records(current_records)
+    deleted_still_referenced = sorted(
+        {
+            target_id
+            for refs in after_refs.values()
+            for target_id in refs
+            if target_id in deleted_ids
+        }
+    )
+    return {
+        "changed_ids": sorted(changed_ids),
+        "before_incoming": records_referencing(base_records, changed_ids),
+        "after_incoming": records_referencing(current_records, changed_ids),
+        "deleted_ids_still_referenced": deleted_still_referenced,
+    }
+
+
+def graph_edge_key(edge: dict[str, Any]) -> tuple[str, str, str, str]:
+    return (
+        str(edge.get("from")),
+        str(edge.get("to")),
+        str(edge.get("type")),
+        str(edge.get("field", "")),
+    )
+
+
+def graph_impact(root: Path, base_records: list[Record], current_records: list[Record]) -> dict[str, Any]:
+    before_graph = build_graph_data(root, base_records)
+    after_graph = build_graph_data(root, current_records)
+    before_edges = {graph_edge_key(edge): edge for edge in before_graph["edges"]}
+    after_edges = {graph_edge_key(edge): edge for edge in after_graph["edges"]}
+    added_keys = sorted(set(after_edges) - set(before_edges))
+    removed_keys = sorted(set(before_edges) - set(after_edges))
+    return {
+        "before_node_count": before_graph["node_count"],
+        "after_node_count": after_graph["node_count"],
+        "before_edge_count": before_graph["edge_count"],
+        "after_edge_count": after_graph["edge_count"],
+        "added_edge_count": len(added_keys),
+        "removed_edge_count": len(removed_keys),
+        "added_edges": [after_edges[key] for key in added_keys],
+        "removed_edges": [before_edges[key] for key in removed_keys],
+    }
+
+
+def field_changes(before: dict[str, Any], after: dict[str, Any], fields: set[str]) -> list[str]:
+    return sorted(field for field in fields if before.get(field) != after.get(field))
+
+
+def warning_item(
+    code: str,
+    message: str,
+    record_id: str | None = None,
+    related_ids: list[str] | None = None,
+    details: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    return {
+        "code": code,
+        "message": message,
+        "record_id": record_id,
+        "related_ids": related_ids or [],
+        "details": details or {},
+    }
+
+
+def evidence_integrity_warnings(
+    base_records: list[Record], current_records: list[Record], delta: dict[str, Any]
+) -> list[dict[str, Any]]:
+    before = record_map(base_records)
+    after = record_map(current_records)
+    warnings: list[dict[str, Any]] = []
+
+    for item in delta["deleted"]:
+        if item["kind"] == "evidence":
+            warnings.append(
+                warning_item(
+                    "deletes_canonical_evidence",
+                    "Canonical evidence record was deleted.",
+                    item["id"],
+                )
+            )
+
+    for item in delta["modified"]:
+        record_id = item["id"]
+        old = before.get(record_id)
+        new = after.get(record_id)
+        if not old or not new or new.kind != "evidence":
+            continue
+        changed_fields = field_changes(old.data, new.data, EVIDENCE_INTEGRITY_FIELDS)
+        if changed_fields:
+            warnings.append(
+                warning_item(
+                    "modifies_canonical_evidence",
+                    "Canonical evidence fields changed.",
+                    record_id,
+                    details={"fields": changed_fields},
+                )
+            )
+    return warnings
+
+
+def ontology_impact(delta: dict[str, Any]) -> dict[str, Any]:
+    items = [
+        item
+        for section in ("added", "modified", "deleted", "renamed")
+        for item in delta[section]
+        if item["kind"] in ONTOLOGY_KINDS
+    ]
+    return {
+        "changed": items,
+        "changed_count": len(items),
+        "by_kind": sorted_counts([item["kind"] for item in items]),
+    }
+
+
+def review_record_dict(root: Path, record: Record) -> dict[str, Any]:
+    return record_doc(root, record, include_data=True)
+
+
+def review_records_for_target(
+    records: list[Record], target_id: str, kind: str, root: Path
+) -> list[dict[str, Any]]:
+    return [
+        review_record_dict(root, record)
+        for record in sorted(records, key=lambda item: item.id)
+        if record.kind == kind and record.data.get("target") == target_id
+    ]
+
+
+def review_snapshot_for_records(
+    root: Path, records: list[Record], record_id: str
+) -> dict[str, Any] | None:
+    id_map = record_map(records)
+    target = id_map.get(record_id)
+    if not target or target.kind not in REVIEWABLE_KINDS:
+        return None
+    analysis = build_review_analysis(
+        target,
+        review_records_for_target(records, record_id, "validation", root),
+        review_records_for_target(records, record_id, "challenge", root),
+        id_map,
+        target_archived=is_archived_path(root, target.path),
+    )
+    return {
+        "id": target.id,
+        "kind": target.kind,
+        "path": relative_path(root, target.path),
+        "review_state": analysis["review_state"],
+        "support_evidence_count": analysis["support_summary"]["evidence_count"],
+        "support_source_count": analysis["support_summary"]["source_independence"][
+            "unique_source_count"
+        ],
+        "open_challenge_count": analysis["challenge_summary"]["open_count"],
+        "repeated_validation_path_count": analysis["validation_summary"][
+            "repeated_dependency_path_count"
+        ],
+        "low_trust_evidence_ids": analysis["support_summary"]["low_trust_evidence_ids"],
+        "private_evidence_ids": analysis["support_summary"]["private_evidence_ids"],
+    }
+
+
+def review_snapshot_key(snapshot: dict[str, Any] | None) -> dict[str, Any] | None:
+    if snapshot is None:
+        return None
+    return {
+        "review_state": snapshot["review_state"],
+        "support_evidence_count": snapshot["support_evidence_count"],
+        "support_source_count": snapshot["support_source_count"],
+        "open_challenge_count": snapshot["open_challenge_count"],
+        "repeated_validation_path_count": snapshot["repeated_validation_path_count"],
+        "low_trust_evidence_ids": snapshot["low_trust_evidence_ids"],
+        "private_evidence_ids": snapshot["private_evidence_ids"],
+    }
+
+
+def review_impact_ids(
+    base_records: list[Record],
+    current_records: list[Record],
+    delta: dict[str, Any],
+    reference_summary: dict[str, Any],
+) -> set[str]:
+    ids = set(reference_summary["changed_ids"])
+    before = record_map(base_records)
+    after = record_map(current_records)
+
+    for item in [*delta["added"], *delta["modified"], *delta["deleted"], *delta["renamed"]]:
+        record = after.get(item["id"]) or before.get(item["id"])
+        if record and record.kind in {"validation", "challenge"}:
+            target = record.data.get("target")
+            if isinstance(target, str):
+                ids.add(target)
+
+    for section in ("before_incoming", "after_incoming"):
+        for item in reference_summary[section]:
+            ids.add(item["id"])
+    return ids
+
+
+def review_state_impact(
+    root: Path,
+    base_records: list[Record],
+    current_records: list[Record],
+    delta: dict[str, Any],
+    reference_summary: dict[str, Any],
+) -> list[dict[str, Any]]:
+    impacts: list[dict[str, Any]] = []
+    for record_id in sorted(review_impact_ids(base_records, current_records, delta, reference_summary)):
+        before = review_snapshot_for_records(root, base_records, record_id)
+        after = review_snapshot_for_records(root, current_records, record_id)
+        if review_snapshot_key(before) == review_snapshot_key(after):
+            continue
+        if before is None and after is None:
+            continue
+        impacts.append({"id": record_id, "before": before, "after": after})
+    return impacts
+
+
+def changed_record_ids(delta: dict[str, Any]) -> set[str]:
+    return {
+        item["id"]
+        for section in ("added", "modified", "deleted", "renamed")
+        for item in delta[section]
+    }
+
+
+def diff_review_warnings(
+    root: Path,
+    base_records: list[Record],
+    current_records: list[Record],
+    delta: dict[str, Any],
+    review_impacts: list[dict[str, Any]],
+    ontology: dict[str, Any],
+) -> list[dict[str, Any]]:
+    before = record_map(base_records)
+    after = record_map(current_records)
+    warnings = evidence_integrity_warnings(base_records, current_records, delta)
+
+    for item in [*delta["added"], *delta["modified"]]:
+        record = after.get(item["id"])
+        if not record:
+            continue
+        data = record.data
+
+        if record.kind == "evidence":
+            evidence_class = data.get("evidence_class")
+            if evidence_class in LOW_TRUST_EVIDENCE_CLASSES:
+                warnings.append(
+                    warning_item(
+                        "adds_or_updates_low_trust_evidence",
+                        f"Evidence uses low-trust class `{evidence_class}`.",
+                        record.id,
+                    )
+                )
+            if evidence_class in PRIVATE_EVIDENCE_CLASSES:
+                warnings.append(
+                    warning_item(
+                        "adds_or_updates_private_evidence",
+                        f"Evidence uses private/internal class `{evidence_class}`.",
+                        record.id,
+                    )
+                )
+
+        if record.kind == "challenge" and is_open_challenge(review_record_dict(root, record)):
+            warnings.append(
+                warning_item(
+                    "adds_or_updates_open_challenge",
+                    "Record adds or updates an open challenge.",
+                    record.id,
+                    related_ids=[str(data.get("target"))] if data.get("target") else [],
+                )
+            )
+            if data.get("challenge_type") == "contradiction":
+                warnings.append(
+                    warning_item(
+                        "adds_or_updates_contradiction_challenge",
+                        "Record adds or updates a contradiction challenge.",
+                        record.id,
+                        related_ids=[str(data.get("target"))] if data.get("target") else [],
+                    )
+                )
+
+        if record.kind in REVIEWABLE_KINDS and (
+            as_reference_list(data.get("contradicts"))
+            or as_reference_list(data.get("contradicting_evidence"))
+        ):
+            warnings.append(
+                warning_item(
+                    "adds_or_updates_contradiction_link",
+                    "Record declares contradiction linkage.",
+                    record.id,
+                    related_ids=as_reference_list(data.get("contradicts"))
+                    + as_reference_list(data.get("contradicting_evidence")),
+                )
+            )
+
+        if record.kind == "claim" and str(data.get("predicate", "")).startswith("provisional:"):
+            warnings.append(
+                warning_item(
+                    "uses_provisional_claim_predicate",
+                    "Claim uses a provisional predicate.",
+                    record.id,
+                )
+            )
+        if record.kind == "relationship" and str(data.get("type", "")).startswith("provisional:"):
+            warnings.append(
+                warning_item(
+                    "uses_provisional_relationship_type",
+                    "Relationship uses a provisional type.",
+                    record.id,
+                )
+            )
+
+    for item in delta["deleted"]:
+        if item["kind"] == "evidence":
+            continue
+        record = before.get(item["id"])
+        if record and record.kind in REVIEWABLE_KINDS:
+            warnings.append(
+                warning_item(
+                    "deletes_reviewable_record",
+                    "Reviewable record was deleted.",
+                    record.id,
+                )
+            )
+
+    for item in ontology["changed"]:
+        warnings.append(
+            warning_item(
+                "changes_ontology",
+                "Ontology registry record changed.",
+                item["id"],
+                details={"kind": item["kind"], "path": item["path"]},
+            )
+        )
+
+    for impact in review_impacts:
+        before_state = impact["before"]["review_state"] if impact["before"] else None
+        after_state = impact["after"]["review_state"] if impact["after"] else None
+        if before_state != after_state:
+            warnings.append(
+                warning_item(
+                    "review_state_changed",
+                    "Derived review state changed.",
+                    impact["id"],
+                    details={"before": before_state, "after": after_state},
+                )
+            )
+        if impact["after"] and impact["after"]["review_state"]["primary_label"] == "low_trust_only":
+            warnings.append(
+                warning_item(
+                    "low_trust_only_review_state",
+                    "Record derives to low_trust_only.",
+                    impact["id"],
+                )
+            )
+        if impact["after"] and impact["after"]["repeated_validation_path_count"]:
+            warnings.append(
+                warning_item(
+                    "repeated_validation_path",
+                    "Record has repeated validation dependency paths.",
+                    impact["id"],
+                    details={
+                        "repeated_validation_path_count": impact["after"][
+                            "repeated_validation_path_count"
+                        ]
+                    },
+                )
+            )
+
+    unique: dict[tuple[str, str | None, str], dict[str, Any]] = {}
+    for item in warnings:
+        key = (item["code"], item["record_id"], json_dumps(item["details"]))
+        unique[key] = item
+    return [unique[key] for key in sorted(unique)]
+
+
+def build_diff_review(root: Path, base_ref: str) -> tuple[dict[str, Any], int]:
+    base_records, base_errors = load_records_from_git(root, base_ref)
+    path_changes, path_error = changed_git_paths(root, base_ref)
+    if path_error:
+        base_errors.append(f"failed to diff `{base_ref}`: {path_error}")
+
+    current_records, validation_errors = validate_repo(root, current_only=False)
+    if base_errors:
+        errors = [
+            command_error("git_range_error", error, "Check that the base ref exists.")
+            for error in base_errors
+        ]
+        return (
+            result_envelope(
+                "diff-review",
+                root,
+                ok=False,
+                errors=errors,
+                base=base_ref,
+                changed_paths=path_changes,
+            ),
+            2,
+        )
+
+    delta = summarize_record_delta(root, base_records, current_records)
+    changed_ids = changed_record_ids(delta)
+    deleted_ids = {item["id"] for item in delta["deleted"]}
+    refs = reference_impact(base_records, current_records, changed_ids, deleted_ids)
+    reviews = review_state_impact(root, base_records, current_records, delta, refs)
+    ontology = ontology_impact(delta)
+    graph = graph_impact(root, base_records, current_records)
+    warnings = diff_review_warnings(root, base_records, current_records, delta, reviews, ontology)
+    errors = [json_error(error) for error in validation_errors]
+    status = 1 if errors else 0
+
+    return (
+        result_envelope(
+            "diff-review",
+            root,
+            ok=not errors,
+            warnings=warnings,
+            errors=errors,
+            base=base_ref,
+            changed_paths=path_changes,
+            record_delta=delta,
+            reference_impact=refs,
+            review_state_impact=reviews,
+            graph_impact=graph,
+            ontology_impact=ontology,
+        ),
+        status,
+    )
+
+
+def run_diff_review(root: Path, base_ref: str = "HEAD", json_output: bool = False) -> int:
+    payload, status = build_diff_review(root, base_ref)
+    if json_output:
+        print_json(payload)
+        return status
+
+    delta = payload.get("record_delta", {})
+    total = delta.get("total", {})
+    print(f"Diff review vs {base_ref}")
+    print(
+        "records: "
+        f"+{total.get('added', 0)} "
+        f"~{total.get('modified', 0)} "
+        f"-{total.get('deleted', 0)} "
+        f"renamed {total.get('renamed', 0)}"
+    )
+    if payload["errors"]:
+        print(f"errors: {len(payload['errors'])}")
+        for error in payload["errors"]:
+            print(f"  {error['message']}")
+    if payload["warnings"]:
+        print(f"warnings: {len(payload['warnings'])}")
+        for warning in payload["warnings"]:
+            suffix = f" ({warning['record_id']})" if warning.get("record_id") else ""
+            print(f"  {warning['code']}{suffix}: {warning['message']}")
+    reviews = payload.get("review_state_impact", [])
+    if reviews:
+        print(f"review impacts: {len(reviews)}")
+        for item in reviews:
+            before = item["before"]["review_state"]["primary_label"] if item["before"] else "missing"
+            after = item["after"]["review_state"]["primary_label"] if item["after"] else "missing"
+            print(f"  {item['id']}: {before} -> {after}")
+    return status
 
 
 def slugify(value: str, max_length: int = 96) -> str:
@@ -2205,12 +3297,14 @@ def run_review(
             challenges = target_review_records(conn, "challenges", record_id)
             evidence_ids = evidence_ids_for_record(target, id_map)
             evidence_records = fetch_records(conn, evidence_ids, include_data=True)
-            evidence_classes = {
-                str(evidence["data"].get("evidence_class"))
-                for evidence in evidence_records
-                if isinstance(evidence.get("data"), dict)
-            }
-            review_state = derive_review_state(target, validations, challenges, evidence_classes)
+            review_analysis = build_review_analysis(
+                target,
+                validations,
+                challenges,
+                id_map,
+                target_archived=bool(record["archived"]),
+            )
+            review_state = review_analysis["review_state"]
     except FileNotFoundError as exc:
         error = command_error("index_missing", str(exc), "Run `fo index build` first.")
         if json_output:
@@ -2234,6 +3328,15 @@ def run_review(
                 id=record_id,
                 record=record,
                 review_state=review_state,
+                support_summary=review_analysis["support_summary"],
+                target_evidence_summary=review_analysis["target_evidence_summary"],
+                review_evidence_summary=review_analysis["review_evidence_summary"],
+                validation_summary=review_analysis["validation_summary"],
+                challenge_summary=review_analysis["challenge_summary"],
+                contradiction_summary=review_analysis["contradiction_summary"],
+                supersession_summary=review_analysis["supersession_summary"],
+                staleness_summary=review_analysis["staleness_summary"],
+                scope_summary=review_analysis["scope_summary"],
                 evidence=evidence_records,
                 validations=validations,
                 challenges=challenges,
@@ -2247,6 +3350,14 @@ def run_review(
             f"{len(evidence_records)} evidence record(s), "
             f"{len(validations)} validation(s), {len(challenges)} challenge(s)"
         )
+        source_count = review_analysis["support_summary"]["source_independence"][
+            "unique_source_count"
+        ]
+        unique_paths = review_analysis["validation_summary"]["unique_dependency_path_count"]
+        repeated_paths = review_analysis["validation_summary"]["repeated_dependency_path_count"]
+        print(f"{source_count} support source(s), {unique_paths} validation path(s)")
+        if repeated_paths:
+            print(f"{repeated_paths} repeated validation path(s)")
     return 0
 
 
@@ -2257,6 +3368,10 @@ def cmd_review(args: argparse.Namespace) -> int:
         json_output=bool(args.json),
         include_archive=bool(args.include_archive),
     )
+
+
+def cmd_diff_review(args: argparse.Namespace) -> int:
+    return run_diff_review(repo_root(), base_ref=str(args.base), json_output=bool(args.json))
 
 
 def run_graph_neighbors(
@@ -2784,6 +3899,14 @@ def build_parser() -> argparse.ArgumentParser:
     review_parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
     review_parser.add_argument("--include-archive", action="store_true", help="include archive records")
     review_parser.set_defaults(func=cmd_review)
+
+    diff_review_parser = subparsers.add_parser(
+        "diff-review",
+        help="review repo-native record changes against a Git base ref",
+    )
+    diff_review_parser.add_argument("base", nargs="?", default="HEAD", help="Git base ref")
+    diff_review_parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
+    diff_review_parser.set_defaults(func=cmd_diff_review)
 
     graph_parser = subparsers.add_parser("graph", help="graph utilities")
     graph_subparsers = graph_parser.add_subparsers(dest="graph_command", required=True)

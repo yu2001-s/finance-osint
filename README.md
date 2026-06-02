@@ -70,10 +70,22 @@ uv run fo index build --json   # build .local/index.sqlite from YAML
 uv run fo search exdev --json  # search indexed records
 uv run fo context RECORD --json
 uv run fo review RECORD --json
+uv run fo diff-review main --json
 uv run fo graph build          # build .local/graph.json from current repo data
 uv run fo graph neighbors RECORD --json
 uv run fo graph inspect exdev  # find graph records mentioning a string
 ```
+
+`fo review` is the deterministic truth-surface command. It does not decide
+truth. It derives a local label and supporting details from evidence classes,
+source independence, validation dependency paths, open challenges,
+contradictions, supersession, stale markers, and low-trust/private evidence.
+
+`fo diff-review BASE` compares the current working tree against a Git base ref
+and summarizes repo-native PR impact: record deltas, validation errors, evidence
+mutations, reference impact, derived review-state movement, graph edge changes,
+ontology changes, and deterministic warnings. Warnings are review pressure;
+schema/reference failures are hard errors.
 
 ## Deterministic Write Helpers
 

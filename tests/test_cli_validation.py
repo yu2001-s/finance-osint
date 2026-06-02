@@ -4,6 +4,7 @@ import argparse
 import contextlib
 import io
 import shutil
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -51,6 +52,18 @@ def write_yaml(path: Path, data: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as handle:
         yaml.safe_dump(data, handle, sort_keys=False)
+
+
+def init_git_repo(repo: Path) -> None:
+    commands = (
+        ["git", "init"],
+        ["git", "config", "user.email", "tester@example.com"],
+        ["git", "config", "user.name", "Test User"],
+        ["git", "add", "."],
+        ["git", "commit", "-m", "base fixture"],
+    )
+    for command in commands:
+        subprocess.run(command, cwd=repo, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
 def run_lint(root: Path) -> tuple[int, str]:
@@ -264,6 +277,15 @@ class CliValidationTests(unittest.TestCase):
             self.assertEqual(status, 0, review)
             self.assertEqual(review["review_state"]["primary_label"], "contested")
             self.assertIn("has_open_challenge", review["review_state"]["flags"])
+            self.assertEqual(review["challenge_summary"]["open_count"], 1)
+            self.assertEqual(
+                review["support_summary"]["evidence_class_counts"]["public_primary"],
+                1,
+            )
+            self.assertEqual(
+                review["support_summary"]["source_independence"]["unique_source_count"],
+                1,
+            )
 
             status, neighbors = run_json_command(
                 cli.run_graph_neighbors,
@@ -276,6 +298,318 @@ class CliValidationTests(unittest.TestCase):
             "entity:company:exdev",
             {neighbor["id"] for neighbor in neighbors["neighbors"]},
         )
+
+    def test_review_deduplicates_validation_paths_and_counts_independent_sources(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            write_yaml(
+                repo / "sources" / "public" / "independent-review-source.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "source",
+                    "id": "source:public:synthetic:independent-review-source",
+                    "source_type": "other",
+                    "title": "Independent review source",
+                    "public_status": "public",
+                    "accessed_at": "2026-06-02T00:00:00Z",
+                    "content_mode": "small_fixture",
+                    "risk_flags": ["synthetic_fixture"],
+                },
+            )
+            write_yaml(
+                repo / "evidence" / "public" / "independent-review-evidence.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "evidence",
+                    "id": "evidence:synthetic:independent-review-evidence",
+                    "evidence_class": "public_secondary",
+                    "source": "source:public:synthetic:independent-review-source",
+                    "summary": "Independent synthetic source also supports the supplier relationship.",
+                    "content_mode": "small_fixture",
+                    "observed_at": "2026-06-02T00:00:00Z",
+                    "submitted_by": "github:tester",
+                    "source_attribution": "named_public",
+                    "risk_flags": ["synthetic_fixture"],
+                },
+            )
+            write_yaml(
+                repo / "validations" / "duplicate-path.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "validation",
+                    "id": "validation:test:duplicate-path",
+                    "target": "claim:synthetic:exdev-uses-fndwy-for-x1",
+                    "submitted_by": "github:tester",
+                    "verdict": "supports",
+                    "summary": "Duplicate support path for de-duplication.",
+                    "depends_on": {
+                        "evidence": ["evidence:synthetic:exdev-fy2025-supplier-note"],
+                        "claims": ["claim:synthetic:exdev-uses-fndwy-for-x1"],
+                        "relationships": [],
+                        "theses": [],
+                    },
+                },
+            )
+            write_yaml(
+                repo / "validations" / "independent-path.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "validation",
+                    "id": "validation:test:independent-path",
+                    "target": "claim:synthetic:exdev-uses-fndwy-for-x1",
+                    "submitted_by": "github:tester",
+                    "verdict": "supports",
+                    "summary": "Independent source support path.",
+                    "depends_on": {
+                        "evidence": ["evidence:synthetic:independent-review-evidence"],
+                        "claims": [],
+                        "relationships": [],
+                        "theses": [],
+                    },
+                },
+            )
+
+            status, build_payload = run_json_command(cli.run_index_build, repo)
+            self.assertEqual(status, 0, build_payload)
+            status, review = run_json_command(
+                cli.run_review,
+                repo,
+                "claim:synthetic:exdev-uses-fndwy-for-x1",
+            )
+
+        self.assertEqual(status, 0, review)
+        self.assertEqual(review["validation_summary"]["total_count"], 3)
+        self.assertEqual(review["validation_summary"]["unique_dependency_path_count"], 2)
+        self.assertEqual(review["validation_summary"]["repeated_dependency_path_count"], 1)
+        self.assertEqual(
+            review["support_summary"]["source_independence"]["unique_source_count"],
+            2,
+        )
+        self.assertEqual(
+            review["support_summary"]["evidence_class_counts"],
+            {"public_primary": 1, "public_secondary": 1},
+        )
+
+    def test_review_derives_stale_from_explicit_validation(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            write_yaml(
+                repo / "validations" / "stale-claim.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "validation",
+                    "id": "validation:test:stale-claim",
+                    "target": "claim:synthetic:exdev-uses-fndwy-for-x1",
+                    "submitted_by": "github:tester",
+                    "verdict": "marks_stale",
+                    "summary": "Synthetic stale marker.",
+                    "depends_on": {
+                        "evidence": ["evidence:synthetic:exdev-fy2025-supplier-note"],
+                        "claims": ["claim:synthetic:exdev-uses-fndwy-for-x1"],
+                        "relationships": [],
+                        "theses": [],
+                    },
+                },
+            )
+
+            status, build_payload = run_json_command(cli.run_index_build, repo)
+            self.assertEqual(status, 0, build_payload)
+            status, review = run_json_command(
+                cli.run_review,
+                repo,
+                "claim:synthetic:exdev-uses-fndwy-for-x1",
+            )
+
+        self.assertEqual(status, 0, review)
+        self.assertEqual(review["review_state"]["primary_label"], "stale")
+        self.assertIn("has_staleness_risk", review["review_state"]["flags"])
+        self.assertEqual(
+            review["staleness_summary"]["stale_validation_ids"],
+            ["validation:test:stale-claim"],
+        )
+
+    def test_review_derives_low_trust_only_for_rumor_supported_claim(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            write_yaml(
+                repo / "sources" / "firsthand" / "review-rumor.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "source",
+                    "id": "source:firsthand:review-rumor",
+                    "source_type": "anonymous_report",
+                    "title": "Review rumor source",
+                    "public_status": "unknown",
+                    "accessed_at": "2026-06-02T00:00:00Z",
+                    "content_mode": "summary",
+                    "risk_flags": ["anonymous_source"],
+                },
+            )
+            write_yaml(
+                repo / "evidence" / "firsthand" / "review-rumor.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "evidence",
+                    "id": "evidence:firsthand:review-rumor",
+                    "evidence_class": "rumor",
+                    "source": "source:firsthand:review-rumor",
+                    "summary": "Synthetic rumor evidence for review state.",
+                    "content_mode": "summary",
+                    "observed_at": "2026-06-02T00:00:00Z",
+                    "submitted_by": "github:tester",
+                    "source_attribution": "anonymous_to_public",
+                    "source_access": {
+                        "nda_or_confidentiality": "unknown",
+                        "recording_available": False,
+                        "source_identity_public": False,
+                    },
+                    "risk_flags": ["anonymous_source", "unverified_rumor"],
+                },
+            )
+            write_yaml(
+                repo / "claims" / "review-rumor.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "claim",
+                    "id": "claim:test:review-rumor",
+                    "statement": "Synthetic rumor says EXDEV has a product issue.",
+                    "subject": "entity:company:exdev",
+                    "predicate": "product_signal",
+                    "object": "rumored product issue",
+                    "support_type": "rumor",
+                    "evidence": [{"id": "evidence:firsthand:review-rumor"}],
+                    "submitted_by": "github:tester",
+                },
+            )
+
+            status, build_payload = run_json_command(cli.run_index_build, repo)
+            self.assertEqual(status, 0, build_payload)
+            status, review = run_json_command(cli.run_review, repo, "claim:test:review-rumor")
+
+        self.assertEqual(status, 0, review)
+        self.assertEqual(review["review_state"]["primary_label"], "low_trust_only")
+        self.assertIn("has_low_trust_support", review["review_state"]["flags"])
+        self.assertEqual(
+            review["support_summary"]["low_trust_evidence_ids"],
+            ["evidence:firsthand:review-rumor"],
+        )
+
+    def test_review_handles_cyclic_thesis_dependencies(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            write_yaml(
+                repo / "theses" / "self-cycle.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "thesis",
+                    "id": "thesis:test:self-cycle",
+                    "title": "Self cycle thesis",
+                    "summary": "Synthetic thesis with a cyclic thesis dependency.",
+                    "depends_on": {
+                        "evidence": ["evidence:synthetic:exdev-fy2025-supplier-note"],
+                        "claims": [],
+                        "relationships": [],
+                        "theses": ["thesis:test:self-cycle"],
+                        "metrics": [],
+                        "events": [],
+                        "datasets": [],
+                    },
+                    "submitted_by": "github:tester",
+                },
+            )
+
+            status, build_payload = run_json_command(cli.run_index_build, repo)
+            self.assertEqual(status, 0, build_payload)
+            status, review = run_json_command(cli.run_review, repo, "thesis:test:self-cycle")
+
+        self.assertEqual(status, 0, review)
+        self.assertEqual(
+            review["target_evidence_summary"]["evidence_ids"],
+            ["evidence:synthetic:exdev-fy2025-supplier-note"],
+        )
+
+    def test_diff_review_flags_evidence_mutation_and_review_state_impact(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            init_git_repo(repo)
+
+            evidence_path = repo / "evidence" / "public" / "synthetic-exdev-fy2025-supplier-note.yml"
+            evidence = load_yaml(evidence_path)
+            evidence["excerpt"] = "Updated synthetic excerpt for diff-review."
+            write_yaml(evidence_path, evidence)
+            write_yaml(
+                repo / "challenges" / "diff-review-open-challenge.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "challenge",
+                    "id": "challenge:test:diff-review-open",
+                    "target": "claim:synthetic:exdev-uses-fndwy-for-x1",
+                    "submitted_by": "github:tester",
+                    "challenge_type": "missing_evidence",
+                    "summary": "Synthetic open challenge added by diff-review test.",
+                    "depends_on": {
+                        "evidence": ["evidence:synthetic:exdev-fy2025-supplier-note"],
+                        "claims": ["claim:synthetic:exdev-uses-fndwy-for-x1"],
+                        "relationships": [],
+                        "theses": [],
+                    },
+                },
+            )
+
+            status, payload = run_json_command(cli.run_diff_review, repo, "HEAD")
+
+        self.assertEqual(status, 0, payload)
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["record_delta"]["total"]["added"], 1)
+        self.assertEqual(payload["record_delta"]["total"]["modified"], 1)
+        warning_codes = {warning["code"] for warning in payload["warnings"]}
+        self.assertIn("modifies_canonical_evidence", warning_codes)
+        self.assertIn("adds_or_updates_open_challenge", warning_codes)
+        self.assertIn("review_state_changed", warning_codes)
+        review_impacts = {item["id"]: item for item in payload["review_state_impact"]}
+        self.assertEqual(
+            review_impacts["claim:synthetic:exdev-uses-fndwy-for-x1"]["before"]["review_state"][
+                "primary_label"
+            ],
+            "supported",
+        )
+        self.assertEqual(
+            review_impacts["claim:synthetic:exdev-uses-fndwy-for-x1"]["after"]["review_state"][
+                "primary_label"
+            ],
+            "contested",
+        )
+        self.assertIn(
+            "challenge:test:diff-review-open",
+            {item["id"] for item in payload["record_delta"]["added"]},
+        )
+
+    def test_diff_review_returns_validation_error_exit_for_invalid_current_tree(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            init_git_repo(repo)
+            write_yaml(
+                repo / "claims" / "diff-review-invalid.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "claim",
+                    "id": "claim:test:diff-review-invalid",
+                    "statement": "Invalid diff-review claim references missing evidence.",
+                    "subject": "entity:company:exdev",
+                    "predicate": "product_signal",
+                    "object": "missing evidence",
+                    "support_type": "direct",
+                    "evidence": [{"id": "evidence:test:missing"}],
+                    "submitted_by": "github:tester",
+                },
+            )
+
+            status, payload = run_json_command(cli.run_diff_review, repo, "HEAD")
+
+        self.assertEqual(status, 1, payload)
+        self.assertFalse(payload["ok"])
+        self.assertEqual(payload["record_delta"]["total"]["added"], 1)
+        self.assertIn("references missing id", payload["errors"][0]["message"])
 
     def test_new_source_evidence_and_claim_helpers_create_valid_yaml(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
