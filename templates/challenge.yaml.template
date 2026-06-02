@@ -1,0 +1,16 @@
+kind: challenge
+id: challenge:company-topic-slug
+target: thesis:company-topic-slug
+author: github:username
+challenge_type: missing_evidence
+summary: Short explanation of the issue being raised.
+depends_on:
+  evidence: []
+  claims: []
+  relationships: []
+  theses: []
+  arguments: []
+status: open
+created_at: "YYYY-MM-DDTHH:MM:SSZ"
+risk_flags: []
+

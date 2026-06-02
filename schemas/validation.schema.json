@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "validation.schema.json",
+  "title": "Validation",
+  "type": "object",
+  "required": ["kind", "id", "target", "author", "verdict", "summary", "depends_on"],
+  "properties": {
+    "kind": { "const": "validation" },
+    "id": { "type": "string", "pattern": "^validation:[A-Za-z0-9_.:-]+$" },
+    "target": {
+      "type": "string",
+      "pattern": "^(evidence|claim|rel|thesis):[A-Za-z0-9_.:-]+$"
+    },
+    "author": { "type": "string", "pattern": "^github:[A-Za-z0-9_.-]+$" },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "attests",
+        "corroborates",
+        "partially_corroborates",
+        "disputes",
+        "falsifies",
+        "marks_stale",
+        "withdraws"
+      ]
+    },
+    "summary": { "type": "string", "minLength": 1 },
+    "depends_on": {
+      "type": "object",
+      "properties": {
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^evidence:[A-Za-z0-9_.:-]+$" }
+        },
+        "claims": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^claim:[A-Za-z0-9_.:-]+$" }
+        },
+        "relationships": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^rel:[A-Za-z0-9_.:-]+$" }
+        },
+        "theses": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^thesis:[A-Za-z0-9_.:-]+$" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "confidence": { "type": "string", "enum": ["low", "medium", "high"] },
+    "created_at": { "type": "string" },
+    "risk_flags": { "type": "array", "items": { "type": "string" }, "default": [] }
+  },
+  "additionalProperties": true
+}
+

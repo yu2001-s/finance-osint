@@ -9,6 +9,8 @@ entity
 source
 evidence
 claim
+validation
+challenge
 relationship_type
 relationship
 thesis
@@ -28,6 +30,12 @@ Evidence
 
 Claim
   A narrow, checkable statement backed by evidence.
+
+Validation
+  An append-only review record that attests, corroborates, disputes, falsifies, or marks an object stale.
+
+Challenge
+  An append-only objection about missing evidence, source quality, scope, ontology, materiality, or legal risk.
 
 Relationship
   A typed graph object connecting entities through roles, scope, time, materiality, and provenance.
@@ -52,7 +60,21 @@ proposed_type_definition: relationship-types/proposals/critical_tooling_dependen
 
 The validator allows provisional types only when a proposed definition exists.
 
+Relationship instances are checked against their type definition:
+
+- participant roles must be allowed by the type
+- participant entity types must match the role
+- scope keys must be allowed by the type
+- qualifiers must be allowed by the type
+- materiality values must be allowed by the type
+- evidence-required types need evidence or claims
+
+## Evidence Policy
+
+`E4_anonymous_internal` and `E5_unverified_rumor` may be recorded, but they are low-trust classes. They cannot be the only support path for a corroborated or falsified claim, relationship, or validation.
+
+First-hand evidence classes must declare attribution, source access, and risk flags so readers can filter or discount them locally.
+
 ## Local Derived State
 
 `fo graph build` writes `.local/graph.json`. This file is derived from repo data and ignored by git.
-

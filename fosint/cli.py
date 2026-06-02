@@ -20,6 +20,8 @@ SCHEMA_BY_KIND = {
     "source": "source.schema.json",
     "evidence": "evidence.schema.json",
     "claim": "claim.schema.json",
+    "validation": "validation.schema.json",
+    "challenge": "challenge.schema.json",
     "relationship_type": "relationship-type.schema.json",
     "relationship": "relationship.schema.json",
     "thesis": "thesis.schema.json",
@@ -33,6 +35,8 @@ REF_PREFIXES = (
     "source:",
     "evidence:",
     "claim:",
+    "validation:",
+    "challenge:",
     "rel:",
     "thesis:",
     "debate:",
@@ -47,10 +51,23 @@ DATA_DIRS = (
     "sources",
     "evidence",
     "claims",
+    "validations",
+    "challenges",
     "relationships",
     "theses",
     "debates",
 )
+
+FIRST_HAND_EVIDENCE_CLASSES = {
+    "E2_firsthand_public",
+    "E3_firsthand_private",
+    "E4_anonymous_internal",
+    "E5_unverified_rumor",
+}
+LOW_TRUST_EVIDENCE_CLASSES = {"E4_anonymous_internal", "E5_unverified_rumor"}
+CANONICAL_CLAIM_STATUSES = {"corroborated", "falsified"}
+CANONICAL_RELATIONSHIP_STATUSES = {"supported", "corroborated", "falsified"}
+CANONICAL_VALIDATION_VERDICTS = {"corroborates", "falsifies"}
 
 
 @dataclass(frozen=True)
@@ -213,6 +230,78 @@ def entity_type_for(record_id: str, id_map: dict[str, Record]) -> str | None:
     return str(record.data.get("entity_type"))
 
 
+def as_string_list(value: Any) -> list[str]:
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list):
+        return [item for item in value if isinstance(item, str)]
+    return []
+
+
+def evidence_class_for(record_id: str, id_map: dict[str, Record]) -> str | None:
+    record = id_map.get(record_id)
+    if not record or record.kind != "evidence":
+        return None
+    return str(record.data.get("evidence_class"))
+
+
+def evidence_ids_for_claim(record: Record) -> list[str]:
+    return as_string_list(record.data.get("evidence"))
+
+
+def evidence_ids_for_relationship(record: Record, id_map: dict[str, Record]) -> list[str]:
+    derived_from = record.data.get("derived_from", {})
+    if not isinstance(derived_from, dict):
+        return []
+
+    evidence_ids = as_string_list(derived_from.get("evidence"))
+    for claim_id in as_string_list(derived_from.get("claims")):
+        claim = id_map.get(claim_id)
+        if claim and claim.kind == "claim":
+            evidence_ids.extend(evidence_ids_for_claim(claim))
+    return sorted(set(evidence_ids))
+
+
+def evidence_ids_for_validation(record: Record, id_map: dict[str, Record]) -> list[str]:
+    depends_on = record.data.get("depends_on", {})
+    if not isinstance(depends_on, dict):
+        return []
+
+    evidence_ids = as_string_list(depends_on.get("evidence"))
+    for claim_id in as_string_list(depends_on.get("claims")):
+        claim = id_map.get(claim_id)
+        if claim and claim.kind == "claim":
+            evidence_ids.extend(evidence_ids_for_claim(claim))
+    for relationship_id in as_string_list(depends_on.get("relationships")):
+        relationship = id_map.get(relationship_id)
+        if relationship and relationship.kind == "relationship":
+            evidence_ids.extend(evidence_ids_for_relationship(relationship, id_map))
+    return sorted(set(evidence_ids))
+
+
+def evidence_support_classes(evidence_ids: list[str], id_map: dict[str, Record]) -> set[str]:
+    return {
+        evidence_class
+        for evidence_id in evidence_ids
+        if (evidence_class := evidence_class_for(evidence_id, id_map))
+    }
+
+
+def has_non_low_trust_support(evidence_ids: list[str], id_map: dict[str, Record]) -> bool:
+    classes = evidence_support_classes(evidence_ids, id_map)
+    return any(evidence_class not in LOW_TRUST_EVIDENCE_CLASSES for evidence_class in classes)
+
+
+def normalize_qualifiers(value: Any) -> list[str]:
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list):
+        return [item for item in value if isinstance(item, str)]
+    if isinstance(value, dict):
+        return [str(key) for key, enabled in value.items() if enabled]
+    return []
+
+
 def validate_relationships(
     root: Path, records: list[Record], id_map: dict[str, Record]
 ) -> list[str]:
@@ -263,6 +352,10 @@ def validate_relationships(
                 )
                 continue
             if not isinstance(participant_id, str) or not participant_id.startswith("entity:"):
+                errors.append(
+                    f"{relative}: participant `{role}` must reference an entity id, got "
+                    f"`{participant_id}`"
+                )
                 continue
             actual_entity_type = entity_type_for(participant_id, id_map)
             allowed_entity_types = roles[role].get("entity_types", [])
@@ -278,8 +371,26 @@ def validate_relationships(
             for key in scope:
                 if key not in allowed_scope:
                     errors.append(
-                        f"{relative}: scope `{key}` is not allowed by relationship type `{rel_type}`"
+                        f"{relative}: scope `{key}` is not allowed by "
+                        f"relationship type `{rel_type}`"
                     )
+
+        allowed_qualifiers = set(type_def.data.get("allowed_qualifiers", []))
+        if allowed_qualifiers:
+            for qualifier in normalize_qualifiers(record.data.get("qualifiers")):
+                if qualifier not in allowed_qualifiers:
+                    errors.append(
+                        f"{relative}: qualifier `{qualifier}` is not allowed by "
+                        f"relationship type `{rel_type}`"
+                    )
+
+        allowed_materiality = type_def.data.get("materiality", {}).get("allowed_values", [])
+        materiality_level = record.data.get("materiality", {}).get("level")
+        if allowed_materiality and materiality_level and materiality_level not in allowed_materiality:
+            errors.append(
+                f"{relative}: materiality level `{materiality_level}` is not allowed by "
+                f"relationship type `{rel_type}`"
+            )
 
         if type_def.data.get("evidence_required"):
             derived_from = record.data.get("derived_from", {})
@@ -287,6 +398,65 @@ def validate_relationships(
             has_evidence = bool(derived_from.get("evidence"))
             if not has_claims and not has_evidence:
                 errors.append(f"{relative}: relationship type `{rel_type}` requires evidence or claims")
+
+    return errors
+
+
+def validate_evidence_policy(
+    root: Path, records: list[Record], id_map: dict[str, Record]
+) -> list[str]:
+    errors: list[str] = []
+
+    for record in records:
+        relative = record.path.relative_to(root)
+
+        if record.kind == "evidence":
+            evidence_class = str(record.data.get("evidence_class", ""))
+            if evidence_class in FIRST_HAND_EVIDENCE_CLASSES:
+                if "attribution" not in record.data:
+                    errors.append(f"{relative}: first-hand evidence must declare attribution")
+                if not isinstance(record.data.get("source_access"), dict):
+                    errors.append(f"{relative}: first-hand evidence must declare source_access")
+                if "risk_flags" not in record.data:
+                    errors.append(f"{relative}: first-hand evidence must declare risk_flags")
+            if evidence_class in LOW_TRUST_EVIDENCE_CLASSES and not record.data.get("risk_flags"):
+                errors.append(f"{relative}: low-trust evidence must include at least one risk_flag")
+
+        if record.kind == "claim":
+            status = str(record.data.get("status", ""))
+            confidence = str(record.data.get("confidence", ""))
+            evidence_ids = evidence_ids_for_claim(record)
+            if (status in CANONICAL_CLAIM_STATUSES or confidence == "high") and not (
+                has_non_low_trust_support(evidence_ids, id_map)
+            ):
+                errors.append(
+                    f"{relative}: `{status}` claim with `{confidence}` confidence needs at least "
+                    "one non-low-trust evidence record"
+                )
+
+        if record.kind == "relationship":
+            status = str(record.data.get("status", ""))
+            confidence = str(record.data.get("confidence", ""))
+            evidence_ids = evidence_ids_for_relationship(record, id_map)
+            if (status in CANONICAL_RELATIONSHIP_STATUSES or confidence == "high") and not (
+                has_non_low_trust_support(evidence_ids, id_map)
+            ):
+                errors.append(
+                    f"{relative}: `{status}` relationship with `{confidence}` confidence needs at "
+                    "least one non-low-trust evidence record through derived_from"
+                )
+
+        if record.kind == "validation":
+            verdict = str(record.data.get("verdict", ""))
+            confidence = str(record.data.get("confidence", ""))
+            evidence_ids = evidence_ids_for_validation(record, id_map)
+            if (verdict in CANONICAL_VALIDATION_VERDICTS or confidence == "high") and not (
+                has_non_low_trust_support(evidence_ids, id_map)
+            ):
+                errors.append(
+                    f"{relative}: `{verdict}` validation with `{confidence}` confidence needs at "
+                    "least one non-low-trust evidence record"
+                )
 
     return errors
 
@@ -382,6 +552,7 @@ def run_lint(root: Path) -> int:
     errors.extend(id_errors)
     errors.extend(validate_references(root, records, id_map))
     errors.extend(validate_relationships(root, records, id_map))
+    errors.extend(validate_evidence_policy(root, records, id_map))
 
     if errors:
         for error in errors:

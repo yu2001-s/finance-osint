@@ -1,0 +1,16 @@
+kind: validation
+id: validation:company-topic-slug
+target: claim:company-topic-slug
+author: github:username
+verdict: corroborates
+summary: Short explanation of what this validation establishes.
+depends_on:
+  evidence:
+    - evidence:provider:slug
+  claims: []
+  relationships: []
+  theses: []
+confidence: low
+created_at: "YYYY-MM-DDTHH:MM:SSZ"
+risk_flags: []
+

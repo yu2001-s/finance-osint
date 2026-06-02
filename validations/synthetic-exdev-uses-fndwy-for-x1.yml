@@ -1,0 +1,18 @@
+kind: validation
+id: validation:synthetic:exdev-uses-fndwy-for-x1
+target: claim:synthetic:exdev-uses-fndwy-for-x1
+author: github:scaffold
+verdict: corroborates
+summary: The synthetic fixture excerpt directly supports the narrow supplier-use claim.
+depends_on:
+  evidence:
+    - evidence:synthetic:exdev-fy2025-supplier-note
+  claims:
+    - claim:synthetic:exdev-uses-fndwy-for-x1
+  relationships: []
+  theses: []
+confidence: low
+created_at: "2026-06-02T00:00:00Z"
+risk_flags:
+  - synthetic_fixture
+
