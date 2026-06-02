@@ -1,0 +1,30 @@
+kind: relationship_type
+id: customer_relationship
+label: Customer Relationship
+description: One entity sells goods, components, infrastructure, or services to another entity.
+directional: true
+roles:
+  seller:
+    entity_types: [company]
+    description: Entity selling the good, component, infrastructure, or service.
+  customer:
+    entity_types: [company]
+    description: Entity buying from the seller.
+allowed_scope:
+  - product
+  - component
+  - service
+  - geography
+  - market
+  - technology
+allowed_qualifiers:
+  - downstream
+  - strategic_customer
+  - concentrated_customer
+  - channel_customer
+inverse_type: supplier_relationship
+materiality:
+  allowed_values: [low, medium, high, critical]
+evidence_required: true
+status: registered
+

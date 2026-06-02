@@ -1,0 +1,26 @@
+kind: relationship
+id: rel:company-a-company-b-topic
+type: supplier_relationship
+participants:
+  buyer: entity:company:BUYER
+  supplier: entity:company:SUPPLIER
+scope:
+  product: entity:product:product-slug
+direction:
+  supply_chain: upstream
+time_scope:
+  start: "YYYY-MM-DD"
+  end: null
+materiality:
+  level: medium
+  basis: inferred
+status: proposed
+confidence: low
+derived_from:
+  claims:
+    - claim:company-topic-slug
+  evidence:
+    - evidence:provider:slug
+submitted_by: github:username
+created_at: "YYYY-MM-DDTHH:MM:SSZ"
+

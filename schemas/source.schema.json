@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "source.schema.json",
+  "title": "Source",
+  "type": "object",
+  "required": ["kind", "id", "source_type", "title", "public_status", "accessed_at"],
+  "properties": {
+    "kind": { "const": "source" },
+    "id": { "type": "string", "pattern": "^source:[A-Za-z0-9_.:-]+$" },
+    "source_type": {
+      "type": "string",
+      "enum": ["sec_filing", "transcript", "press_release", "court_document", "official_dataset", "web_page", "news_article", "research_report", "conference", "meeting", "field_observation", "anonymous_report", "internal_report", "other"]
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "publisher": { "type": "string" },
+    "url": { "type": "string" },
+    "archive_url": { "type": "string" },
+    "published_at": { "type": "string" },
+    "accessed_at": { "type": "string" },
+    "public_status": { "type": "string", "enum": ["public", "nonpublic", "unknown"] },
+    "provenance": { "type": "string" },
+    "risk_flags": { "type": "array", "items": { "type": "string" }, "default": [] }
+  },
+  "additionalProperties": true
+}
+

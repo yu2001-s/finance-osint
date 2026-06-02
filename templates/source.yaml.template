@@ -1,0 +1,13 @@
+kind: source
+id: source:public:provider:slug
+source_type: sec_filing
+title: Source title
+publisher: Publisher
+url: https://example.com/source
+archive_url: https://web.archive.org/example
+published_at: "YYYY-MM-DD"
+accessed_at: "YYYY-MM-DDTHH:MM:SSZ"
+public_status: public
+provenance: How this source was obtained.
+risk_flags: []
+

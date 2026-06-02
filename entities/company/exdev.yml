@@ -1,0 +1,12 @@
+kind: entity
+id: entity:company:EXDEV
+entity_type: company
+name: Synthetic Example Devices Inc.
+aliases:
+  - Example Devices
+identifiers:
+  ticker: EXDEV
+description: Synthetic company used to exercise the Finance OSINT scaffold.
+status: proposed
+created_at: "2026-06-02T00:00:00Z"
+

@@ -1,0 +1,18 @@
+kind: evidence
+id: evidence:provider:slug
+evidence_class: E0_public_primary
+source: source:public:provider:slug
+summary: Short summary of the exact evidence.
+excerpt: "Short exact excerpt or observation."
+locator:
+  section: Section name
+observed_at: "YYYY-MM-DDTHH:MM:SSZ"
+submitted_by: github:username
+attribution: named_contributor
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+risk_flags: []
+status: attested
+

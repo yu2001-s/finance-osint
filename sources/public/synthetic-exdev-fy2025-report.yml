@@ -1,0 +1,12 @@
+kind: source
+id: source:public:synthetic:exdev-fy2025-report
+source_type: other
+title: Synthetic Example Devices FY2025 Report
+publisher: Finance OSINT scaffold
+published_at: "2026-06-02"
+accessed_at: "2026-06-02T00:00:00Z"
+public_status: public
+provenance: Synthetic fixture for validating the repo data model.
+risk_flags:
+  - synthetic_fixture
+

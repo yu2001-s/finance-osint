@@ -1,0 +1,27 @@
+kind: relationship_type
+id: critical_tooling_dependency
+label: Critical Tooling Dependency
+description: One entity materially depends on another entity's specialized tools, equipment, or infrastructure.
+directional: true
+roles:
+  dependent:
+    entity_types: [company]
+    description: Entity whose operations depend on the tooling provider.
+  provider:
+    entity_types: [company]
+    description: Entity providing specialized tooling, equipment, or infrastructure.
+allowed_scope:
+  - technology
+  - product
+  - component
+  - manufacturing_process
+allowed_qualifiers:
+  - critical
+  - bottleneck
+  - single_source
+inverse_type: null
+materiality:
+  allowed_values: [low, medium, high, critical]
+evidence_required: true
+status: proposed
+

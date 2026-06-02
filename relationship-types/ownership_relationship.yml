@@ -1,0 +1,28 @@
+kind: relationship_type
+id: ownership_relationship
+label: Ownership Relationship
+description: One entity owns, controls, or holds an economic interest in another entity.
+directional: true
+roles:
+  owner:
+    entity_types: [company, person, fund]
+    description: Entity with ownership or control.
+  owned:
+    entity_types: [company, fund]
+    description: Entity being owned or controlled.
+allowed_scope:
+  - ownership_percentage
+  - voting_power
+  - share_class
+  - filing_period
+allowed_qualifiers:
+  - majority
+  - minority
+  - beneficial_owner
+  - controlling_owner
+inverse_type: null
+materiality:
+  allowed_values: [low, medium, high, critical]
+evidence_required: true
+status: registered
+

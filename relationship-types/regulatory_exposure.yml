@@ -1,0 +1,28 @@
+kind: relationship_type
+id: regulatory_exposure
+label: Regulatory Exposure
+description: An entity is materially exposed to a law, rule, regulatory body, policy, or enforcement process.
+directional: true
+roles:
+  exposed_entity:
+    entity_types: [company, product, market]
+    description: Entity affected by the regulatory object.
+  regulatory_object:
+    entity_types: [regulation, geography]
+    description: Regulation, jurisdiction, agency context, or policy object.
+allowed_scope:
+  - geography
+  - product
+  - market
+  - compliance_area
+allowed_qualifiers:
+  - pending
+  - active
+  - proposed
+  - enforcement
+inverse_type: null
+materiality:
+  allowed_values: [low, medium, high, critical]
+evidence_required: true
+status: registered
+

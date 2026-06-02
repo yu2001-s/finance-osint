@@ -1,0 +1,18 @@
+kind: thesis
+id: thesis:company-topic-slug
+title: Thesis title
+summary: Interpretation or forecast built from dependencies.
+stance: exploratory
+status: draft
+confidence: low
+time_horizon: 6-18 months
+depends_on:
+  evidence: []
+  claims: []
+  relationships: []
+contradicting_evidence: []
+risk_flags:
+  - inference
+author: github:username
+created_at: "YYYY-MM-DDTHH:MM:SSZ"
+

@@ -1,0 +1,8 @@
+kind: entity
+id: entity:geography:global
+entity_type: geography
+name: Global
+description: Global geographic scope.
+status: active
+created_at: "2026-06-02T00:00:00Z"
+

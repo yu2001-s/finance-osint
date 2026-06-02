@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "relationship-type.schema.json",
+  "title": "Relationship Type",
+  "type": "object",
+  "required": ["kind", "id", "label", "description", "directional", "roles"],
+  "properties": {
+    "kind": { "const": "relationship_type" },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "label": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "directional": { "type": "boolean" },
+    "roles": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["entity_types"],
+        "properties": {
+          "entity_types": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" }
+          },
+          "description": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "allowed_scope": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "allowed_qualifiers": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "inverse_type": { "type": ["string", "null"] },
+    "materiality": {
+      "type": "object",
+      "properties": {
+        "allowed_values": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "evidence_required": { "type": "boolean" },
+    "status": { "type": "string", "enum": ["registered", "proposed", "retired"] }
+  },
+  "additionalProperties": true
+}
+

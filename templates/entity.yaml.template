@@ -1,0 +1,11 @@
+kind: entity
+id: entity:company:TICKER
+entity_type: company
+name: Company Name
+aliases: []
+identifiers:
+  ticker: TICKER
+description: Short description.
+status: proposed
+created_at: "YYYY-MM-DDTHH:MM:SSZ"
+

@@ -1,0 +1,15 @@
+kind: debate
+id: debate:company-topic-slug
+title: Debate title
+question: Concrete question the debate is trying to resolve.
+status: open
+entities: []
+linked_claims: []
+linked_relationships: []
+linked_theses: []
+positions: []
+time_scope:
+  start: "YYYY-MM-DD"
+  end: null
+created_at: "YYYY-MM-DDTHH:MM:SSZ"
+

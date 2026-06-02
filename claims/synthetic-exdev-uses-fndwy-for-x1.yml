@@ -1,0 +1,21 @@
+kind: claim
+id: claim:synthetic:exdev-uses-fndwy-for-x1
+statement: Synthetic Example Devices uses Synthetic Foundry Works for the X1 Processor used in Example Phone.
+subject: entity:company:EXDEV
+predicate: uses_supplier
+object: entity:company:FNDWY
+qualifiers:
+  product: entity:product:example-phone
+  component: entity:component:x1-processor
+time_scope:
+  start: "2025-01-01"
+  end: null
+status: proposed
+confidence: low
+evidence:
+  - evidence:synthetic:exdev-fy2025-supplier-note
+submitted_by: github:scaffold
+created_at: "2026-06-02T00:00:00Z"
+risk_flags:
+  - synthetic_fixture
+

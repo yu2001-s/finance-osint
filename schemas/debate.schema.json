@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "debate.schema.json",
+  "title": "Debate",
+  "type": "object",
+  "required": ["kind", "id", "title", "question", "status"],
+  "properties": {
+    "kind": { "const": "debate" },
+    "id": { "type": "string", "pattern": "^debate:[A-Za-z0-9_.:-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "question": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["open", "resolved", "paused", "closed"] },
+    "entities": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "linked_claims": { "type": "array", "items": { "type": "string", "pattern": "^claim:[A-Za-z0-9_.:-]+$" }, "default": [] },
+    "linked_relationships": { "type": "array", "items": { "type": "string", "pattern": "^rel:[A-Za-z0-9_.:-]+$" }, "default": [] },
+    "linked_theses": { "type": "array", "items": { "type": "string", "pattern": "^thesis:[A-Za-z0-9_.:-]+$" }, "default": [] },
+    "positions": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "time_scope": { "type": "object", "additionalProperties": true },
+    "created_at": { "type": "string" }
+  },
+  "additionalProperties": true
+}
+

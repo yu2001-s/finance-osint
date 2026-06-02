@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "evidence.schema.json",
+  "title": "Evidence",
+  "type": "object",
+  "required": ["kind", "id", "evidence_class", "source", "summary", "submitted_by", "observed_at"],
+  "properties": {
+    "kind": { "const": "evidence" },
+    "id": { "type": "string", "pattern": "^evidence:[A-Za-z0-9_.:-]+$" },
+    "evidence_class": {
+      "type": "string",
+      "enum": ["E0_public_primary", "E1_public_secondary", "E2_firsthand_public", "E3_firsthand_private", "E4_anonymous_internal", "E5_unverified_rumor"]
+    },
+    "source": { "type": "string", "pattern": "^source:[A-Za-z0-9_.:-]+$" },
+    "summary": { "type": "string", "minLength": 1 },
+    "excerpt": { "type": "string" },
+    "locator": {
+      "type": "object",
+      "properties": {
+        "page": { "type": ["integer", "string"] },
+        "section": { "type": "string" },
+        "table": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "observed_at": { "type": "string" },
+    "submitted_by": { "type": "string", "pattern": "^github:[A-Za-z0-9_.-]+$" },
+    "attribution": { "type": "string", "enum": ["named_contributor", "anonymous_to_public", "anonymous_to_maintainers", "unknown"] },
+    "source_access": {
+      "type": "object",
+      "properties": {
+        "nda_or_confidentiality": { "type": ["boolean", "string"] },
+        "recording_available": { "type": ["boolean", "string"] },
+        "source_identity_public": { "type": ["boolean", "string"] }
+      },
+      "additionalProperties": true
+    },
+    "risk_flags": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "status": { "type": "string", "enum": ["attested", "corroborated", "contested", "partially_corroborated", "unverifiable", "withdrawn"] }
+  },
+  "additionalProperties": true
+}
+

@@ -1,0 +1,24 @@
+[project]
+name = "finance-osint"
+version = "0.1.0"
+description = "Local-first finance OSINT evidence graph scaffold."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "jsonschema>=4.21",
+  "PyYAML>=6.0",
+]
+
+[project.scripts]
+fo = "fosint.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["fosint*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

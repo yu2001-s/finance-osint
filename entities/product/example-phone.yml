@@ -1,0 +1,8 @@
+kind: entity
+id: entity:product:example-phone
+entity_type: product
+name: Example Phone
+description: Synthetic consumer device product used in scaffold examples.
+status: proposed
+created_at: "2026-06-02T00:00:00Z"
+

@@ -1,0 +1,29 @@
+kind: relationship_type
+id: product_dependency
+label: Product Dependency
+description: A product depends on a component, technology, service, commodity, or external input.
+directional: true
+roles:
+  product:
+    entity_types: [product]
+    description: Product whose function, production, or economics depends on another entity.
+  dependency:
+    entity_types: [component, technology, commodity, service, company]
+    description: Required component, technology, service, commodity, or provider.
+allowed_scope:
+  - component
+  - technology
+  - service
+  - geography
+  - manufacturing_process
+allowed_qualifiers:
+  - critical
+  - optional
+  - substitutable
+  - single_source
+inverse_type: null
+materiality:
+  allowed_values: [low, medium, high, critical]
+evidence_required: true
+status: registered
+

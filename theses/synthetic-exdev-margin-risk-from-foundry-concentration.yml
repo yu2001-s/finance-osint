@@ -1,0 +1,22 @@
+kind: thesis
+id: thesis:synthetic:exdev-margin-risk-from-foundry-concentration
+title: Example Devices may have margin risk from foundry concentration
+summary: If Example Devices has limited manufacturing alternatives for the X1 Processor, supplier pricing or capacity pressure could affect Example Phone gross margin.
+stance: exploratory_bearish
+status: draft
+confidence: low
+time_horizon: 6-18 months
+depends_on:
+  evidence:
+    - evidence:synthetic:exdev-fy2025-supplier-note
+  claims:
+    - claim:synthetic:exdev-uses-fndwy-for-x1
+  relationships:
+    - rel:synthetic:exdev-fndwy-x1-supply
+contradicting_evidence: []
+risk_flags:
+  - inference
+  - synthetic_fixture
+author: github:scaffold
+created_at: "2026-06-02T00:00:00Z"
+

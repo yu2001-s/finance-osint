@@ -1,0 +1,28 @@
+kind: relationship_type
+id: technology_dependency
+label: Technology Dependency
+description: An entity depends on a technology, manufacturing process, technical standard, or technical capability.
+directional: true
+roles:
+  dependent:
+    entity_types: [company, product, component]
+    description: Entity depending on the technology.
+  technology:
+    entity_types: [technology, component]
+    description: Technology, process, or technical capability being depended on.
+allowed_scope:
+  - product
+  - component
+  - manufacturing_process
+  - geography
+allowed_qualifiers:
+  - critical
+  - emerging
+  - substitutable
+  - proprietary
+inverse_type: null
+materiality:
+  allowed_values: [low, medium, high, critical]
+evidence_required: true
+status: registered
+

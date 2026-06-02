@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "entity.schema.json",
+  "title": "Entity",
+  "type": "object",
+  "required": ["kind", "id", "entity_type", "name", "status"],
+  "properties": {
+    "kind": { "const": "entity" },
+    "id": { "type": "string", "pattern": "^entity:[a-z_]+:[A-Za-z0-9_.-]+$" },
+    "entity_type": {
+      "type": "string",
+      "enum": ["company", "person", "product", "component", "market", "geography", "commodity", "technology", "regulation", "fund", "service"]
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "aliases": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "identifiers": {
+      "type": "object",
+      "additionalProperties": { "type": ["string", "number", "array", "null"] }
+    },
+    "description": { "type": "string" },
+    "status": { "type": "string", "enum": ["active", "inactive", "proposed", "merged", "retired"] },
+    "created_at": { "type": "string" },
+    "updated_at": { "type": "string" }
+  },
+  "additionalProperties": true
+}

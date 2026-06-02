@@ -1,0 +1,18 @@
+kind: claim
+id: claim:company-topic-slug
+statement: Narrow checkable statement.
+subject: entity:company:TICKER
+predicate: predicate_name
+object: entity:company:OTHER
+qualifiers: {}
+time_scope:
+  start: "YYYY-MM-DD"
+  end: null
+status: proposed
+confidence: low
+evidence:
+  - evidence:provider:slug
+submitted_by: github:username
+created_at: "YYYY-MM-DDTHH:MM:SSZ"
+risk_flags: []
+

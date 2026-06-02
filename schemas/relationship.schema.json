@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "relationship.schema.json",
+  "title": "Relationship",
+  "type": "object",
+  "required": ["kind", "id", "type", "participants", "status", "confidence"],
+  "properties": {
+    "kind": { "const": "relationship" },
+    "id": { "type": "string", "pattern": "^rel:[A-Za-z0-9_.:-]+$" },
+    "type": { "type": "string", "pattern": "^([a-z][a-z0-9_]*|provisional:[a-z][a-z0-9_]*)$" },
+    "participants": {
+      "type": "object",
+      "minProperties": 2,
+      "additionalProperties": { "type": "string" }
+    },
+    "scope": { "type": "object", "additionalProperties": true },
+    "direction": { "type": "object", "additionalProperties": true },
+    "time_scope": {
+      "type": "object",
+      "properties": {
+        "start": { "type": ["string", "null"] },
+        "end": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+    "materiality": {
+      "type": "object",
+      "properties": {
+        "level": { "type": "string" },
+        "basis": { "type": "string", "enum": ["observed", "inferred", "estimated", "unknown"] }
+      },
+      "additionalProperties": true
+    },
+    "status": { "type": "string", "enum": ["proposed", "supported", "corroborated", "contested", "falsified", "superseded", "stale"] },
+    "confidence": { "type": "string", "enum": ["low", "medium", "high"] },
+    "derived_from": {
+      "type": "object",
+      "properties": {
+        "claims": { "type": "array", "items": { "type": "string", "pattern": "^claim:[A-Za-z0-9_.:-]+$" } },
+        "evidence": { "type": "array", "items": { "type": "string", "pattern": "^evidence:[A-Za-z0-9_.:-]+$" } }
+      },
+      "additionalProperties": true
+    },
+    "proposed_type_definition": { "type": "string" },
+    "submitted_by": { "type": "string", "pattern": "^github:[A-Za-z0-9_.-]+$" },
+    "created_at": { "type": "string" }
+  },
+  "additionalProperties": true
+}
+

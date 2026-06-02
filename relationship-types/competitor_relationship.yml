@@ -1,0 +1,28 @@
+kind: relationship_type
+id: competitor_relationship
+label: Competitor Relationship
+description: Entities compete in a market, product category, customer segment, or use case.
+directional: false
+roles:
+  competitor_a:
+    entity_types: [company, product]
+    description: One competing entity.
+  competitor_b:
+    entity_types: [company, product]
+    description: Another competing entity.
+allowed_scope:
+  - product
+  - market
+  - geography
+  - customer_segment
+allowed_qualifiers:
+  - direct
+  - indirect
+  - emerging
+  - substitute
+inverse_type: competitor_relationship
+materiality:
+  allowed_values: [low, medium, high, critical]
+evidence_required: true
+status: registered
+

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "resolution.schema.json",
+  "title": "Resolution",
+  "type": "object",
+  "required": ["kind", "id", "debate", "status", "summary", "author"],
+  "properties": {
+    "kind": { "const": "resolution" },
+    "id": { "type": "string", "pattern": "^resolution:[A-Za-z0-9_.:-]+$" },
+    "debate": { "type": "string", "pattern": "^debate:[A-Za-z0-9_.:-]+$" },
+    "status": { "type": "string", "enum": ["supported", "contested", "weakened", "unresolved", "superseded"] },
+    "summary": { "type": "string", "minLength": 1 },
+    "effects": { "type": "object", "additionalProperties": true },
+    "open_questions": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "author": { "type": "string", "pattern": "^github:[A-Za-z0-9_.-]+$" },
+    "created_at": { "type": "string" }
+  },
+  "additionalProperties": true
+}
+
