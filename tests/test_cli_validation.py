@@ -232,6 +232,97 @@ class CliValidationTests(unittest.TestCase):
         self.assertEqual(payload["command"], "lint")
         self.assertEqual(payload["errors"], [])
 
+    def test_lint_warns_for_mutable_source_without_preservation(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            write_yaml(
+                repo / "sources" / "public" / "mutable-web-source.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "source",
+                    "id": "source:test:mutable-web-source",
+                    "source_type": "web_page",
+                    "title": "Mutable web source",
+                    "url": "https://example.test/mutable",
+                    "public_status": "public",
+                    "accessed_at": "2026-06-03T00:00:00Z",
+                    "content_mode": "external_link",
+                },
+            )
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        self.assertEqual(
+            [warning["code"] for warning in payload["warnings"]],
+            ["mutable_source_without_preservation"],
+        )
+
+    def test_lint_accepts_referenced_source_artifact_for_mutable_source(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            artifact = repo / "artifacts" / "sources" / "mutable-web-source" / "screenshot.png"
+            artifact.parent.mkdir(parents=True)
+            artifact.write_bytes(b"small artifact")
+            write_yaml(
+                repo / "sources" / "public" / "mutable-web-source.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "source",
+                    "id": "source:test:mutable-web-source",
+                    "source_type": "web_page",
+                    "title": "Mutable web source",
+                    "url": "https://example.test/mutable",
+                    "public_status": "public",
+                    "accessed_at": "2026-06-03T00:00:00Z",
+                    "content_mode": "external_link",
+                    "source_artifacts": [
+                        "artifacts/sources/mutable-web-source/screenshot.png"
+                    ],
+                },
+            )
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        self.assertEqual(payload["warnings"], [])
+
+    def test_lint_rejects_unreferenced_source_artifact(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            artifact = repo / "artifacts" / "sources" / "unreferenced" / "screenshot.png"
+            artifact.parent.mkdir(parents=True)
+            artifact.write_bytes(b"small artifact")
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 1, output)
+        self.assertIn("source artifact is not referenced", output)
+
+    def test_lint_rejects_bad_source_artifact_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            write_yaml(
+                repo / "sources" / "public" / "bad-artifact-path.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "source",
+                    "id": "source:test:bad-artifact-path",
+                    "source_type": "web_page",
+                    "title": "Bad artifact path",
+                    "public_status": "public",
+                    "accessed_at": "2026-06-03T00:00:00Z",
+                    "content_mode": "external_link",
+                    "source_artifacts": ["screenshots/bad.png"],
+                },
+            )
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 1, output)
+        self.assertIn("source_artifacts", output)
+        self.assertIn("artifacts/sources", output)
+
     def test_index_build_and_search_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
@@ -672,6 +763,40 @@ class CliValidationTests(unittest.TestCase):
         self.assertEqual(status, 0, output)
         self.assertEqual(claim["record"]["evidence"], [{"id": evidence["id"]}])
         self.assertTrue(claim["path"].startswith("claims/generated/"))
+
+    def test_new_source_helper_records_source_artifact(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            artifact = repo / "artifacts" / "sources" / "helper-source" / "screenshot.png"
+            artifact.parent.mkdir(parents=True)
+            artifact.write_bytes(b"small artifact")
+
+            status, source = run_new_json(
+                cli.run_new_source,
+                repo,
+                source_type="web_page",
+                title="Helper Source With Artifact",
+                public_status="public",
+                accessed_at="2026-06-03T00:00:00Z",
+                content_mode="external_link",
+                submitted_by="github:tester",
+                publisher="Finance OSINT tests",
+                url="https://example.test/helper-source",
+                archive_url=None,
+                published_at=None,
+                provenance="Synthetic helper artifact test.",
+                source_artifact=["artifacts/sources/helper-source/screenshot.png"],
+            )
+            self.assertEqual(status, 0, source)
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        self.assertEqual(payload["warnings"], [])
+        self.assertEqual(
+            source["record"]["source_artifacts"],
+            ["artifacts/sources/helper-source/screenshot.png"],
+        )
 
     def test_new_claim_helper_rejects_missing_reference(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -89,6 +89,20 @@ mutations, reference impact, derived review-state movement, graph edge changes,
 ontology changes, and deterministic warnings. Warnings are review pressure;
 schema/reference failures are hard errors.
 
+## Source Preservation
+
+Mutable web-like sources should not rely on `url` alone. Prefer `archive_url`.
+If no archive exists, preserve the source with at least one of:
+
+- bounded `evidence.excerpt`
+- source `content_hash`
+- small referenced `source_artifacts`
+
+Local source artifacts must live under `artifacts/sources/`, must be referenced
+by a source or evidence record, must be `png`, `jpg`, `jpeg`, or `pdf`, and must
+stay under 2 MB per file. `fo lint` warns for mutable web sources without a
+preservation path and fails hard on invalid artifact files.
+
 ## Deterministic Write Helpers
 
 `fo new` creates valid YAML from explicit inputs only. It does not fetch sources,

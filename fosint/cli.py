@@ -123,6 +123,11 @@ EVIDENCE_INTEGRITY_FIELDS = {
     "source_access",
     "verification_status",
 }
+MUTABLE_WEB_SOURCE_TYPES = {"web_page", "news_article", "research_report"}
+ARTIFACTS_ROOT = Path("artifacts")
+SOURCE_ARTIFACTS_ROOT = Path("artifacts/sources")
+SOURCE_ARTIFACT_SUFFIXES = {".png", ".jpg", ".jpeg", ".pdf"}
+MAX_SOURCE_ARTIFACT_BYTES = 2 * 1024 * 1024
 
 
 @dataclass(frozen=True)
@@ -661,6 +666,146 @@ def validate_evidence_policy(
                 errors.append(f"{relative}: rumor support_type needs rumor evidence")
 
     return errors
+
+
+def source_artifact_refs(record: Record) -> list[str]:
+    value = record.data.get("source_artifacts", [])
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list):
+        return [item for item in value if isinstance(item, str)]
+    return []
+
+
+def is_safe_relative_path(path_text: str) -> bool:
+    path = Path(path_text)
+    return not path.is_absolute() and ".." not in path.parts
+
+
+def is_allowed_source_artifact_path(path_text: str) -> bool:
+    path = Path(path_text)
+    return (
+        is_safe_relative_path(path_text)
+        and len(path.parts) >= 3
+        and Path(*path.parts[:2]) == SOURCE_ARTIFACTS_ROOT
+        and path.suffix.lower() in SOURCE_ARTIFACT_SUFFIXES
+    )
+
+
+def referenced_source_artifacts(records: list[Record]) -> set[str]:
+    refs: set[str] = set()
+    for record in records:
+        refs.update(source_artifact_refs(record))
+    return refs
+
+
+def source_artifact_files(root: Path) -> list[Path]:
+    artifacts = root / ARTIFACTS_ROOT
+    if not artifacts.exists():
+        return []
+    return sorted(path for path in artifacts.rglob("*") if path.is_file())
+
+
+def validate_source_artifacts(root: Path, records: list[Record]) -> list[str]:
+    errors: list[str] = []
+    refs = referenced_source_artifacts(records)
+
+    for record in records:
+        if "source_artifacts" in record.data and record.kind not in {"source", "evidence"}:
+            errors.append(
+                f"{record.path.relative_to(root)}: source_artifacts is only allowed on "
+                "source or evidence records"
+            )
+        for artifact in source_artifact_refs(record):
+            if not is_allowed_source_artifact_path(artifact):
+                errors.append(
+                    f"{record.path.relative_to(root)}: source_artifacts path `{artifact}` must "
+                    "stay under artifacts/sources/ and use png, jpg, jpeg, or pdf"
+                )
+                continue
+            artifact_path = root / artifact
+            if not artifact_path.exists():
+                errors.append(
+                    f"{record.path.relative_to(root)}: source_artifacts path `{artifact}` does not exist"
+                )
+                continue
+            if artifact_path.stat().st_size > MAX_SOURCE_ARTIFACT_BYTES:
+                errors.append(
+                    f"{artifact}: source artifact exceeds {MAX_SOURCE_ARTIFACT_BYTES} bytes"
+                )
+
+    for artifact_path in source_artifact_files(root):
+        relative = artifact_path.relative_to(root)
+        relative_text = str(relative)
+        if len(relative.parts) < 2 or Path(*relative.parts[:2]) != SOURCE_ARTIFACTS_ROOT:
+            errors.append(f"{relative_text}: artifact files must live under artifacts/sources/")
+            continue
+        if artifact_path.suffix.lower() not in SOURCE_ARTIFACT_SUFFIXES:
+            errors.append(
+                f"{relative_text}: source artifact file type must be png, jpg, jpeg, or pdf"
+            )
+            continue
+        if relative_text not in refs:
+            errors.append(f"{relative_text}: source artifact is not referenced by any source/evidence record")
+        if artifact_path.stat().st_size > MAX_SOURCE_ARTIFACT_BYTES:
+            errors.append(f"{relative_text}: source artifact exceeds {MAX_SOURCE_ARTIFACT_BYTES} bytes")
+
+    return sorted(set(errors))
+
+
+def source_has_preservation(record: Record, evidence_records: list[Record]) -> bool:
+    if record.data.get("archive_url") or record.data.get("content_hash") or source_artifact_refs(record):
+        return True
+    for evidence in evidence_records:
+        if evidence.data.get("source") != record.id:
+            continue
+        if evidence.data.get("excerpt") or source_artifact_refs(evidence):
+            return True
+    return False
+
+
+def lint_warning(
+    root: Path,
+    record: Record,
+    code: str,
+    message: str,
+    hint: str | None = None,
+    related_ids: list[str] | None = None,
+) -> dict[str, Any]:
+    return {
+        "code": code,
+        "path": str(record.path.relative_to(root)),
+        "json_pointer": None,
+        "message": message,
+        "hint": hint,
+        "record_id": record.id or None,
+        "related_ids": related_ids or [],
+    }
+
+
+def preservation_policy_warnings(root: Path, records: list[Record]) -> list[dict[str, Any]]:
+    evidence_records = [record for record in records if record.kind == "evidence"]
+    warnings: list[dict[str, Any]] = []
+    for record in records:
+        if record.kind != "source":
+            continue
+        source_type = str(record.data.get("source_type", ""))
+        if source_type not in MUTABLE_WEB_SOURCE_TYPES:
+            continue
+        if source_has_preservation(record, evidence_records):
+            continue
+        warnings.append(
+            lint_warning(
+                root,
+                record,
+                "mutable_source_without_preservation",
+                "Mutable web-like source has no archive_url, content_hash, source_artifacts, "
+                "or linked evidence excerpt.",
+                "Add archive_url when possible; otherwise add bounded evidence excerpt, "
+                "content_hash, or a small referenced source_artifacts file.",
+            )
+        )
+    return warnings
 
 
 def record_label(record: Record) -> str:
@@ -1928,6 +2073,7 @@ def validate_repo(root: Path, current_only: bool = False) -> tuple[list[Record],
     errors.extend(validate_claim_predicates(root, records))
     errors.extend(validate_relationships(root, records, id_map))
     errors.extend(validate_evidence_policy(root, records, id_map))
+    errors.extend(validate_source_artifacts(root, records))
     return records, errors
 
 
@@ -2708,6 +2854,7 @@ def validate_new_record(root: Path, path: Path, data: dict[str, Any]) -> list[st
     errors.extend(validate_claim_predicates(root, combined))
     errors.extend(validate_relationships(root, combined, id_map))
     errors.extend(validate_evidence_policy(root, [new_record], id_map))
+    errors.extend(validate_source_artifacts(root, combined))
     return errors
 
 
@@ -2808,6 +2955,9 @@ def run_new_source(root: Path, args: argparse.Namespace) -> int:
         value = getattr(args, field)
         if value:
             data[field] = value
+    source_artifacts = sorted(set(getattr(args, "source_artifact", []) or []))
+    if source_artifacts:
+        data["source_artifacts"] = source_artifacts
     add_optional_common_fields(data, args)
     path = generated_record_path(root, "sources", record_id, args.path)
     return run_new_record(root, "new source", path, data, args.json, args.overwrite)
@@ -2837,6 +2987,9 @@ def run_new_evidence(root: Path, args: argparse.Namespace) -> int:
         data["source_access"] = source_access
     if args.verification_status:
         data["verification_status"] = args.verification_status
+    source_artifacts = sorted(set(getattr(args, "source_artifact", []) or []))
+    if source_artifacts:
+        data["source_artifacts"] = source_artifacts
     add_optional_common_fields(data, args)
     path = generated_record_path(root, "evidence", record_id, args.path)
     return run_new_record(root, "new evidence", path, data, args.json, args.overwrite)
@@ -3104,6 +3257,7 @@ def run_new_thesis(root: Path, args: argparse.Namespace) -> int:
 
 def run_lint(root: Path, json_output: bool = False, current_only: bool = False) -> int:
     records, errors = validate_repo(root, current_only=current_only)
+    warnings = preservation_policy_warnings(root, records)
     if json_output:
         print(
             json.dumps(
@@ -3112,7 +3266,7 @@ def run_lint(root: Path, json_output: bool = False, current_only: bool = False) 
                     "command": "lint",
                     "repo_root": str(root),
                     "records_checked": len(records),
-                    "warnings": [],
+                    "warnings": warnings,
                     "errors": [json_error(error) for error in errors],
                 },
                 indent=2,
@@ -3128,6 +3282,8 @@ def run_lint(root: Path, json_output: bool = False, current_only: bool = False) 
         return 1
 
     print(f"OK {len(records)} records validated")
+    for warning in warnings:
+        print(f"WARNING {warning['path']}: {warning['message']}", file=sys.stderr)
     return 0
 
 
@@ -3669,6 +3825,12 @@ def build_parser() -> argparse.ArgumentParser:
     source_parser.add_argument("--archive-url")
     source_parser.add_argument("--published-at")
     source_parser.add_argument("--provenance")
+    source_parser.add_argument(
+        "--source-artifact",
+        action="append",
+        default=[],
+        help="repeatable artifacts/sources/... png/jpg/jpeg/pdf path",
+    )
     source_parser.set_defaults(func=cmd_new_source)
 
     evidence_parser = new_subparsers.add_parser("evidence", help="create an evidence record")
@@ -3709,6 +3871,12 @@ def build_parser() -> argparse.ArgumentParser:
     evidence_parser.add_argument("--locator", action="append", default=[], help="repeatable key=value")
     evidence_parser.add_argument("--source-access-json", help="JSON object for source_access")
     evidence_parser.add_argument("--verification-status")
+    evidence_parser.add_argument(
+        "--source-artifact",
+        action="append",
+        default=[],
+        help="repeatable artifacts/sources/... png/jpg/jpeg/pdf path",
+    )
     evidence_parser.set_defaults(func=cmd_new_evidence)
 
     claim_parser = new_subparsers.add_parser("claim", help="create a claim record")

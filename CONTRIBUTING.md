@@ -78,6 +78,16 @@ rumor                Watchlist signal only; not strong factual support.
 Low-trust classes `anonymous_internal` and `rumor` are allowed, but they cannot
 be the only path to strong derived review state.
 
+## Source Preservation
+
+For mutable web-like sources, prefer `archive_url`. If no archive URL exists,
+provide at least one preservation path: bounded evidence excerpt, source
+`content_hash`, or small referenced `source_artifacts`.
+
+Artifacts are last-resort preservation. Keep them under `artifacts/sources/`,
+reference them from source/evidence YAML, use only `png`, `jpg`, `jpeg`, or
+`pdf`, and keep each file under 2 MB.
+
 ## Claims
 
 Claims use `support_type`:

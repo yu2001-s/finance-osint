@@ -155,6 +155,28 @@ content_hash
 
 Use `source_type: sec_filing` rather than creating a separate filing object.
 
+Mutable web-like source types:
+
+```text
+web_page
+news_article
+research_report
+```
+
+These should not rely on `url` alone. Prefer `archive_url`. If no archive exists,
+use at least one preservation path:
+
+```text
+source content_hash
+source/evidence source_artifacts
+linked evidence excerpt
+```
+
+`source_artifacts` must reference local files under `artifacts/sources/`.
+Allowed file types are `png`, `jpg`, `jpeg`, and `pdf`. Each file must be 2 MB
+or smaller. Unreferenced, missing, invalid-path, invalid-type, and oversized
+artifact files are hard lint errors.
+
 ## Content Mode
 
 Evidence and source-adjacent records should declare how much content is stored.

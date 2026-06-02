@@ -40,6 +40,7 @@ uv run fo lint --json
 uv run python -m unittest discover -s tests
 uv run fo index build --json
 uv run fo graph build --json
+uv run fo diff-review HEAD --json
 ```
 
 ## Boundaries

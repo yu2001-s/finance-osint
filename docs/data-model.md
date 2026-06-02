@@ -104,6 +104,31 @@ First-hand, private, anonymous, and rumor evidence should declare
 `source_attribution`, `source_access`, and `risk_flags` so readers and agents can
 filter or discount it locally.
 
+## Source Preservation
+
+For mutable source types such as `web_page`, `news_article`, and
+`research_report`, `url` alone is not enough. Prefer `archive_url`. If no archive
+exists, preserve the source through source `content_hash`, a bounded
+`evidence.excerpt`, or local `source_artifacts`.
+
+`source_artifacts` may appear on source and evidence records:
+
+```yaml
+source_artifacts:
+  - artifacts/sources/source-slug/screenshot-2026-06-03.png
+```
+
+Artifact rules:
+
+- files must live under `artifacts/sources/`
+- files must be referenced by a source or evidence record
+- allowed file types are `png`, `jpg`, `jpeg`, and `pdf`
+- each file must be 2 MB or smaller
+
+`fo lint` warns when a mutable web-like source has no archive, hash, artifact,
+or linked evidence excerpt. Invalid, missing, unreferenced, or oversized
+artifacts are hard validation errors.
+
 ## Local Derived State
 
 Canonical records do not store truth `status` or `confidence`. Tools derive

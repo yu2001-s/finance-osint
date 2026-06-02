@@ -30,6 +30,22 @@ uv run fo new source \
   --json
 ```
 
+For mutable web-like sources (`web_page`, `news_article`, `research_report`),
+prefer `--archive-url`. If no archive exists, preserve with a bounded evidence
+excerpt, source `content_hash`, or a small referenced artifact:
+
+```bash
+uv run fo new source \
+  --source-type web_page \
+  --title "TITLE" \
+  --public-status public \
+  --accessed-at "YYYY-MM-DDTHH:MM:SSZ" \
+  --content-mode external_link \
+  --source-artifact artifacts/sources/source-slug/screenshot-YYYY-MM-DD.png \
+  --submitted-by github:USERNAME \
+  --json
+```
+
 3. Create evidence with explicit provenance:
 
 ```bash
@@ -62,5 +78,8 @@ Pick evidence fields conservatively:
 ## Boundaries
 
 - Do not store large PDFs, datasets, transcripts, screenshots, or raw private leaks.
+- Source artifacts are last-resort preservation only. Keep them under
+  `artifacts/sources/`, reference them from source/evidence YAML, use only
+  png/jpg/jpeg/pdf, and keep each file under 2 MB.
 - Do not use `anonymous_to_maintainers`.
 - Do not upgrade evidence into claims unless the user asks or the task requires it.

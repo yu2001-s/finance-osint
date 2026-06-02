@@ -72,6 +72,14 @@
       "additionalProperties": true
     },
     "verification_status": { "type": "string" },
+    "source_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^artifacts/sources/[A-Za-z0-9_.:/-]+\\.(png|jpg|jpeg|pdf)$"
+      },
+      "default": []
+    },
     "risk_flags": { "type": "array", "items": { "type": "string" }, "default": [] }
   },
   "additionalProperties": true
