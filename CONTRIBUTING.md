@@ -88,6 +88,12 @@ Artifacts are last-resort preservation. Keep them under `artifacts/sources/`,
 reference them from source/evidence YAML, use only `png`, `jpg`, `jpeg`, or
 `pdf`, and keep each file under 2 MB.
 
+## Archive
+
+Move records into `archive/` only by PR. Keep the record ID unchanged and add
+`superseded_by`, `duplicate_of`, or `archive_reason`. Update current dependents
+to point at a current replacement instead of depending on archived records.
+
 ## Claims
 
 Claims use `support_type`:

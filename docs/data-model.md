@@ -129,6 +129,29 @@ Artifact rules:
 or linked evidence excerpt. Invalid, missing, unreferenced, or oversized
 artifacts are hard validation errors.
 
+## Archive Policy
+
+Archive is a path-level lifecycle state, not a truth status field. Current
+records live in top-level data directories. Archived records live under
+`archive/` and keep their canonical ID.
+
+Archived records must include at least one of:
+
+```text
+superseded_by
+duplicate_of
+archive_reason
+```
+
+Current records must not depend on archived records by default. When a record is
+archived, current dependents should either point to a current replacement or be
+archived/updated in the same PR. Lifecycle links such as `supersedes`,
+`corrects`, `restates`, `narrows`, `broadens`, and `contradicts` may point to
+archived records.
+
+`fo diff-review` warns when a PR adds, updates, or moves records under
+`archive/`.
+
 ## Local Derived State
 
 Canonical records do not store truth `status` or `confidence`. Tools derive

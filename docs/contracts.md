@@ -552,6 +552,14 @@ duplicate_of
 archive_reason
 ```
 
+This is enforced by `fo lint`. Current records must not depend on archived
+records by default. If a current record points to an archived record, the field
+must be a lifecycle link such as `supersedes`, `corrects`, `restates`,
+`narrows`, `broadens`, or `contradicts`.
+
+`fo diff-review` should warn when a PR adds, updates, or moves records under
+`archive/`.
+
 ## JSON CLI Output
 
 All agent-facing commands should support `--json`.

@@ -323,6 +323,103 @@ class CliValidationTests(unittest.TestCase):
         self.assertIn("source_artifacts", output)
         self.assertIn("artifacts/sources", output)
 
+    def test_archive_record_requires_reason_or_replacement(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            claim = load_yaml(repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml")
+            (repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml").unlink()
+            write_yaml(repo / "archive" / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml", claim)
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 1, output)
+        self.assertIn("archived records must include", output)
+
+    def test_archive_record_with_superseded_by_lints(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            original_path = repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml"
+            claim = load_yaml(original_path)
+            original_path.unlink()
+            claim["superseded_by"] = "claim:test:replacement"
+            replacement = dict(claim)
+            replacement["id"] = "claim:test:replacement"
+            replacement["statement"] = "Replacement synthetic supplier-use claim."
+            write_yaml(repo / "archive" / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml", claim)
+            write_yaml(repo / "claims" / "replacement.yml", replacement)
+            thesis_path = repo / "theses" / "synthetic-exdev-margin-risk-from-foundry-concentration.yml"
+            thesis = load_yaml(thesis_path)
+            thesis["depends_on"]["claims"] = ["claim:test:replacement"]
+            write_yaml(thesis_path, thesis)
+            challenge_path = repo / "challenges" / "synthetic-exdev-margin-risk-needs-alternatives.yml"
+            challenge = load_yaml(challenge_path)
+            challenge["depends_on"]["claims"] = ["claim:test:replacement"]
+            write_yaml(challenge_path, challenge)
+            validation_path = repo / "validations" / "synthetic-exdev-uses-fndwy-for-x1.yml"
+            validation = load_yaml(validation_path)
+            validation["target"] = "claim:test:replacement"
+            validation["depends_on"]["claims"] = ["claim:test:replacement"]
+            write_yaml(validation_path, validation)
+            relationship_path = repo / "relationships" / "synthetic-exdev-fndwy-x1-supply.yml"
+            relationship = load_yaml(relationship_path)
+            relationship["derived_from"]["claims"] = ["claim:test:replacement"]
+            write_yaml(relationship_path, relationship)
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 0, output)
+
+    def test_current_record_cannot_depend_on_archived_record(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            evidence_path = repo / "evidence" / "public" / "synthetic-exdev-fy2025-supplier-note.yml"
+            evidence = load_yaml(evidence_path)
+            evidence_path.unlink()
+            evidence["archive_reason"] = "Archived for test fixture."
+            write_yaml(
+                repo / "archive" / "evidence" / "public" / "synthetic-exdev-fy2025-supplier-note.yml",
+                evidence,
+            )
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 1, output)
+        self.assertIn("references archived record", output)
+
+    def test_diff_review_warns_when_record_moves_to_archive(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            init_git_repo(repo)
+            original_path = repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml"
+            archived_path = repo / "archive" / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml"
+            claim = load_yaml(original_path)
+            claim["archive_reason"] = "Archived for diff-review test."
+            original_path.unlink()
+            write_yaml(archived_path, claim)
+            thesis_path = repo / "theses" / "synthetic-exdev-margin-risk-from-foundry-concentration.yml"
+            thesis = load_yaml(thesis_path)
+            thesis["depends_on"]["claims"] = []
+            write_yaml(thesis_path, thesis)
+            challenge_path = repo / "challenges" / "synthetic-exdev-margin-risk-needs-alternatives.yml"
+            challenge = load_yaml(challenge_path)
+            challenge["depends_on"]["claims"] = []
+            write_yaml(challenge_path, challenge)
+            validation_path = repo / "validations" / "synthetic-exdev-uses-fndwy-for-x1.yml"
+            validation = load_yaml(validation_path)
+            validation["depends_on"]["claims"] = []
+            validation["target"] = "evidence:synthetic:exdev-fy2025-supplier-note"
+            write_yaml(validation_path, validation)
+            relationship_path = repo / "relationships" / "synthetic-exdev-fndwy-x1-supply.yml"
+            relationship = load_yaml(relationship_path)
+            relationship["derived_from"]["claims"] = []
+            write_yaml(relationship_path, relationship)
+
+            status, payload = run_json_command(cli.run_diff_review, repo, "HEAD")
+
+        self.assertEqual(status, 0, payload)
+        warning_codes = {warning["code"] for warning in payload["warnings"]}
+        self.assertIn("moves_record_to_archive", warning_codes)
+
     def test_index_build_and_search_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))

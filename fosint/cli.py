@@ -128,6 +128,15 @@ ARTIFACTS_ROOT = Path("artifacts")
 SOURCE_ARTIFACTS_ROOT = Path("artifacts/sources")
 SOURCE_ARTIFACT_SUFFIXES = {".png", ".jpg", ".jpeg", ".pdf"}
 MAX_SOURCE_ARTIFACT_BYTES = 2 * 1024 * 1024
+ARCHIVE_REQUIRED_FIELDS = ("superseded_by", "duplicate_of", "archive_reason")
+CURRENT_TO_ARCHIVE_ALLOWED_FIELDS = {
+    "supersedes",
+    "corrects",
+    "restates",
+    "narrows",
+    "broadens",
+    "contradicts",
+}
 
 
 @dataclass(frozen=True)
@@ -806,6 +815,54 @@ def preservation_policy_warnings(root: Path, records: list[Record]) -> list[dict
             )
         )
     return warnings
+
+
+def validate_archive_policy(root: Path, records: list[Record], id_map: dict[str, Record]) -> list[str]:
+    errors: list[str] = []
+    archived_ids = {
+        record.id
+        for record in records
+        if record.id and is_archived_path(root, record.path)
+    }
+    open_challenge_targets = {
+        str(record.data.get("target"))
+        for record in records
+        if record.kind == "challenge" and is_open_challenge(record_doc(root, record, include_data=True))
+    }
+
+    for record in records:
+        relative = record.path.relative_to(root)
+        is_archived = is_archived_path(root, record.path)
+
+        if is_archived and not any(record.data.get(field) for field in ARCHIVE_REQUIRED_FIELDS):
+            errors.append(
+                f"{relative}: archived records must include superseded_by, duplicate_of, "
+                "or archive_reason"
+            )
+
+        if is_archived and record.id in open_challenge_targets and not any(
+            record.data.get(field) for field in ARCHIVE_REQUIRED_FIELDS
+        ):
+            errors.append(
+                f"{relative}: archived record has open challenges and needs superseded_by, "
+                "duplicate_of, or archive_reason"
+            )
+
+        if is_archived:
+            continue
+
+        for path, value in walk_strings(record.data):
+            if path == ("id",) or not is_reference(value) or value not in archived_ids:
+                continue
+            if path and path[0] in CURRENT_TO_ARCHIVE_ALLOWED_FIELDS:
+                continue
+            dotted = ".".join(path) or "$"
+            errors.append(
+                f"{relative}: current record field `{dotted}` references archived record `{value}`; "
+                "use a current replacement or pass --include-archive in read commands"
+            )
+
+    return errors
 
 
 def record_label(record: Record) -> str:
@@ -2074,6 +2131,7 @@ def validate_repo(root: Path, current_only: bool = False) -> tuple[list[Record],
     errors.extend(validate_relationships(root, records, id_map))
     errors.extend(validate_evidence_policy(root, records, id_map))
     errors.extend(validate_source_artifacts(root, records))
+    errors.extend(validate_archive_policy(root, records, id_map))
     return records, errors
 
 
@@ -2515,6 +2573,30 @@ def diff_review_warnings(
     after = record_map(current_records)
     warnings = evidence_integrity_warnings(base_records, current_records, delta)
 
+    for item in [*delta["added"], *delta["modified"], *delta["renamed"]]:
+        record = after.get(item["id"])
+        if record and is_archived_path(root, record.path):
+            previous_path = item.get("previous_path")
+            was_archived = (
+                bool(previous_path)
+                and Path(str(previous_path)).parts
+                and Path(str(previous_path)).parts[0] == "archive"
+            )
+            code = "adds_archived_record" if not previous_path else "moves_record_to_archive"
+            if previous_path and was_archived:
+                code = "updates_archived_record"
+            warnings.append(
+                warning_item(
+                    code,
+                    "Record is under archive/ and excluded from current read views by default.",
+                    record.id,
+                    details={
+                        "path": relative_path(root, record.path),
+                        "previous_path": previous_path,
+                    },
+                )
+            )
+
     for item in [*delta["added"], *delta["modified"]]:
         record = after.get(item["id"])
         if not record:
@@ -2855,6 +2937,7 @@ def validate_new_record(root: Path, path: Path, data: dict[str, Any]) -> list[st
     errors.extend(validate_relationships(root, combined, id_map))
     errors.extend(validate_evidence_policy(root, [new_record], id_map))
     errors.extend(validate_source_artifacts(root, combined))
+    errors.extend(validate_archive_policy(root, combined, id_map))
     return errors
 
 

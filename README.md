@@ -103,6 +103,16 @@ by a source or evidence record, must be `png`, `jpg`, `jpeg`, or `pdf`, and must
 stay under 2 MB per file. `fo lint` warns for mutable web sources without a
 preservation path and fails hard on invalid artifact files.
 
+## Archive Policy
+
+Archive is path-level lifecycle state. Current records live in top-level data
+directories; archived records live under `archive/` and keep their canonical ID.
+
+Archived records must include at least one of `superseded_by`, `duplicate_of`,
+or `archive_reason`. Current records must not depend on archived records by
+default; point them at a current replacement instead. `fo diff-review` warns
+when a PR adds or moves records under `archive/`.
+
 ## Deterministic Write Helpers
 
 `fo new` creates valid YAML from explicit inputs only. It does not fetch sources,
