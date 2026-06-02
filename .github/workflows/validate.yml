@@ -18,5 +18,11 @@ jobs:
         with:
           python-version: "3.11"
       - run: uv sync --locked
-      - run: uv run fo lint
-      - run: uv run fo graph build
+      - name: Lint records
+        run: uv run fo lint --json
+      - name: Run tests
+        run: uv run python -m unittest discover -s tests
+      - name: Build local SQLite index
+        run: uv run fo index build --json
+      - name: Build local graph
+        run: uv run fo graph build --json

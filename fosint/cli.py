@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
+import sqlite3
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -718,6 +720,756 @@ def build_graph_data(root: Path, records: list[Record]) -> dict[str, Any]:
     }
 
 
+INDEX_SCHEMA_SQL = """
+create table records (
+  id text primary key,
+  kind text not null,
+  schema_version integer,
+  path text not null,
+  archived integer not null default 0,
+  label text,
+  json text not null
+);
+
+create table refs (
+  source_id text not null,
+  target_id text not null,
+  field_path text not null
+);
+
+create table edges (
+  source_id text not null,
+  target_id text not null,
+  edge_type text not null,
+  field_path text
+);
+
+create table entities (
+  id text primary key,
+  entity_type text not null,
+  name text not null,
+  ticker text,
+  cik text
+);
+
+create table identifiers (
+  record_id text not null,
+  id_type text not null,
+  id_value text not null
+);
+
+create table evidence (
+  id text primary key,
+  evidence_class text not null,
+  source_id text,
+  content_mode text,
+  observed_at text
+);
+
+create table claims (
+  id text primary key,
+  predicate text not null,
+  support_type text not null,
+  subject text,
+  object text,
+  period_start text,
+  period_end text,
+  as_of text
+);
+
+create table relationships (
+  id text primary key,
+  relationship_type text not null,
+  primary_subject text,
+  effective_at text,
+  period_start text,
+  period_end text
+);
+
+create table relationship_participants (
+  relationship_id text not null,
+  role text not null,
+  entity_id text not null
+);
+
+create table relationship_scope (
+  relationship_id text not null,
+  scope_type text not null,
+  scope_id text not null
+);
+
+create table metrics (
+  id text primary key,
+  entity_id text not null,
+  metric_definition text not null,
+  value real,
+  unit text,
+  value_basis text,
+  period_start text,
+  period_end text,
+  as_of text
+);
+
+create table events (
+  id text primary key,
+  event_type text not null,
+  event_state text,
+  occurred_at text,
+  effective_at text
+);
+
+create table validations (
+  id text primary key,
+  target_id text not null,
+  verdict text not null,
+  submitted_by text
+);
+
+create table challenges (
+  id text primary key,
+  target_id text not null,
+  challenge_type text not null,
+  submitted_by text
+);
+
+create table predicate_definitions (
+  id text primary key,
+  ontology_version integer,
+  json text not null
+);
+
+create table metric_definitions (
+  id text primary key,
+  ontology_version integer,
+  json text not null
+);
+
+create table relationship_type_definitions (
+  id text primary key,
+  ontology_version integer,
+  json text not null
+);
+
+create virtual table records_fts using fts5(
+  id unindexed,
+  kind unindexed,
+  label,
+  body
+);
+
+create index refs_source_idx on refs(source_id);
+create index refs_target_idx on refs(target_id);
+create index edges_source_idx on edges(source_id);
+create index edges_target_idx on edges(target_id);
+create index records_kind_idx on records(kind, archived);
+create index validations_target_idx on validations(target_id);
+create index challenges_target_idx on challenges(target_id);
+"""
+
+
+def index_path(root: Path) -> Path:
+    return root / ".local" / "index.sqlite"
+
+
+def json_dumps(value: Any) -> str:
+    return json.dumps(value, sort_keys=True, default=str, ensure_ascii=False)
+
+
+def as_scalar_text(value: Any) -> str | None:
+    if value is None:
+        return None
+    if isinstance(value, (str, int, float, bool)):
+        return str(value)
+    return json_dumps(value)
+
+
+def is_archived_path(root: Path, path: Path) -> bool:
+    try:
+        relative = path.relative_to(root)
+    except ValueError:
+        relative = path
+    return bool(relative.parts and relative.parts[0] == "archive")
+
+
+def period_range(data: dict[str, Any]) -> tuple[str | None, str | None]:
+    for key in ("time_scope", "period"):
+        value = data.get(key)
+        if isinstance(value, dict):
+            start = value.get("start") or value.get("period_start")
+            end = value.get("end") or value.get("period_end")
+            if start is not None or end is not None:
+                return as_scalar_text(start), as_scalar_text(end)
+    return None, None
+
+
+def reference_values(value: Any) -> list[str]:
+    return sorted({text for _, text in walk_strings(value) if is_reference(text)})
+
+
+def record_ref_rows(record: Record) -> list[tuple[str, str, str]]:
+    rows: list[tuple[str, str, str]] = []
+    if not record.id:
+        return rows
+    for path, value in walk_strings(record.data):
+        if path == ("id",):
+            continue
+        if is_reference(value):
+            rows.append((record.id, value, ".".join(path)))
+    return rows
+
+
+def relationship_participant_items(record: Record) -> list[tuple[str, str]]:
+    participants = record.data.get("participants", [])
+    if not isinstance(participants, list):
+        return []
+    items: list[tuple[str, str]] = []
+    for participant in participants:
+        if not isinstance(participant, dict):
+            continue
+        role = participant.get("role")
+        entity = participant.get("entity")
+        if isinstance(role, str) and isinstance(entity, str):
+            items.append((role, entity))
+    return items
+
+
+def relationship_primary_subject(record: Record) -> str | None:
+    participants = relationship_participant_items(record)
+    preferred_roles = (
+        "buyer",
+        "customer",
+        "dependent",
+        "exposed_entity",
+        "owner",
+        "product",
+        "seller",
+        "supplier",
+    )
+    for preferred in preferred_roles:
+        for role, entity_id in participants:
+            if role == preferred:
+                return entity_id
+    return participants[0][1] if participants else None
+
+
+def create_index_database(root: Path, records: list[Record]) -> dict[str, Any]:
+    output_path = index_path(root)
+    output_path.parent.mkdir(exist_ok=True)
+    if output_path.exists():
+        output_path.unlink()
+
+    graph = build_graph_data(root, records)
+    sorted_records = sorted(records, key=lambda item: item.id)
+
+    with sqlite3.connect(output_path) as conn:
+        conn.executescript(INDEX_SCHEMA_SQL)
+        for record in sorted_records:
+            if not record.id:
+                continue
+            relative_path = str(record.path.relative_to(root))
+            body = json_dumps(record.data)
+            conn.execute(
+                """
+                insert into records(id, kind, schema_version, path, archived, label, json)
+                values (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    record.id,
+                    record.kind,
+                    record.data.get("schema_version"),
+                    relative_path,
+                    1 if is_archived_path(root, record.path) else 0,
+                    record_label(record),
+                    body,
+                ),
+            )
+            conn.execute(
+                "insert into records_fts(id, kind, label, body) values (?, ?, ?, ?)",
+                (record.id, record.kind, record_label(record), body),
+            )
+            conn.executemany(
+                "insert into refs(source_id, target_id, field_path) values (?, ?, ?)",
+                record_ref_rows(record),
+            )
+
+            data = record.data
+            if record.kind == "entity":
+                identifiers = data.get("identifiers", {})
+                ticker = identifiers.get("ticker") if isinstance(identifiers, dict) else None
+                cik = identifiers.get("cik") if isinstance(identifiers, dict) else None
+                conn.execute(
+                    "insert into entities(id, entity_type, name, ticker, cik) values (?, ?, ?, ?, ?)",
+                    (
+                        record.id,
+                        str(data.get("entity_type")),
+                        str(data.get("name")),
+                        as_scalar_text(ticker),
+                        as_scalar_text(cik),
+                    ),
+                )
+                if isinstance(identifiers, dict):
+                    for id_type in sorted(identifiers):
+                        id_value = identifiers[id_type]
+                        values = id_value if isinstance(id_value, list) else [id_value]
+                        for value in values:
+                            conn.execute(
+                                "insert into identifiers(record_id, id_type, id_value) values (?, ?, ?)",
+                                (record.id, str(id_type), as_scalar_text(value) or ""),
+                            )
+
+            elif record.kind == "evidence":
+                conn.execute(
+                    """
+                    insert into evidence(id, evidence_class, source_id, content_mode, observed_at)
+                    values (?, ?, ?, ?, ?)
+                    """,
+                    (
+                        record.id,
+                        str(data.get("evidence_class")),
+                        as_scalar_text(data.get("source")),
+                        as_scalar_text(data.get("content_mode")),
+                        as_scalar_text(data.get("observed_at")),
+                    ),
+                )
+
+            elif record.kind == "claim":
+                period_start, period_end = period_range(data)
+                conn.execute(
+                    """
+                    insert into claims(
+                      id, predicate, support_type, subject, object, period_start, period_end, as_of
+                    )
+                    values (?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        record.id,
+                        str(data.get("predicate")),
+                        str(data.get("support_type")),
+                        as_scalar_text(data.get("subject")),
+                        as_scalar_text(data.get("object")),
+                        period_start,
+                        period_end,
+                        as_scalar_text(data.get("as_of")),
+                    ),
+                )
+
+            elif record.kind == "relationship":
+                period_start, period_end = period_range(data)
+                conn.execute(
+                    """
+                    insert into relationships(
+                      id, relationship_type, primary_subject, effective_at, period_start, period_end
+                    )
+                    values (?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        record.id,
+                        str(data.get("type")),
+                        relationship_primary_subject(record),
+                        as_scalar_text(data.get("effective_at")),
+                        period_start,
+                        period_end,
+                    ),
+                )
+                conn.executemany(
+                    """
+                    insert into relationship_participants(relationship_id, role, entity_id)
+                    values (?, ?, ?)
+                    """,
+                    [(record.id, role, entity_id) for role, entity_id in relationship_participant_items(record)],
+                )
+                scope = data.get("scope", {})
+                if isinstance(scope, dict):
+                    for scope_type in sorted(scope):
+                        for scope_id in reference_values(scope[scope_type]):
+                            conn.execute(
+                                """
+                                insert into relationship_scope(relationship_id, scope_type, scope_id)
+                                values (?, ?, ?)
+                                """,
+                                (record.id, str(scope_type), scope_id),
+                            )
+
+            elif record.kind == "metric":
+                period_start, period_end = period_range(data)
+                conn.execute(
+                    """
+                    insert into metrics(
+                      id, entity_id, metric_definition, value, unit, value_basis,
+                      period_start, period_end, as_of
+                    )
+                    values (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        record.id,
+                        str(data.get("entity")),
+                        str(data.get("metric_definition")),
+                        data.get("value"),
+                        as_scalar_text(data.get("unit")),
+                        as_scalar_text(data.get("value_basis")),
+                        period_start,
+                        period_end,
+                        as_scalar_text(data.get("as_of")),
+                    ),
+                )
+
+            elif record.kind == "event":
+                conn.execute(
+                    """
+                    insert into events(id, event_type, event_state, occurred_at, effective_at)
+                    values (?, ?, ?, ?, ?)
+                    """,
+                    (
+                        record.id,
+                        str(data.get("event_type")),
+                        as_scalar_text(data.get("event_state")),
+                        as_scalar_text(data.get("occurred_at")),
+                        as_scalar_text(data.get("effective_at")),
+                    ),
+                )
+
+            elif record.kind == "validation":
+                conn.execute(
+                    "insert into validations(id, target_id, verdict, submitted_by) values (?, ?, ?, ?)",
+                    (
+                        record.id,
+                        str(data.get("target")),
+                        str(data.get("verdict")),
+                        as_scalar_text(data.get("submitted_by")),
+                    ),
+                )
+
+            elif record.kind == "challenge":
+                conn.execute(
+                    """
+                    insert into challenges(id, target_id, challenge_type, submitted_by)
+                    values (?, ?, ?, ?)
+                    """,
+                    (
+                        record.id,
+                        str(data.get("target")),
+                        str(data.get("challenge_type")),
+                        as_scalar_text(data.get("submitted_by")),
+                    ),
+                )
+
+            elif record.kind == "claim_predicate":
+                conn.execute(
+                    "insert into predicate_definitions(id, ontology_version, json) values (?, ?, ?)",
+                    (record.id, data.get("ontology_version"), body),
+                )
+
+            elif record.kind == "metric_definition":
+                conn.execute(
+                    "insert into metric_definitions(id, ontology_version, json) values (?, ?, ?)",
+                    (record.id, data.get("ontology_version"), body),
+                )
+
+            elif record.kind == "relationship_type":
+                conn.execute(
+                    """
+                    insert into relationship_type_definitions(id, ontology_version, json)
+                    values (?, ?, ?)
+                    """,
+                    (record.id, data.get("ontology_version"), body),
+                )
+
+        conn.executemany(
+            "insert into edges(source_id, target_id, edge_type, field_path) values (?, ?, ?, ?)",
+            [
+                (
+                    str(edge.get("from")),
+                    str(edge.get("to")),
+                    str(edge.get("type")),
+                    as_scalar_text(edge.get("field")),
+                )
+                for edge in graph["edges"]
+            ],
+        )
+        conn.commit()
+
+    return {
+        "index_path": str(output_path),
+        "records_indexed": len([record for record in records if record.id]),
+        "edge_count": int(graph["edge_count"]),
+        "ref_count": sum(len(record_ref_rows(record)) for record in records),
+    }
+
+
+def connect_index(root: Path) -> sqlite3.Connection:
+    db_path = index_path(root)
+    if not db_path.exists():
+        raise FileNotFoundError(f"{db_path.relative_to(root)} does not exist; run `fo index build`")
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def row_to_record(row: sqlite3.Row, include_data: bool = False) -> dict[str, Any]:
+    record = {
+        "id": row["id"],
+        "kind": row["kind"],
+        "schema_version": row["schema_version"],
+        "path": row["path"],
+        "archived": bool(row["archived"]),
+        "label": row["label"],
+    }
+    if include_data:
+        record["data"] = json.loads(row["json"])
+    return record
+
+
+def indexed_record(conn: sqlite3.Connection, record_id: str) -> dict[str, Any] | None:
+    row = conn.execute("select * from records where id = ?", (record_id,)).fetchone()
+    if row is None:
+        return None
+    return row_to_record(row, include_data=True)
+
+
+def fetch_records(
+    conn: sqlite3.Connection, record_ids: list[str], include_data: bool = False
+) -> list[dict[str, Any]]:
+    if not record_ids:
+        return []
+    rows = conn.execute(
+        f"select * from records where id in ({','.join('?' for _ in record_ids)}) order by kind, id",
+        record_ids,
+    ).fetchall()
+    return [row_to_record(row, include_data=include_data) for row in rows]
+
+
+def load_index_record_map(conn: sqlite3.Connection) -> dict[str, Record]:
+    rows = conn.execute("select id, path, json from records order by id").fetchall()
+    return {
+        str(row["id"]): Record(path=Path(str(row["path"])), data=json.loads(str(row["json"])))
+        for row in rows
+    }
+
+
+def result_envelope(
+    command: str,
+    root: Path,
+    ok: bool = True,
+    errors: list[dict[str, Any]] | None = None,
+    warnings: list[dict[str, Any]] | None = None,
+    **payload: Any,
+) -> dict[str, Any]:
+    return {
+        "ok": ok,
+        "command": command,
+        "repo_root": str(root),
+        "warnings": warnings or [],
+        "errors": errors or [],
+        **payload,
+    }
+
+
+def print_json(payload: dict[str, Any]) -> None:
+    print(json.dumps(payload, indent=2, sort_keys=True, default=str))
+
+
+def command_error(code: str, message: str, hint: str | None = None) -> dict[str, Any]:
+    return {
+        "code": code,
+        "path": "",
+        "json_pointer": None,
+        "message": message,
+        "hint": hint,
+        "record_id": None,
+        "related_ids": [],
+    }
+
+
+def fts_query(query: str) -> str:
+    return " ".join(re.findall(r"[A-Za-z0-9_]+", query.lower()))
+
+
+def search_rows(
+    conn: sqlite3.Connection,
+    query: str,
+    include_archive: bool = False,
+    limit: int = 20,
+) -> list[sqlite3.Row]:
+    archive_clause = "" if include_archive else "and r.archived = 0"
+    query_text = fts_query(query)
+    if query_text:
+        try:
+            return conn.execute(
+                f"""
+                select r.*
+                from records_fts
+                join records r on r.id = records_fts.id
+                where records_fts match ? {archive_clause}
+                order by r.kind, r.id
+                limit ?
+                """,
+                (query_text, limit),
+            ).fetchall()
+        except sqlite3.OperationalError:
+            pass
+
+    like = f"%{query.lower()}%"
+    return conn.execute(
+        f"""
+        select r.*
+        from records r
+        where lower(r.id || ' ' || coalesce(r.label, '') || ' ' || r.json) like ?
+        {archive_clause}
+        order by r.kind, r.id
+        limit ?
+        """,
+        (like, limit),
+    ).fetchall()
+
+
+def related_record_ids(conn: sqlite3.Connection, record_id: str) -> list[str]:
+    rows = conn.execute(
+        """
+        select target_id as id from refs where source_id = ?
+        union
+        select source_id as id from refs where target_id = ?
+        union
+        select target_id as id from edges where source_id = ?
+        union
+        select source_id as id from edges where target_id = ?
+        order by id
+        """,
+        (record_id, record_id, record_id, record_id),
+    ).fetchall()
+    return [str(row["id"]) for row in rows if str(row["id"]) != record_id]
+
+
+def target_review_records(
+    conn: sqlite3.Connection, table_name: str, target_id: str
+) -> list[dict[str, Any]]:
+    rows = conn.execute(
+        f"""
+        select r.*
+        from {table_name} t
+        join records r on r.id = t.id
+        where t.target_id = ?
+        order by r.id
+        """,
+        (target_id,),
+    ).fetchall()
+    return [row_to_record(row, include_data=True) for row in rows]
+
+
+def outgoing_refs(conn: sqlite3.Connection, record_id: str) -> list[dict[str, str]]:
+    rows = conn.execute(
+        "select target_id, field_path from refs where source_id = ? order by field_path, target_id",
+        (record_id,),
+    ).fetchall()
+    return [{"target_id": row["target_id"], "field_path": row["field_path"]} for row in rows]
+
+
+def incoming_refs(conn: sqlite3.Connection, record_id: str) -> list[dict[str, str]]:
+    rows = conn.execute(
+        "select source_id, field_path from refs where target_id = ? order by source_id, field_path",
+        (record_id,),
+    ).fetchall()
+    return [{"source_id": row["source_id"], "field_path": row["field_path"]} for row in rows]
+
+
+def graph_edge_rows(conn: sqlite3.Connection, record_id: str) -> list[dict[str, str | None]]:
+    rows = conn.execute(
+        """
+        select source_id, target_id, edge_type, field_path
+        from edges
+        where source_id = ? or target_id = ?
+        order by source_id, target_id, edge_type, field_path
+        """,
+        (record_id, record_id),
+    ).fetchall()
+    return [
+        {
+            "source_id": row["source_id"],
+            "target_id": row["target_id"],
+            "edge_type": row["edge_type"],
+            "field_path": row["field_path"],
+        }
+        for row in rows
+    ]
+
+
+def evidence_ids_for_record(record: Record, id_map: dict[str, Record]) -> list[str]:
+    if record.kind == "evidence":
+        return [record.id]
+    if record.kind == "claim":
+        return evidence_ids_for_claim(record)
+    if record.kind == "relationship":
+        return evidence_ids_for_relationship(record, id_map)
+    if record.kind in {"metric", "event"}:
+        return as_reference_list(record.data.get("evidence"))
+    if record.kind == "validation":
+        return evidence_ids_for_validation(record, id_map)
+    if record.kind == "challenge":
+        depends_on = record.data.get("depends_on", {})
+        if isinstance(depends_on, dict):
+            return as_reference_list(depends_on.get("evidence"))
+    if record.kind == "thesis":
+        depends_on = record.data.get("depends_on", {})
+        evidence_ids: list[str] = []
+        if isinstance(depends_on, dict):
+            evidence_ids.extend(as_reference_list(depends_on.get("evidence")))
+            for claim_id in as_string_list(depends_on.get("claims")):
+                claim = id_map.get(claim_id)
+                if claim:
+                    evidence_ids.extend(evidence_ids_for_claim(claim))
+            for relationship_id in as_string_list(depends_on.get("relationships")):
+                relationship = id_map.get(relationship_id)
+                if relationship:
+                    evidence_ids.extend(evidence_ids_for_relationship(relationship, id_map))
+        return sorted(set(evidence_ids))
+    return []
+
+
+def is_open_challenge(record: dict[str, Any]) -> bool:
+    data = record.get("data", {})
+    return not any(data.get(key) for key in ("addressed_by", "withdrawn_by", "superseded_by"))
+
+
+def derive_review_state(
+    target: Record,
+    validations: list[dict[str, Any]],
+    challenges: list[dict[str, Any]],
+    evidence_classes: set[str],
+) -> dict[str, Any]:
+    verdicts = {str(item["data"].get("verdict")) for item in validations}
+    open_challenges = [challenge for challenge in challenges if is_open_challenge(challenge)]
+    flags: list[str] = []
+
+    if open_challenges:
+        flags.append("has_open_challenge")
+    if evidence_classes & LOW_TRUST_EVIDENCE_CLASSES:
+        flags.append("has_low_trust_support")
+    if evidence_classes & {"firsthand_private", "anonymous_internal"}:
+        flags.append("has_private_support")
+    if target.data.get("contradicts") or any(
+        challenge["data"].get("challenge_type") == "contradiction" for challenge in challenges
+    ):
+        flags.append("has_contradiction")
+    if target.data.get("superseded_by") or target.data.get("duplicate_of"):
+        flags.append("has_superseding_record")
+
+    if target.data.get("withdrawn_by") or "withdraws" in verdicts:
+        primary_label = "withdrawn"
+    elif target.data.get("superseded_by") or target.data.get("duplicate_of"):
+        primary_label = "superseded"
+    elif open_challenges or verdicts & {"disputes", "falsifies"}:
+        primary_label = "contested"
+    elif evidence_classes and evidence_classes <= LOW_TRUST_EVIDENCE_CLASSES:
+        primary_label = "low_trust_only"
+    elif "partially_supports" in verdicts:
+        primary_label = "partially_supported"
+    elif verdicts & {"attests", "supports"}:
+        primary_label = "supported"
+    else:
+        primary_label = "unreviewed"
+
+    return {"primary_label": primary_label, "flags": sorted(set(flags))}
+
+
 def json_error(error: str) -> dict[str, Any]:
     path = ""
     message = error
@@ -737,7 +1489,7 @@ def json_error(error: str) -> dict[str, Any]:
     }
 
 
-def run_lint(root: Path, json_output: bool = False, current_only: bool = False) -> int:
+def validate_repo(root: Path, current_only: bool = False) -> tuple[list[Record], list[str]]:
     validators = load_schemas(root)
     records, load_errors = load_records(root, include_archive=not current_only)
     id_map, id_errors = build_id_map(root, records)
@@ -750,7 +1502,11 @@ def run_lint(root: Path, json_output: bool = False, current_only: bool = False) 
     errors.extend(validate_claim_predicates(root, records))
     errors.extend(validate_relationships(root, records, id_map))
     errors.extend(validate_evidence_policy(root, records, id_map))
+    return records, errors
 
+
+def run_lint(root: Path, json_output: bool = False, current_only: bool = False) -> int:
+    records, errors = validate_repo(root, current_only=current_only)
     if json_output:
         print(
             json.dumps(
@@ -782,19 +1538,342 @@ def cmd_lint(args: argparse.Namespace) -> int:
     return run_lint(repo_root(), json_output=bool(args.json), current_only=bool(args.current_only))
 
 
-def cmd_graph_build(_: argparse.Namespace) -> int:
-    root = repo_root()
-    lint_status = run_lint(root, current_only=True)
-    if lint_status != 0:
-        return lint_status
+def run_index_build(root: Path, json_output: bool = False) -> int:
+    records, errors = validate_repo(root, current_only=False)
+    if errors:
+        if json_output:
+            print_json(
+                result_envelope(
+                    "index build",
+                    root,
+                    ok=False,
+                    errors=[json_error(error) for error in errors],
+                    records_indexed=0,
+                )
+            )
+        else:
+            for error in errors:
+                print(f"ERROR {error}", file=sys.stderr)
+            print(f"\n{len(errors)} validation error(s)", file=sys.stderr)
+        return 1
 
-    records, _ = load_records(root, include_archive=False)
+    result = create_index_database(root, records)
+    if json_output:
+        print_json(result_envelope("index build", root, **result))
+    else:
+        print(
+            f"Wrote {Path(result['index_path']).relative_to(root)} "
+            f"({result['records_indexed']} records)"
+        )
+    return 0
+
+
+def cmd_index_build(args: argparse.Namespace) -> int:
+    return run_index_build(repo_root(), json_output=bool(args.json))
+
+
+def run_search(
+    root: Path,
+    query: str,
+    json_output: bool = False,
+    include_archive: bool = False,
+    limit: int = 20,
+) -> int:
+    try:
+        with connect_index(root) as conn:
+            rows = search_rows(conn, query, include_archive=include_archive, limit=limit)
+            results = [row_to_record(row) for row in rows]
+    except FileNotFoundError as exc:
+        error = command_error("index_missing", str(exc), "Run `fo index build` first.")
+        if json_output:
+            print_json(result_envelope("search", root, ok=False, errors=[error], query=query, results=[]))
+        else:
+            print(f"ERROR {error['message']}", file=sys.stderr)
+        return 1
+
+    if json_output:
+        print_json(
+            result_envelope(
+                "search",
+                root,
+                query=query,
+                result_count=len(results),
+                results=results,
+            )
+        )
+    else:
+        for result in results:
+            print(f"{result['id']} [{result['kind']}] {result['path']}")
+            print(f"  {result['label']}")
+        print(f"{len(results)} match(es)")
+    return 0
+
+
+def cmd_search(args: argparse.Namespace) -> int:
+    return run_search(
+        repo_root(),
+        args.query,
+        json_output=bool(args.json),
+        include_archive=bool(args.include_archive),
+        limit=int(args.limit),
+    )
+
+
+def run_context(
+    root: Path,
+    record_id: str,
+    json_output: bool = False,
+    include_archive: bool = False,
+) -> int:
+    try:
+        with connect_index(root) as conn:
+            record = indexed_record(conn, record_id)
+            if record is None or (record["archived"] and not include_archive):
+                raise KeyError(record_id)
+            outgoing = outgoing_refs(conn, record_id)
+            incoming = incoming_refs(conn, record_id)
+            edges = graph_edge_rows(conn, record_id)
+            neighbor_ids = related_record_ids(conn, record_id)
+            neighbors = fetch_records(conn, neighbor_ids)
+            validations = target_review_records(conn, "validations", record_id)
+            challenges = target_review_records(conn, "challenges", record_id)
+    except FileNotFoundError as exc:
+        error = command_error("index_missing", str(exc), "Run `fo index build` first.")
+        if json_output:
+            print_json(result_envelope("context", root, ok=False, errors=[error], id=record_id))
+        else:
+            print(f"ERROR {error['message']}", file=sys.stderr)
+        return 1
+    except KeyError:
+        error = command_error("record_not_found", f"record `{record_id}` was not found")
+        if json_output:
+            print_json(result_envelope("context", root, ok=False, errors=[error], id=record_id))
+        else:
+            print(f"ERROR {error['message']}", file=sys.stderr)
+        return 1
+
+    if json_output:
+        print_json(
+            result_envelope(
+                "context",
+                root,
+                id=record_id,
+                record=record,
+                outgoing_refs=outgoing,
+                incoming_refs=incoming,
+                graph_edges=edges,
+                neighbors=neighbors,
+                validations=validations,
+                challenges=challenges,
+            )
+        )
+    else:
+        print(f"{record['id']} [{record['kind']}] {record['path']}")
+        print(f"  {record['label']}")
+        print(f"{len(neighbors)} neighbor(s), {len(validations)} validation(s), {len(challenges)} challenge(s)")
+    return 0
+
+
+def cmd_context(args: argparse.Namespace) -> int:
+    return run_context(
+        repo_root(),
+        args.id,
+        json_output=bool(args.json),
+        include_archive=bool(args.include_archive),
+    )
+
+
+def run_review(
+    root: Path,
+    record_id: str,
+    json_output: bool = False,
+    include_archive: bool = False,
+) -> int:
+    try:
+        with connect_index(root) as conn:
+            record = indexed_record(conn, record_id)
+            if record is None or (record["archived"] and not include_archive):
+                raise KeyError(record_id)
+            id_map = load_index_record_map(conn)
+            target = id_map[record_id]
+            validations = target_review_records(conn, "validations", record_id)
+            challenges = target_review_records(conn, "challenges", record_id)
+            evidence_ids = evidence_ids_for_record(target, id_map)
+            evidence_records = fetch_records(conn, evidence_ids, include_data=True)
+            evidence_classes = {
+                str(evidence["data"].get("evidence_class"))
+                for evidence in evidence_records
+                if isinstance(evidence.get("data"), dict)
+            }
+            review_state = derive_review_state(target, validations, challenges, evidence_classes)
+    except FileNotFoundError as exc:
+        error = command_error("index_missing", str(exc), "Run `fo index build` first.")
+        if json_output:
+            print_json(result_envelope("review", root, ok=False, errors=[error], id=record_id))
+        else:
+            print(f"ERROR {error['message']}", file=sys.stderr)
+        return 1
+    except KeyError:
+        error = command_error("record_not_found", f"record `{record_id}` was not found")
+        if json_output:
+            print_json(result_envelope("review", root, ok=False, errors=[error], id=record_id))
+        else:
+            print(f"ERROR {error['message']}", file=sys.stderr)
+        return 1
+
+    if json_output:
+        print_json(
+            result_envelope(
+                "review",
+                root,
+                id=record_id,
+                record=record,
+                review_state=review_state,
+                evidence=evidence_records,
+                validations=validations,
+                challenges=challenges,
+            )
+        )
+    else:
+        print(f"{record_id}: {review_state['primary_label']}")
+        if review_state["flags"]:
+            print("flags: " + ", ".join(review_state["flags"]))
+        print(
+            f"{len(evidence_records)} evidence record(s), "
+            f"{len(validations)} validation(s), {len(challenges)} challenge(s)"
+        )
+    return 0
+
+
+def cmd_review(args: argparse.Namespace) -> int:
+    return run_review(
+        repo_root(),
+        args.id,
+        json_output=bool(args.json),
+        include_archive=bool(args.include_archive),
+    )
+
+
+def run_graph_neighbors(
+    root: Path,
+    record_id: str,
+    json_output: bool = False,
+    include_archive: bool = False,
+) -> int:
+    records, errors = load_records(root, include_archive=include_archive)
+    if errors:
+        if json_output:
+            print_json(
+                result_envelope(
+                    "graph neighbors",
+                    root,
+                    ok=False,
+                    errors=[json_error(error) for error in errors],
+                    id=record_id,
+                )
+            )
+        else:
+            for error in errors:
+                print(f"ERROR {error}", file=sys.stderr)
+        return 1
+
+    id_map = {record.id: record for record in records if record.id}
+    if record_id not in id_map:
+        error = command_error("record_not_found", f"record `{record_id}` was not found")
+        if json_output:
+            print_json(result_envelope("graph neighbors", root, ok=False, errors=[error], id=record_id))
+        else:
+            print(f"ERROR {error['message']}", file=sys.stderr)
+        return 1
+
+    graph = build_graph_data(root, records)
+    edges = [
+        edge
+        for edge in graph["edges"]
+        if edge.get("from") == record_id or edge.get("to") == record_id
+    ]
+    neighbor_ids = sorted(
+        {
+            str(edge["to"] if edge.get("from") == record_id else edge["from"])
+            for edge in edges
+            if edge.get("from") and edge.get("to")
+        }
+    )
+    neighbors = [
+        {
+            "id": neighbor_id,
+            "kind": id_map[neighbor_id].kind,
+            "label": record_label(id_map[neighbor_id]),
+            "path": str(id_map[neighbor_id].path.relative_to(root)),
+        }
+        for neighbor_id in neighbor_ids
+        if neighbor_id in id_map
+    ]
+
+    if json_output:
+        print_json(
+            result_envelope(
+                "graph neighbors",
+                root,
+                id=record_id,
+                neighbor_count=len(neighbors),
+                neighbors=neighbors,
+                edges=edges,
+            )
+        )
+    else:
+        for neighbor in neighbors:
+            print(f"{neighbor['id']} [{neighbor['kind']}] {neighbor['path']}")
+            print(f"  {neighbor['label']}")
+        print(f"{len(neighbors)} neighbor(s)")
+    return 0
+
+
+def cmd_graph_neighbors(args: argparse.Namespace) -> int:
+    return run_graph_neighbors(
+        repo_root(),
+        args.id,
+        json_output=bool(args.json),
+        include_archive=bool(args.include_archive),
+    )
+
+
+def cmd_graph_build(args: argparse.Namespace) -> int:
+    root = repo_root()
+    records, errors = validate_repo(root, current_only=True)
+    if errors:
+        if args.json:
+            print_json(
+                result_envelope(
+                    "graph build",
+                    root,
+                    ok=False,
+                    errors=[json_error(error) for error in errors],
+                )
+            )
+        else:
+            for error in errors:
+                print(f"ERROR {error}", file=sys.stderr)
+            print(f"\n{len(errors)} validation error(s)", file=sys.stderr)
+        return 1
+
     graph = build_graph_data(root, records)
     output_dir = root / ".local"
     output_dir.mkdir(exist_ok=True)
     output_path = output_dir / "graph.json"
     output_path.write_text(json.dumps(graph, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(f"Wrote {output_path.relative_to(root)}")
+    if args.json:
+        print_json(
+            result_envelope(
+                "graph build",
+                root,
+                graph_path=str(output_path),
+                node_count=graph["node_count"],
+                edge_count=graph["edge_count"],
+            )
+        )
+    else:
+        print(f"Wrote {output_path.relative_to(root)}")
     return 0
 
 
@@ -839,11 +1918,46 @@ def build_parser() -> argparse.ArgumentParser:
     )
     lint_parser.set_defaults(func=cmd_lint)
 
+    index_parser = subparsers.add_parser("index", help="local SQLite index utilities")
+    index_subparsers = index_parser.add_subparsers(dest="index_command", required=True)
+
+    index_build_parser = index_subparsers.add_parser("build", help="build .local/index.sqlite")
+    index_build_parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
+    index_build_parser.set_defaults(func=cmd_index_build)
+
+    search_parser = subparsers.add_parser("search", help="search indexed records")
+    search_parser.add_argument("query", help="search query")
+    search_parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
+    search_parser.add_argument("--include-archive", action="store_true", help="include archive records")
+    search_parser.add_argument("--limit", type=int, default=20, help="maximum result count")
+    search_parser.set_defaults(func=cmd_search)
+
+    context_parser = subparsers.add_parser("context", help="show indexed context around a record")
+    context_parser.add_argument("id", help="record id")
+    context_parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
+    context_parser.add_argument("--include-archive", action="store_true", help="include archive records")
+    context_parser.set_defaults(func=cmd_context)
+
+    review_parser = subparsers.add_parser("review", help="derive local review state for a record")
+    review_parser.add_argument("id", help="record id")
+    review_parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
+    review_parser.add_argument("--include-archive", action="store_true", help="include archive records")
+    review_parser.set_defaults(func=cmd_review)
+
     graph_parser = subparsers.add_parser("graph", help="graph utilities")
     graph_subparsers = graph_parser.add_subparsers(dest="graph_command", required=True)
 
     build_parser_ = graph_subparsers.add_parser("build", help="build .local/graph.json")
+    build_parser_.add_argument("--json", action="store_true", help="emit machine-readable JSON")
     build_parser_.set_defaults(func=cmd_graph_build)
+
+    neighbors_parser = graph_subparsers.add_parser("neighbors", help="show graph neighbors for a record")
+    neighbors_parser.add_argument("id", help="record id")
+    neighbors_parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
+    neighbors_parser.add_argument(
+        "--include-archive", action="store_true", help="include archive records"
+    )
+    neighbors_parser.set_defaults(func=cmd_graph_neighbors)
 
     inspect_parser = graph_subparsers.add_parser("inspect", help="inspect graph records")
     inspect_parser.add_argument("term", help="case-insensitive search term")

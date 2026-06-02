@@ -9,6 +9,7 @@ Use `uv` for local tooling:
 ```bash
 uv sync
 uv run fo lint
+uv run fo index build --json
 uv run fo graph build
 ```
 
@@ -23,6 +24,21 @@ uv run fo graph build
 7. Add relationships when a typed connection is supported by claims or evidence.
 8. Add theses as the interpretive layer.
 9. Run `uv run fo lint` before opening a PR.
+
+## PR Validation
+
+GitHub Actions runs the deterministic local checks on every pull request:
+
+```bash
+uv sync --locked
+uv run fo lint --json
+uv run python -m unittest discover -s tests
+uv run fo index build --json
+uv run fo graph build --json
+```
+
+CI validates structure, references, ontology usage, tests, and derived local
+read artifacts. It does not decide investment truth.
 
 ## Evidence Classes
 

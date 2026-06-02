@@ -112,3 +112,13 @@ supersession links.
 
 `fo graph build` writes `.local/graph.json`. This file is derived from repo data
 and ignored by git.
+
+`fo index build` writes `.local/index.sqlite`. This file is also derived from
+repo data and ignored by git. Agent-facing read commands use the index:
+
+```bash
+fo search QUERY --json
+fo context ID --json
+fo review ID --json
+fo graph neighbors ID --json
+```

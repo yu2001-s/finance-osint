@@ -60,6 +60,16 @@ def run_lint(root: Path) -> tuple[int, str]:
     return status, stdout.getvalue() + stderr.getvalue()
 
 
+def run_json_command(func, *args) -> tuple[int, dict]:
+    stderr = io.StringIO()
+    stdout = io.StringIO()
+    with contextlib.redirect_stderr(stderr), contextlib.redirect_stdout(stdout):
+        status = func(*args, json_output=True)
+    payload = yaml.safe_load(stdout.getvalue())
+    assert isinstance(payload, dict), stderr.getvalue()
+    return status, payload
+
+
 class CliValidationTests(unittest.TestCase):
     def test_scaffold_lints(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -190,6 +200,64 @@ class CliValidationTests(unittest.TestCase):
         self.assertTrue(payload["ok"])
         self.assertEqual(payload["command"], "lint")
         self.assertEqual(payload["errors"], [])
+
+    def test_index_build_and_search_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+
+            status, payload = run_json_command(cli.run_index_build, repo)
+            self.assertEqual(status, 0, payload)
+            self.assertTrue((repo / ".local" / "index.sqlite").exists())
+            self.assertEqual(payload["records_indexed"], 39)
+
+            status, payload = run_json_command(cli.run_search, repo, "exdev")
+
+        self.assertEqual(status, 0, payload)
+        self.assertTrue(payload["ok"])
+        self.assertGreater(payload["result_count"], 0)
+        self.assertIn(
+            "entity:company:exdev",
+            {result["id"] for result in payload["results"]},
+        )
+
+    def test_context_review_and_neighbors_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            status, build_payload = run_json_command(cli.run_index_build, repo)
+            self.assertEqual(status, 0, build_payload)
+
+            status, context = run_json_command(
+                cli.run_context,
+                repo,
+                "claim:synthetic:exdev-uses-fndwy-for-x1",
+            )
+            self.assertEqual(status, 0, context)
+            self.assertEqual(context["record"]["kind"], "claim")
+            self.assertIn(
+                "evidence:synthetic:exdev-fy2025-supplier-note",
+                {item["target_id"] for item in context["outgoing_refs"]},
+            )
+
+            status, review = run_json_command(
+                cli.run_review,
+                repo,
+                "thesis:synthetic:exdev-margin-risk-from-foundry-concentration",
+            )
+            self.assertEqual(status, 0, review)
+            self.assertEqual(review["review_state"]["primary_label"], "contested")
+            self.assertIn("has_open_challenge", review["review_state"]["flags"])
+
+            status, neighbors = run_json_command(
+                cli.run_graph_neighbors,
+                repo,
+                "relationship:synthetic:exdev-fndwy-x1-supply",
+            )
+
+        self.assertEqual(status, 0, neighbors)
+        self.assertIn(
+            "entity:company:exdev",
+            {neighbor["id"] for neighbor in neighbors["neighbors"]},
+        )
 
 
 if __name__ == "__main__":
