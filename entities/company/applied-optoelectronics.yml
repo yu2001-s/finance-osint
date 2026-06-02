@@ -1,0 +1,14 @@
+schema_version: 1
+kind: entity
+id: entity:company:applied-optoelectronics
+entity_type: company
+name: Applied Optoelectronics Inc.
+aliases:
+  - AOI
+  - AAOI
+identifiers:
+  ticker: AAOI
+  cik: "1158114"
+description: Public company providing optical and HFC networking products for AI datacenters, CATV, broadband, telecom, and FTTH markets.
+state: active
+created_at: "2026-06-03T00:00:00Z"

@@ -23,9 +23,13 @@ FIXTURE_DIRS = (
     "entities",
     "sources",
     "evidence",
+    "datasets",
+    "metrics",
+    "events",
     "claims",
     "validations",
     "challenges",
+    "questions",
     "relationships",
     "theses",
 )
@@ -501,7 +505,9 @@ class CliValidationTests(unittest.TestCase):
             status, payload = run_json_command(cli.run_index_build, repo)
             self.assertEqual(status, 0, payload)
             self.assertTrue((repo / ".local" / "index.sqlite").exists())
-            self.assertEqual(payload["records_indexed"], 39)
+            records, errors = cli.load_records(repo)
+            self.assertEqual(errors, [])
+            self.assertEqual(payload["records_indexed"], len(records))
 
             status, payload = run_json_command(cli.run_search, repo, "exdev")
 
@@ -1118,6 +1124,23 @@ class CliValidationTests(unittest.TestCase):
             )
             self.assertEqual(status, 0, thesis)
 
+            status, question = run_new_json(
+                cli.run_new_question,
+                repo,
+                question="Can helper evidence convert into a named customer order?",
+                entity=["entity:company:exdev", entity["id"]],
+                proof_type="customer_order_conversion",
+                priority="high",
+                related_evidence=["evidence:synthetic:exdev-fy2025-supplier-note"],
+                related_claim=["claim:synthetic:exdev-uses-fndwy-for-x1"],
+                related_relationship=["relationship:synthetic:exdev-fndwy-x1-supply"],
+                related_thesis=[thesis["id"]],
+                next_action=["Search customer-side disclosures."],
+                resolved_by=[],
+                submitted_by="github:tester",
+            )
+            self.assertEqual(status, 0, question)
+
             status, output = run_lint(repo)
 
         self.assertEqual(status, 0, output)
@@ -1126,7 +1149,9 @@ class CliValidationTests(unittest.TestCase):
         self.assertTrue(event["path"].startswith("events/generated/"))
         self.assertTrue(dataset["path"].startswith("datasets/generated/"))
         self.assertTrue(thesis["path"].startswith("theses/generated/"))
+        self.assertTrue(question["path"].startswith("questions/generated/"))
         self.assertEqual(thesis["record"]["depends_on"]["metrics"], [metric["id"]])
+        self.assertEqual(question["record"]["related_theses"], [thesis["id"]])
 
 
 if __name__ == "__main__":

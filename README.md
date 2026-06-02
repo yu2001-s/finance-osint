@@ -8,7 +8,7 @@ The repo is the canonical database. Contributors pull it, add structured data lo
 
 ```text
 Source -> Dataset -> Evidence -> Metric/Event/Claim -> Relationship -> Thesis
-                              -> Validation/Challenge
+                              -> Validation/Challenge/Question
 ```
 
 - `sources/`: provenance metadata for filings, transcripts, pages, datasets, meetings, and observations.
@@ -21,6 +21,7 @@ Source -> Dataset -> Evidence -> Metric/Event/Claim -> Relationship -> Thesis
 - `claims/`: narrow checkable statements backed by evidence.
 - `validations/`: append-only review records that evaluate support.
 - `challenges/`: append-only unresolved objections about evidence quality, scope, ontology, materiality, or missing support.
+- `questions/`: open proof gaps or next investigation targets for humans and agents.
 - `relationships/`: rich typed graph relationships derived from claims or evidence.
 - `theses/`: interpretations, forecasts, or arguments built from evidence, claims, metrics, events, datasets, and relationships.
 - `relationship-types/`: the graph ontology. Registered types are canonical; provisional types must declare their proposed definition.
@@ -59,6 +60,7 @@ Evidence is the strict layer. Claims, relationships, theses, validations, and ch
 - First-hand evidence must declare access, attribution, public status, and risk flags.
 - Anonymous or internal-source reports can be recorded, but remain visibly low-trust unless independently supported.
 - Claims use `support_type` to describe reasoning distance from evidence.
+- Questions are investigation tasks, not truth status. Resolve them by linking evidence, claims, relationships, or theses.
 - Relationship types must be registered or marked `provisional:` with a proposed type definition.
 - Relationship participants, scope, materiality, and qualifiers must fit the selected relationship type.
 - Canonical records do not store truth `status` or `confidence`; tools derive review state locally.
@@ -148,6 +150,7 @@ fo new event
 fo new dataset
 fo new validation
 fo new challenge
+fo new question
 fo new relationship
 fo new thesis
 ```
@@ -163,6 +166,7 @@ add-evidence
 add-claim
 add-relationship
 validate-or-challenge
+add-question
 write-thesis
 ```
 

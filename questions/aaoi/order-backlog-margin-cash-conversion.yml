@@ -1,0 +1,29 @@
+schema_version: 1
+kind: question
+id: question:aaoi:order-backlog-margin-cash-conversion
+question: Do AAOI Q2-Q4 2026 actuals convert the disclosed 800G orders, first shipments, and capacity expansion into sustained data-center revenue, gross margin, cash flow, backlog, and acceptable dilution?
+entities:
+  - entity:company:applied-optoelectronics
+  - entity:product:aaoi-800g-1p6t-datacenter-transceiver-ramp
+  - entity:market:ai-datacenter-infrastructure
+proof_type: order_backlog_margin_cash_conversion
+priority: high
+related_evidence:
+  - evidence:public:aaoi:q1-2026-revenue-datacenter-capacity
+  - evidence:public:aaoi:800g-order-20260402
+related_claims:
+  - claim:aaoi:q1-2026-datacenter-revenue
+  - claim:aaoi:q1-2026-800g-volume-ramp
+  - claim:aaoi:800g-order-20260402
+related_relationships:
+  - relationship:aaoi:manufactures-800g-1p6t-transceiver-ramp
+related_theses:
+  - thesis:aaoi:order-backed-ramp-watch
+next_actions:
+  - Track Q2-Q4 2026 revenue, data-center revenue, gross margin, cash flow, inventory, receivables, capex, and share count.
+  - Separate signed orders, backlog, shipped units, and management capacity from capacity-derived revenue potential.
+  - Look for named customer concentration, repeat orders, delivery completion, and margin bridge disclosures.
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - proof_gap

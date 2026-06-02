@@ -1,0 +1,12 @@
+schema_version: 1
+kind: source
+id: source:public:aaoi:400mw-laser-cpo-20251218
+source_type: press_release
+title: AOI introduces new ultra high-power semiconductor laser to support silicon photonics and CPO
+publisher: Applied Optoelectronics
+url: https://newsroom.ao-inc.com/news-releases/aoi-introduces-new-ultra-high-power-semiconductor-laser-to-support-silicon-photonics-and-cpo/
+published_at: "2025-12-18"
+accessed_at: "2026-06-03T00:00:00Z"
+public_status: public
+content_mode: external_link
+provenance: Verified from Applied Optoelectronics newsroom release.

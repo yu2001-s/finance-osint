@@ -1,0 +1,21 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:aaoi:800g-order-20260402
+evidence_class: public_primary
+source: source:public:aaoi:800g-upsized-order-20260402
+summary: AAOI announced a new $71M 800G order, $124M in orders from that customer since mid-March 2026, planned 2026 deliveries, and first 10,000 units shipped to another hyperscale customer.
+content_mode: excerpt
+excerpt: "AAOI announced a new $71M order for 800G single-mode data-center transceivers from a major hyperscale customer, $124M in orders from that customer since mid-March, expected deliveries through 2026, and first 10,000 units shipped to another hyperscale datacenter customer."
+locator:
+  section: News release body
+  lines: official release lines 33-35
+observed_at: "2026-04-02T00:00:00Z"
+submitted_by: github:codex
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_official_public_source
+risk_flags:
+  - forward_looking_delivery_timing

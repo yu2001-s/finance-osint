@@ -1,0 +1,10 @@
+schema_version: 1
+kind: entity
+id: entity:architecture:co-packaged-optics
+entity_type: architecture
+name: Co-packaged optics
+aliases:
+  - CPO
+description: Optical I/O architecture that places optics close to switching or compute silicon to improve bandwidth density and power efficiency.
+state: active
+created_at: "2026-06-03T00:00:00Z"

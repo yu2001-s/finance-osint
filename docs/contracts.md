@@ -155,6 +155,10 @@ content_hash
 
 Use `source_type: sec_filing` rather than creating a separate filing object.
 
+Use `source_type: social_media_post` for public posts. The post directly
+supports attribution claims about what the account said; underlying company
+facts need separate source-backed evidence.
+
 Mutable web-like source types:
 
 ```text
@@ -435,6 +439,7 @@ claim:apple-inc-tsmc-a-series-supply
 relationship:apple-inc-tsmc-a-series-supply
 validation:apple-inc-tsmc-a-series-supply-alice-20260602
 challenge:apple-inc-tsmc-a-series-scope-bob-20260603
+question:apple-inc-tsmc-customer-proof
 ```
 
 Slug rules:
@@ -450,6 +455,7 @@ Collision rules:
 
 - Prefer adding a disambiguating stable identifier such as CIK, LEI, exchange, period, or date.
 - For validations/challenges, use target slug + contributor slug + date.
+- For questions, use the proof gap or source surface being investigated.
 - If collision remains, append a short deterministic suffix from the source ID or evidence ID.
 
 Entity IDs should prefer stable names over tickers:
@@ -474,6 +480,7 @@ security
 listing
 market
 geography
+architecture
 commodity
 technology
 regulation
@@ -496,6 +503,7 @@ relationships/company/apple-inc/tsmc-a-series-supply.yml
 theses/company/apple-inc/tsmc-margin-risk.yml
 validations/company/apple-inc/tsmc-a-series-supply/alice-20260602.yml
 challenges/company/apple-inc/tsmc-a-series-scope/bob-20260603.yml
+questions/company/apple-inc/tsmc-customer-proof.yml
 ```
 
 Cross-entity records should be anchored by the primary subject or buyer/customer
@@ -784,6 +792,7 @@ relationship_type
 relationship
 validation
 challenge
+question
 thesis
 ```
 

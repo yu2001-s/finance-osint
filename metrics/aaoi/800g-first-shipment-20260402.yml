@@ -1,0 +1,22 @@
+schema_version: 1
+kind: metric
+id: metric:aaoi:800g-first-shipment-20260402
+entity: entity:company:applied-optoelectronics
+metric_definition: metric_definition:unit_shipments
+value: 10000
+unit: units
+period:
+  observed_at: "2026-04-02"
+value_basis: reported
+evidence:
+  - evidence:public:aaoi:800g-order-20260402
+source_locator:
+  section: News release body
+  line_item: first 10,000 units shipped
+dimensions:
+  product: entity:product:aaoi-800g-1p6t-datacenter-transceiver-ramp
+  customer: unnamed_hyperscale_datacenter_customer
+reported_at: "2026-04-02"
+published_at: "2026-04-02"
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"

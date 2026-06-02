@@ -1,0 +1,22 @@
+schema_version: 1
+kind: metric
+id: metric:aaoi:q1-2026-total-revenue
+entity: entity:company:applied-optoelectronics
+metric_definition: metric_definition:revenue
+value: 151144000
+unit: USD
+period:
+  start: "2026-01-01"
+  end: "2026-03-31"
+value_basis: reported
+evidence:
+  - evidence:public:aaoi:q1-2026-revenue-datacenter-capacity
+source_locator:
+  section: Preliminary condensed consolidated statements of operations
+  line_item: Total Revenue
+dimensions:
+  segment: total
+reported_at: "2026-05-07"
+published_at: "2026-05-07"
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"

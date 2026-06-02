@@ -30,6 +30,7 @@ SCHEMA_BY_KIND = {
     "claim": "claim.schema.json",
     "validation": "validation.schema.json",
     "challenge": "challenge.schema.json",
+    "question": "question.schema.json",
     "relationship_type": "relationship-type.schema.json",
     "relationship": "relationship.schema.json",
     "thesis": "thesis.schema.json",
@@ -47,6 +48,7 @@ REF_PREFIXES = (
     "claim:",
     "validation:",
     "challenge:",
+    "question:",
     "relationship:",
     "rel:",
     "thesis:",
@@ -69,6 +71,7 @@ DATA_DIRS = (
     "claims",
     "validations",
     "challenges",
+    "questions",
     "relationships",
     "theses",
 )
@@ -1110,7 +1113,7 @@ def validate_archive_policy(root: Path, records: list[Record], id_map: dict[str,
 
 
 def record_label(record: Record) -> str:
-    for key in ("name", "title", "statement", "summary", "label"):
+    for key in ("name", "title", "statement", "question", "summary", "label"):
         value = record.data.get(key)
         if isinstance(value, str) and value:
             return value
@@ -3582,6 +3585,34 @@ def run_new_thesis(root: Path, args: argparse.Namespace) -> int:
     return run_new_record(root, "new thesis", path, data, args.json, args.overwrite)
 
 
+def run_new_question(root: Path, args: argparse.Namespace) -> int:
+    record_id = ensure_id("question", args.id, args.question)
+    data: dict[str, Any] = {
+        "schema_version": 1,
+        "kind": "question",
+        "id": record_id,
+        "question": args.question,
+        "entities": sorted(set(args.entity)),
+        "proof_type": args.proof_type,
+        "priority": args.priority,
+        "submitted_by": args.submitted_by,
+    }
+    for source_field, data_field in (
+        ("related_evidence", "related_evidence"),
+        ("related_claim", "related_claims"),
+        ("related_relationship", "related_relationships"),
+        ("related_thesis", "related_theses"),
+        ("next_action", "next_actions"),
+        ("resolved_by", "resolved_by"),
+    ):
+        values = sorted(set(getattr(args, source_field)))
+        if values:
+            data[data_field] = values
+    add_optional_common_fields(data, args)
+    path = generated_record_path(root, "questions", record_id, args.path)
+    return run_new_record(root, "new question", path, data, args.json, args.overwrite)
+
+
 def run_lint(root: Path, json_output: bool = False, current_only: bool = False) -> int:
     records, errors = validate_repo(root, current_only=current_only)
     warnings = [
@@ -4055,6 +4086,10 @@ def cmd_new_thesis(args: argparse.Namespace) -> int:
     return run_new_thesis(repo_root(), args)
 
 
+def cmd_new_question(args: argparse.Namespace) -> int:
+    return run_new_question(repo_root(), args)
+
+
 def add_new_common_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--id", help="explicit canonical id")
     parser.add_argument("--path", help="explicit output path")
@@ -4114,6 +4149,7 @@ def build_parser() -> argparse.ArgumentParser:
             "listing",
             "market",
             "geography",
+            "architecture",
             "commodity",
             "technology",
             "regulation",
@@ -4371,6 +4407,20 @@ def build_parser() -> argparse.ArgumentParser:
     thesis_parser.add_argument("--contradicting-evidence", action="append", default=[])
     add_dependency_options(thesis_parser)
     thesis_parser.set_defaults(func=cmd_new_thesis)
+
+    question_parser = new_subparsers.add_parser("question", help="create a proof-gap question")
+    add_new_common_options(question_parser)
+    question_parser.add_argument("--question", required=True)
+    question_parser.add_argument("--entity", action="append", required=True, help="related entity id")
+    question_parser.add_argument("--proof-type", required=True)
+    question_parser.add_argument("--priority", required=True, choices=["low", "medium", "high"])
+    question_parser.add_argument("--related-evidence", action="append", default=[])
+    question_parser.add_argument("--related-claim", action="append", default=[])
+    question_parser.add_argument("--related-relationship", action="append", default=[])
+    question_parser.add_argument("--related-thesis", action="append", default=[])
+    question_parser.add_argument("--next-action", action="append", default=[])
+    question_parser.add_argument("--resolved-by", action="append", default=[])
+    question_parser.set_defaults(func=cmd_new_question)
 
     index_parser = subparsers.add_parser("index", help="local SQLite index utilities")
     index_subparsers = index_parser.add_subparsers(dest="index_command", required=True)

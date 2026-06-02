@@ -27,6 +27,7 @@
         "official_dataset",
         "web_page",
         "news_article",
+        "social_media_post",
         "research_report",
         "conference",
         "meeting",

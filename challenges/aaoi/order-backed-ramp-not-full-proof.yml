@@ -1,0 +1,25 @@
+schema_version: 1
+kind: challenge
+id: challenge:aaoi:order-backed-ramp-not-full-proof
+target: thesis:aaoi:order-backed-ramp-watch
+submitted_by: github:codex
+challenge_type: materiality_dispute
+summary: The official sources support order-backed and shipment-backed ramp evidence, but they do not by themselves prove sustained backlog, gross-margin conversion, cash conversion, dilution control, named customer concentration, or valuation support.
+depends_on:
+  evidence:
+    - evidence:public:aaoi:q1-2026-revenue-datacenter-capacity
+    - evidence:public:aaoi:800g-order-20260402
+  claims:
+    - claim:aaoi:q1-2026-800g-volume-ramp
+    - claim:aaoi:800g-order-20260402
+  relationships:
+    - relationship:aaoi:manufactures-800g-1p6t-transceiver-ramp
+  theses:
+    - thesis:aaoi:order-backed-ramp-watch
+  metrics:
+    - metric:aaoi:q1-2026-total-revenue
+    - metric:aaoi:q1-2026-datacenter-revenue
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - proof_gap
+  - valuation_conversion_unproven

@@ -1,0 +1,10 @@
+schema_version: 1
+kind: entity
+id: entity:product:aaoi-400mw-pump-laser
+entity_type: product
+name: AAOI 400 mW pump laser
+aliases:
+  - AOI 400mW laser
+description: Applied Optoelectronics narrow-linewidth pump laser announced for silicon photonics and co-packaged optics.
+state: active
+created_at: "2026-06-03T00:00:00Z"

@@ -1,0 +1,21 @@
+schema_version: 1
+kind: claim
+id: claim:aaoi:q1-2026-800g-volume-ramp
+statement: Applied Optoelectronics reported first volume shipment of 800G products to a large hyperscale customer in Q1 2026 and nearly 100,000 units per month of 800G manufacturing capacity exiting Q1 2026.
+subject: entity:company:applied-optoelectronics
+predicate: product_signal
+object: entity:product:aaoi-800g-1p6t-datacenter-transceiver-ramp
+qualifiers:
+  product_generation: 800G
+  customer: unnamed_large_hyperscale_customer
+  signal_type: volume_shipment_and_capacity
+time_scope:
+  start: "2026-01-01"
+  end: "2026-03-31"
+support_type: direct
+evidence:
+  - id: evidence:public:aaoi:q1-2026-revenue-datacenter-capacity
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - unnamed_customer

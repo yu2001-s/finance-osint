@@ -1,0 +1,18 @@
+schema_version: 1
+kind: claim
+id: claim:aaoi:400mw-laser-cpo-siph-product-fit
+statement: Applied Optoelectronics announced a 400 mW narrow-linewidth pump laser designed for silicon photonics and co-packaged optics use cases in AI data centers.
+subject: entity:company:applied-optoelectronics
+predicate: product_signal
+object: entity:product:aaoi-400mw-pump-laser
+qualifiers:
+  product_generation: 400mW pump laser
+  architecture_1: entity:architecture:silicon-photonics
+  architecture_2: entity:architecture:co-packaged-optics
+support_type: direct
+evidence:
+  - id: evidence:public:aaoi:400mw-laser-cpo-20251218
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - forward_looking_volume_production

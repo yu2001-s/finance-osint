@@ -1,0 +1,21 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:aaoi:400mw-laser-cpo-20251218
+evidence_class: public_primary
+source: source:public:aaoi:400mw-laser-cpo-20251218
+summary: AAOI announced a 400 mW narrow-linewidth pump laser for silicon photonics and CPO use cases, with samples available and volume production expected later in 2026.
+content_mode: excerpt
+excerpt: "AAOI announced a 400 mW narrow-linewidth pump laser designed for silicon photonics and co-packaged optics in AI data centers, described CPO and silicon-photonics use cases, and said samples were available with volume production expected later in 2026."
+locator:
+  section: Newsroom release body
+  lines: official release lines 20-35
+observed_at: "2025-12-18T00:00:00Z"
+submitted_by: github:codex
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_official_public_source
+risk_flags:
+  - forward_looking_volume_production

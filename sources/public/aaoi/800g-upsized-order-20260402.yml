@@ -1,0 +1,12 @@
+schema_version: 1
+kind: source
+id: source:public:aaoi:800g-upsized-order-20260402
+source_type: press_release
+title: AOI receives new upsized order for 800G data center transceivers from major hyperscale customer
+publisher: Applied Optoelectronics
+url: https://investors.ao-inc.com/news-releases/news-release-details/aoi-receives-new-upsized-order-800g-data-center-transceivers
+published_at: "2026-04-02"
+accessed_at: "2026-06-03T00:00:00Z"
+public_status: public
+content_mode: external_link
+provenance: Verified from Applied Optoelectronics investor-relations news release.

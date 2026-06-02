@@ -22,6 +22,9 @@ agent-skills/add-relationship/SKILL.md
 agent-skills/validate-or-challenge/SKILL.md
   Use when reviewing, supporting, disputing, or pressuring an existing object.
 
+agent-skills/add-question/SKILL.md
+  Use when recording an open proof gap or next investigation target.
+
 agent-skills/write-thesis/SKILL.md
   Use when writing interpretation or forecast records from explicit dependencies.
 ```

@@ -1,0 +1,20 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:aaoi:q1-2026-revenue-datacenter-capacity
+evidence_class: public_primary
+source: source:public:aaoi:q1-2026-results-sec-ex99
+summary: AAOI reported Q1 2026 revenue, data-center segment revenue, first volume 800G shipment, 800G capacity, and Q2 2026 revenue guidance.
+content_mode: excerpt
+excerpt: "AAOI reported Q1 2026 total revenue of $151.144M, data-center revenue of $81.404M, first volume shipment of 800G products to a large hyperscale customer, nearly 100,000 units per month of 800G manufacturing capacity exiting Q1, and Q2 2026 revenue guidance of $180M-$198M."
+locator:
+  section: First Quarter 2026 Financial Summary and statements of operations
+  lines: SEC exhibit lines 8-17, 25-31, 129-136
+observed_at: "2026-05-07T00:00:00Z"
+submitted_by: github:codex
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_official_public_source
+risk_flags: []

@@ -1,0 +1,36 @@
+schema_version: 1
+kind: relationship_type
+id: supports_architecture
+label: Supports Architecture
+description: A product, component, technology, or service is described as supporting an architecture.
+state: registered
+ontology_version: 1
+directional: true
+roles:
+  - name: supporter
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types: [product, component, technology, service]
+    description: Product, component, technology, or service that supports the architecture.
+  - name: architecture
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types: [architecture, technology]
+    description: Architecture supported by the product, component, technology, or service.
+allowed_scope:
+  - market
+  - segment
+  - product
+  - component
+  - technology
+allowed_qualifiers:
+  - product_fit
+  - direct_statement
+  - inferred_use_case
+inverse_type: null
+inverse_behavior: none
+materiality:
+  allowed_values: [low, medium, high, critical]
+evidence_required: true

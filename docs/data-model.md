@@ -17,6 +17,7 @@ dataset
 claim
 validation
 challenge
+question
 relationship_type
 relationship
 thesis
@@ -29,12 +30,16 @@ examples live under `examples/deferred/`.
 
 ```text
 Source -> Dataset -> Evidence -> Metric/Event/Claim -> Relationship -> Thesis
-                              -> Validation/Challenge
+                              -> Validation/Challenge/Question
 ```
 
 Source
   Provenance metadata for a filing, transcript, page, dataset, meeting,
   observation, or report.
+
+  `social_media_post` is a source type. It can directly support an attribution
+  claim such as "account X said Y"; underlying company facts still need their
+  own evidence chain.
 
 Evidence
   A locator, excerpt, observation, row, table, or source-backed report.
@@ -53,6 +58,10 @@ Validation
 
 Challenge
   An append-only unresolved objection or counter-pressure.
+
+Question
+  An open proof gap or next investigation target. Questions do not assert truth
+  and do not carry truth status; they are resolved by linking follow-up records.
 
 Relationship
   A typed graph object connecting entities through participants, scope, time,
@@ -198,5 +207,5 @@ YAML from explicit arguments and then rely on the same validators used by CI.
 They should not perform ingestion, summarization, or semantic inference.
 
 The common v1 contribution path is covered by helpers for entity, source,
-evidence, claim, metric, event, dataset, validation, challenge, relationship,
-and thesis records. Ontology-definition helpers remain deferred.
+evidence, claim, metric, event, dataset, validation, challenge, question,
+relationship, and thesis records. Ontology-definition helpers remain deferred.
