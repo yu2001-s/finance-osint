@@ -1,0 +1,14 @@
+schema_version: 1
+kind: source
+id: source:example:supplier-risk:alpd-fy2025-report
+source_type: other
+title: Alpha Devices FY2025 Report
+publisher: Example corpus
+published_at: "2026-03-15"
+accessed_at: "2026-06-03T00:00:00Z"
+public_status: public
+content_mode: small_fixture
+provenance: Fictional public primary source for the supplier-risk example corpus.
+risk_flags:
+  - example_fixture
+

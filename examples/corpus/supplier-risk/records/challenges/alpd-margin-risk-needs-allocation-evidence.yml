@@ -1,0 +1,21 @@
+schema_version: 1
+kind: challenge
+id: challenge:example:alpd-margin-risk-needs-allocation-evidence
+target: thesis:example:alpd-margin-risk-from-nfab-concentration
+submitted_by: github:example
+challenge_type: missing_evidence
+summary: The thesis needs direct evidence about Northern Fabrication allocation, pricing terms, or actual supplier capacity before margin risk can be assessed strongly.
+depends_on:
+  evidence:
+    - evidence:example:alpd-fy2025-nfab-supplier
+    - evidence:example:supply-chain-note-alt-qualification
+    - evidence:example:alpd-conference-alt-suppliers
+  claims:
+    - claim:example:alpd-a1-concentration-risk-signal
+  relationships:
+    - relationship:example:alpd-nfab-a1-supplier
+  theses:
+    - thesis:example:alpd-margin-risk-from-nfab-concentration
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - example_fixture

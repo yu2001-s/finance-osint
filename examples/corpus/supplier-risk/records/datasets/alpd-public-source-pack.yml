@@ -1,0 +1,20 @@
+schema_version: 1
+kind: dataset
+id: dataset:example:supplier-risk:alpd-public-source-pack
+title: Alpha Devices Supplier Risk Public Source Pack
+dataset_type: source_pack
+publisher: Example corpus
+coverage:
+  start: "2026-03-15"
+  end: "2026-05-20"
+access:
+  public_status: public
+sources:
+  - source:example:supplier-risk:alpd-fy2025-report
+  - source:example:supplier-risk:supply-chain-note
+  - source:example:supplier-risk:alpd-conference-notes
+content_mode: small_fixture
+limitations: Fictional source pack for demonstrating contribution structure.
+submitted_by: github:example
+created_at: "2026-06-03T00:00:00Z"
+

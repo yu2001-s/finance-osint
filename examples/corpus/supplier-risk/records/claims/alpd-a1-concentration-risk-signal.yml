@@ -1,0 +1,22 @@
+schema_version: 1
+kind: claim
+id: claim:example:alpd-a1-concentration-risk-signal
+statement: Alpha Devices has an inferred supplier concentration risk signal for the Alpha A1 Module.
+subject: entity:company:alpd
+predicate: product_signal
+object: inferred supplier concentration risk signal
+qualifiers:
+  product: entity:product:alpd-a1-module
+  component: entity:component:advanced-ceramic-substrate
+support_type: inferred
+evidence:
+  - id: evidence:example:alpd-fy2025-nfab-supplier
+  - id: evidence:example:supply-chain-note-alt-qualification
+  - id: evidence:example:alpd-conference-alt-suppliers
+methodology: Combines disclosed reliance, public secondary qualification timing, and public conference comments about unfinished alternate qualification.
+submitted_by: github:example
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - example_fixture
+  - inference
+

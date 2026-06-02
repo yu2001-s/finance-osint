@@ -1,0 +1,18 @@
+schema_version: 1
+kind: validation
+id: validation:example:alpd-uses-nfab-for-a1
+target: claim:example:alpd-uses-nfab-for-a1
+submitted_by: github:example
+verdict: supports
+summary: The fictional FY2025 report excerpt directly supports the narrow supplier-use claim.
+depends_on:
+  evidence:
+    - evidence:example:alpd-fy2025-nfab-supplier
+  claims:
+    - claim:example:alpd-uses-nfab-for-a1
+  relationships: []
+  theses: []
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - example_fixture
+

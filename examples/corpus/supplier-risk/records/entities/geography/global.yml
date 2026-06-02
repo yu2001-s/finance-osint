@@ -1,0 +1,9 @@
+schema_version: 1
+kind: entity
+id: entity:geography:global
+entity_type: geography
+name: Global
+description: Global geography scope.
+state: active
+created_at: "2026-06-03T00:00:00Z"
+

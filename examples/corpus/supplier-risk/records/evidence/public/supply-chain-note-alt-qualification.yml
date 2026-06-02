@@ -1,0 +1,21 @@
+schema_version: 1
+kind: evidence
+id: evidence:example:supply-chain-note-alt-qualification
+evidence_class: public_secondary
+source: source:example:supplier-risk:supply-chain-note
+summary: A fictional supply chain note says alternative substrate suppliers typically need two to three quarters to qualify for the A1 Module.
+content_mode: small_fixture
+excerpt: "Alternative suppliers for the A1 Module substrate typically need two to three quarters of qualification work before volume production."
+locator:
+  section: Supplier alternatives
+observed_at: "2026-04-10T00:00:00Z"
+submitted_by: github:example
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: example_fixture
+risk_flags:
+  - example_fixture
+

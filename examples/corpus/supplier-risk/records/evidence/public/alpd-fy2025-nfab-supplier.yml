@@ -1,0 +1,21 @@
+schema_version: 1
+kind: evidence
+id: evidence:example:alpd-fy2025-nfab-supplier
+evidence_class: public_primary
+source: source:example:supplier-risk:alpd-fy2025-report
+summary: Alpha Devices reports reliance on Northern Fabrication for advanced ceramic substrates used in the A1 Module.
+content_mode: small_fixture
+excerpt: "Alpha Devices relies on Northern Fabrication for advanced ceramic substrates used in the Alpha A1 Module."
+locator:
+  section: Supplier concentration
+observed_at: "2026-03-15T00:00:00Z"
+submitted_by: github:example
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: example_fixture
+risk_flags:
+  - example_fixture
+

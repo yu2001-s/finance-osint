@@ -1,0 +1,21 @@
+schema_version: 1
+kind: claim
+id: claim:example:alpd-uses-nfab-for-a1
+statement: Alpha Devices uses Northern Fabrication for advanced ceramic substrates used in the Alpha A1 Module.
+subject: entity:company:alpd
+predicate: disclosed_relationship
+object: entity:company:nfab
+qualifiers:
+  product: entity:product:alpd-a1-module
+  component: entity:component:advanced-ceramic-substrate
+time_scope:
+  start: "2025-01-01"
+  end: null
+support_type: direct
+evidence:
+  - id: evidence:example:alpd-fy2025-nfab-supplier
+submitted_by: github:example
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - example_fixture
+

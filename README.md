@@ -26,7 +26,9 @@ Source -> Dataset -> Evidence -> Metric/Event/Claim -> Relationship -> Thesis
 - `relationship-types/`: the graph ontology. Registered types are canonical; provisional types must declare their proposed definition.
 - `schemas/`: JSON Schemas enforced locally and in CI.
 
-Debate records are deferred from public v1. Prototype debate examples live under `examples/deferred/`.
+Examples are separate from canonical data. Prototype debate examples live under
+`examples/deferred/`; copyable full corpus examples live under
+`examples/corpus/`. Normal `fo` commands do not load those records.
 
 ## Quick Start
 

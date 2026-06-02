@@ -1,0 +1,18 @@
+schema_version: 1
+kind: claim
+id: claim:example:alpd-alt-supplier-not-complete
+statement: Alpha Devices management said alternate supplier qualification for the A1 Module was not complete.
+subject: entity:company:alpd
+predicate: management_statement
+object: Alternate supplier qualification for the A1 Module was in progress but not complete.
+time_scope:
+  start: "2026-05-20"
+  end: "2026-05-20"
+support_type: direct
+evidence:
+  - id: evidence:example:alpd-conference-alt-suppliers
+submitted_by: github:example
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - example_fixture
+

@@ -1,0 +1,21 @@
+schema_version: 1
+kind: evidence
+id: evidence:example:alpd-conference-alt-suppliers
+evidence_class: firsthand_public
+source: source:example:supplier-risk:alpd-conference-notes
+summary: Fictional public conference notes say Alpha Devices had not completed alternate supplier qualification for the A1 Module.
+content_mode: small_fixture
+excerpt: "Management said alternate supplier qualification for the A1 Module was in progress but not complete."
+locator:
+  section: Public conference Q&A
+observed_at: "2026-05-20T00:00:00Z"
+submitted_by: github:example
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: example_fixture
+risk_flags:
+  - example_fixture
+

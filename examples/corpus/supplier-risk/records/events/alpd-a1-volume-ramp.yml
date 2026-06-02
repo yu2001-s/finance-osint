@@ -1,0 +1,17 @@
+schema_version: 1
+kind: event
+id: event:example:alpd-a1-volume-ramp
+event_type: product_ramp
+event_state: expected
+title: Alpha A1 Module volume ramp
+entities:
+  - entity:company:alpd
+  - entity:product:alpd-a1-module
+expected_at: "2026-09-30"
+evidence:
+  - evidence:example:alpd-conference-alt-suppliers
+properties:
+  product: entity:product:alpd-a1-module
+submitted_by: github:example
+created_at: "2026-06-03T00:00:00Z"
+

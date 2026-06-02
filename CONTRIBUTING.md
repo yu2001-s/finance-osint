@@ -51,6 +51,7 @@ GitHub Actions runs the deterministic local checks on every pull request:
 ```bash
 uv sync --locked
 uv run fo lint --json
+uv run fo diff-review "origin/${{ github.base_ref }}" --json  # pull_request only
 uv run python -m unittest discover -s tests
 uv run fo index build --json
 uv run fo graph build --json

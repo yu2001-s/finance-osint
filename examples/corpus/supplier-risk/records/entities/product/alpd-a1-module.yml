@@ -1,0 +1,9 @@
+schema_version: 1
+kind: entity
+id: entity:product:alpd-a1-module
+entity_type: product
+name: Alpha A1 Module
+description: Fictional product used by the supplier-risk example corpus.
+state: active
+created_at: "2026-06-03T00:00:00Z"
+

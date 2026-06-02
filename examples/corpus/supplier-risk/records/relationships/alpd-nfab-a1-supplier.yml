@@ -1,0 +1,32 @@
+schema_version: 1
+kind: relationship
+id: relationship:example:alpd-nfab-a1-supplier
+type: supplier_relationship
+participants:
+  - role: buyer
+    entity: entity:company:alpd
+  - role: supplier
+    entity: entity:company:nfab
+scope:
+  product: entity:product:alpd-a1-module
+  component: entity:component:advanced-ceramic-substrate
+  market: entity:market:premium-wearables
+  geography: entity:geography:global
+direction:
+  supply_chain: upstream
+time_scope:
+  start: "2025-01-01"
+  end: null
+materiality:
+  level: high
+  basis: inferred
+derived_from:
+  claims:
+    - claim:example:alpd-uses-nfab-for-a1
+  evidence:
+    - evidence:example:alpd-fy2025-nfab-supplier
+submitted_by: github:example
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - example_fixture
+

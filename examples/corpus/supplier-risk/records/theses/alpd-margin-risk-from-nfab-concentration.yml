@@ -1,0 +1,35 @@
+schema_version: 1
+kind: thesis
+id: thesis:example:alpd-margin-risk-from-nfab-concentration
+title: Alpha Devices may face margin risk from Northern Fabrication concentration
+summary: If Alpha Devices cannot qualify alternate substrate suppliers before the A1 Module volume ramp, supplier pricing or allocation pressure could affect gross margin.
+stance: exploratory_bearish
+time_horizon: 6-12 months
+depends_on:
+  evidence:
+    - evidence:example:alpd-fy2025-nfab-supplier
+    - evidence:example:supply-chain-note-alt-qualification
+    - evidence:example:alpd-conference-alt-suppliers
+  claims:
+    - claim:example:alpd-uses-nfab-for-a1
+    - claim:example:alpd-alt-supplier-not-complete
+    - claim:example:alpd-a1-concentration-risk-signal
+  relationships:
+    - relationship:example:alpd-nfab-a1-supplier
+  metrics:
+    - metric:example:alpd-gross-margin-fy2025
+  events:
+    - event:example:alpd-a1-volume-ramp
+  datasets:
+    - dataset:example:supplier-risk:alpd-public-source-pack
+forecast:
+  expression: gross_margin_pressure_if_alternate_supplier_not_qualified
+  horizon: 6-12 months
+  direction: downside_risk
+contradicting_evidence: []
+risk_flags:
+  - example_fixture
+  - inference
+submitted_by: github:example
+created_at: "2026-06-03T00:00:00Z"
+

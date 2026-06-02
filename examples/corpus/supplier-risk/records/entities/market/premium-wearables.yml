@@ -1,0 +1,9 @@
+schema_version: 1
+kind: entity
+id: entity:market:premium-wearables
+entity_type: market
+name: Premium Wearables
+description: Fictional market scope used by the supplier-risk example corpus.
+state: active
+created_at: "2026-06-03T00:00:00Z"
+

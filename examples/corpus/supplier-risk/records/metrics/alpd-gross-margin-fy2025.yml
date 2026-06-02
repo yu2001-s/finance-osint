@@ -1,0 +1,20 @@
+schema_version: 1
+kind: metric
+id: metric:example:alpd-gross-margin-fy2025
+entity: entity:company:alpd
+metric_definition: metric_definition:gross_margin
+value: 34.2
+unit: percent
+period:
+  start: "2025-01-01"
+  end: "2025-12-31"
+value_basis: reported
+evidence:
+  - evidence:example:alpd-fy2025-nfab-supplier
+source_locator:
+  section: Selected financial data
+dimensions:
+  product: entity:product:alpd-a1-module
+submitted_by: github:example
+created_at: "2026-06-03T00:00:00Z"
+
