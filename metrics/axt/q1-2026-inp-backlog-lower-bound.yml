@@ -1,0 +1,29 @@
+schema_version: 1
+kind: metric
+id: metric:axt:q1-2026-inp-backlog-lower-bound
+entity: entity:company:axt-inc
+metric_definition: metric_definition:backlog_value
+value: 100000000.0
+unit: USD
+period:
+  type: as_of
+  value: '2026-04-30'
+value_basis: reported
+evidence:
+- evidence:public:axt:q1-2026-transcript-inp-revenue-backlog
+submitted_by: github:codex
+source_locator:
+  section: Q1 2026 transcript management backlog statement
+dimensions:
+  product: entity:component:indium-phosphide-substrate
+  lower_bound: 'true'
+as_of: '2026-04-30'
+published_at: '2026-04-30'
+methodology: Stored as a lower-bound metric because management statement was more
+  than USD 100M.
+limitations: Backlog lower bound from transcript-hosted management statement; not
+  independently verified as recognized revenue or cash conversion.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- company_originated
+- lower_bound

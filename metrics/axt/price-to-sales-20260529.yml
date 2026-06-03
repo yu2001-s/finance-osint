@@ -1,0 +1,19 @@
+schema_version: 1
+kind: metric
+id: metric:axt:price-to-sales-20260529
+entity: entity:company:axt-inc
+metric_definition: metric_definition:price_to_sales_ratio
+value: 68.48
+unit: ratio
+period:
+  type: point_in_time
+  value: '2026-05-29'
+value_basis: observed
+evidence:
+- evidence:public:market-data:axt-valuation-20260529
+submitted_by: github:codex
+source_locator:
+  section: StockAnalysis statistics page
+as_of: '2026-05-29'
+published_at: '2026-05-29'
+created_at: '2026-06-03T00:00:00Z'

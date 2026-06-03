@@ -1,0 +1,21 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:axt:fy2025-revenue-substrate
+evidence_class: public_primary
+source: source:public:axt:fy2025-form-10-k
+summary: AXT FY2025 financial disclosure reported total revenue of USD 88.3M and substrate
+  revenue of USD 58.9M.
+content_mode: excerpt
+observed_at: '2026-03-17T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: The migrated stock-research crosswalk records AXT FY2025 total revenue of
+  USD 88.3M and substrate revenue of USD 58.9M from the FY2025 Form 10-K.
+locator:
+  section: Revenue and product revenue disclosure
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_official_public_source
+created_at: '2026-06-03T00:00:00Z'

@@ -1,0 +1,16 @@
+schema_version: 1
+kind: source
+id: source:public:sumitomo-electric:data-center-strategy-2025
+source_type: company_report
+title: Sumitomo Electric growth strategy for data-center-related business
+public_status: public
+source_perspective: company_self
+accessed_at: '2026-06-03T00:00:00Z'
+content_mode: external_link
+submitted_by: github:codex
+publisher: Sumitomo Electric Industries
+url: https://sumitomoelectric.com/sites/default/files/2025-11/download_documents/Growth%20strategy%20for%20data%20center-related%20business_2025.pdf
+published_at: 2025-11
+provenance: Migrated from frozen stock-research source src_sumitomo_data_center_strategy_2025
+  at finance-osint-seed-20260603.
+created_at: '2026-06-03T00:00:00Z'

@@ -1,0 +1,27 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:axt:q1-2026-transcript-inp-revenue-backlog
+evidence_class: public_secondary
+source: source:public:axt:q1-2026-earnings-call-transcript
+summary: AXT Q1 2026 transcript recorded management statements that InP generated
+  USD 13.6M of Q1 revenue, primarily from data-center applications, and that InP backlog
+  was above USD 100M.
+content_mode: excerpt
+observed_at: '2026-04-30T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: The Q1 2026 transcript records AXT management saying InP generated USD
+  13.6M in Q1 revenue primarily from data-center applications, that InP backlog
+  exceeded USD 100M, and that AXT planned rapid InP capacity expansion including
+  6-inch product work.
+locator:
+  section: Management prepared remarks and Q&A on InP demand
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: transcript_hosted_management_statement
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- company_originated
+- transcript_secondary_host

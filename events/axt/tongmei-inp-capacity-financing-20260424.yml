@@ -1,0 +1,19 @@
+schema_version: 1
+kind: event
+id: event:axt:tongmei-inp-capacity-financing-20260424
+event_type: capacity_financing
+event_state: occurred
+title: Tongmei InP substrate capacity financing disclosed
+entities:
+- entity:company:axt-inc
+- entity:company:beijing-tongmei-xtal-technology
+- entity:component:indium-phosphide-substrate
+evidence:
+- evidence:public:axt:offering-inp-capacity-expansion
+submitted_by: github:codex
+occurred_at: '2026-04-24'
+properties:
+  use_of_proceeds: inp_substrate_capacity_expansion
+  timing_basis: company_disclosed
+  date_type: exact
+created_at: '2026-06-03T00:00:00Z'

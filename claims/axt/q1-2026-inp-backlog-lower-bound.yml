@@ -1,0 +1,20 @@
+schema_version: 1
+kind: claim
+id: claim:axt:q1-2026-inp-backlog-lower-bound
+statement: AXT management stated on the Q1 2026 earnings call that InP backlog was
+  more than USD 100M; this record stores USD 100M as a lower-bound backlog metric,
+  not as revenue.
+subject: entity:company:axt-inc
+predicate: reported_metric
+support_type: direct
+evidence:
+- id: evidence:public:axt:q1-2026-transcript-inp-revenue-backlog
+submitted_by: github:codex
+object: metric:axt:q1-2026-inp-backlog-lower-bound
+qualifiers:
+  lower_bound: 'true'
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- backlog_not_revenue
+- company_originated
+- lower_bound

@@ -1,0 +1,16 @@
+schema_version: 1
+kind: source
+id: source:public:axt:q1-2026-earnings-call-transcript
+source_type: transcript
+title: AXT Q1 2026 earnings-call transcript
+public_status: public
+source_perspective: company_self
+accessed_at: '2026-06-03T00:00:00Z'
+content_mode: external_link
+submitted_by: github:codex
+publisher: The Motley Fool transcript of AXT management remarks
+url: https://www.fool.com/earnings/call-transcripts/2026/04/30/axt-axti-q1-2026-earnings-call-transcript/
+published_at: '2026-04-30'
+provenance: Migrated from frozen stock-research source src_axt_q1_2026_transcript_motley
+  at finance-osint-seed-20260603.
+created_at: '2026-06-03T00:00:00Z'

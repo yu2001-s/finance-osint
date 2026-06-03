@@ -1,0 +1,25 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:axt:q1-2026-10q-data-center-growth
+evidence_class: public_primary
+source: source:public:axt:q1-2026-form-10-q
+summary: AXT's Q1 2026 Form 10-Q linked substrate revenue growth to higher demand
+  for InP wafer substrates used for data-center applications and passive optical networks,
+  plus additional China export approvals.
+content_mode: excerpt
+observed_at: '2026-05-14T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: AXT's Q1 2026 10-Q says substrate revenue growth was primarily due to higher
+  demand for InP wafer substrates used for data-center applications and passive optical
+  networks, with additional China export approvals contributing.
+locator:
+  section: Management discussion of substrate revenue growth
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_official_public_source
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- company_originated

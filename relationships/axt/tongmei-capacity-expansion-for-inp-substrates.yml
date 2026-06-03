@@ -1,0 +1,26 @@
+schema_version: 1
+kind: relationship
+id: relationship:tongmei:capacity-expansion-for-inp-substrates
+type: capacity_expansion_for
+participants:
+- role: operator
+  entity: entity:company:beijing-tongmei-xtal-technology
+- role: output
+  entity: entity:component:indium-phosphide-substrate
+derived_from:
+  claims: []
+  evidence:
+  - evidence:public:axt:offering-inp-capacity-expansion
+  - evidence:public:axt:q1-2026-results-revenue-capacity
+submitted_by: github:codex
+scope:
+  market: entity:market:ai-datacenter-infrastructure
+  time_window: event:axt:tongmei-inp-capacity-financing-20260424
+qualifiers:
+- announced
+materiality:
+  level: high
+  basis: observed
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- financing_not_capacity_online

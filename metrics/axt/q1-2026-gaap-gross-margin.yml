@@ -1,0 +1,22 @@
+schema_version: 1
+kind: metric
+id: metric:axt:q1-2026-gaap-gross-margin
+entity: entity:company:axt-inc
+metric_definition: metric_definition:gross_margin
+value: 29.6
+unit: percent
+period:
+  type: fiscal_quarter
+  fiscal_year: '2026'
+  fiscal_quarter: Q1
+value_basis: reported
+evidence:
+- evidence:public:axt:q1-2026-results-revenue-capacity
+submitted_by: github:codex
+source_locator:
+  section: Q1 2026 financial results
+dimensions:
+  basis: GAAP
+reported_at: '2026-04-30'
+published_at: '2026-04-30'
+created_at: '2026-06-03T00:00:00Z'

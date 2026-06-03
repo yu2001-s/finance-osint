@@ -1,0 +1,25 @@
+schema_version: 1
+kind: question
+id: question:axt:export-permit-conversion
+question: Do export permits normalize enough for AXT to convert InP AI optical demand
+  into revenue, margin, cash flow, and durable North America shipments?
+entities:
+- entity:company:axt-inc
+- entity:component:indium-phosphide-substrate
+- entity:regulation:china-inp-substrate-export-controls-2025
+proof_type: export_permit_conversion
+priority: high
+submitted_by: github:codex
+related_evidence:
+- evidence:public:axt:fy2025-export-controls
+- evidence:public:axt:q1-2026-transcript-inp-revenue-backlog
+related_claims:
+- claim:axt:export-permit-risk
+related_relationships:
+- relationship:axt:regulatory-exposure-inp-export-controls
+next_actions:
+- Track AXT export-permit language, North America revenue, backlog, customer concentration,
+  gross margin, inventory, and cash conversion in each filing.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- export_permit_risk

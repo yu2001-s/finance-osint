@@ -1,0 +1,23 @@
+schema_version: 1
+kind: relationship
+id: relationship:eml-cw-laser:supports-800g-1p6t-optical-links
+type: supports_architecture
+participants:
+- role: supporter
+  entity: entity:component:eml-cw-laser
+- role: architecture
+  entity: entity:architecture:800g-1p6t-optical-links
+derived_from:
+  claims:
+  - claim:sumitomo-electric:datacenter-optical-products
+  evidence:
+  - evidence:public:sumitomo-electric:data-center-optical-products
+submitted_by: github:codex
+scope:
+  market: entity:market:ai-datacenter-infrastructure
+qualifiers:
+- direct_statement
+materiality:
+  level: high
+  basis: observed
+created_at: '2026-06-03T00:00:00Z'

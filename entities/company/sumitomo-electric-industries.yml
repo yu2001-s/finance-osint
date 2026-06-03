@@ -1,0 +1,15 @@
+schema_version: 1
+kind: entity
+id: entity:company:sumitomo-electric-industries
+entity_type: company
+name: Sumitomo Electric Industries, Ltd.
+submitted_by: github:codex
+aliases:
+- SEI
+- Sumitomo Electric
+identifiers:
+  ticker: 5802.T
+description: Japanese diversified manufacturer whose official materials include InP
+  substrates and data-center optical products.
+state: active
+created_at: '2026-06-03T00:00:00Z'

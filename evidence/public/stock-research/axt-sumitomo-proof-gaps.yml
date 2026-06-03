@@ -1,0 +1,29 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:stock-research:axt-sumitomo-proof-gaps
+evidence_class: public_secondary
+source: source:public:stock-research:axt-sumitomo-inp-sidecar
+summary: 'The frozen sidecar records proof gaps: no current primary proof for 40%,
+  60-70%, or 75% InP share claims, no named AI/CPO/ELSFP customer proof for AXT or
+  Sumitomo Electric substrates, and Sumitomo Metal Mining is not supported as the
+  InP substrate entity for this trail.'
+content_mode: excerpt
+observed_at: '2026-05-31T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: The sidecar says substrate and architecture-layer relevance were verified,
+  while named AI/CPO/ELSFP customer proof was not verified; it records no current
+  2026 primary proof for 40%, 60-70%, or 75% InP share claims and treats Sumitomo
+  Metal Mining / SMTOY as an entity-resolution error for this trail.
+locator:
+  section: Verdict, not found, vetoes, proof gaps
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: compiled_research_negative_search
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- compiled_research
+- negative_search
+- not_primary_source

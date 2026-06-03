@@ -1,0 +1,25 @@
+schema_version: 1
+kind: metric
+id: metric:axt:q1-2026-inp-revenue
+entity: entity:company:axt-inc
+metric_definition: metric_definition:revenue
+value: 13600000.0
+unit: USD
+period:
+  type: fiscal_quarter
+  fiscal_year: '2026'
+  fiscal_quarter: Q1
+value_basis: reported
+evidence:
+- evidence:public:axt:q1-2026-transcript-inp-revenue-backlog
+submitted_by: github:codex
+source_locator:
+  section: Q1 2026 transcript management InP revenue statement
+dimensions:
+  product: entity:component:indium-phosphide-substrate
+  application: data_center
+reported_at: '2026-04-30'
+published_at: '2026-04-30'
+limitations: Transcript-hosted management statement; company-originated and not independently
+  segmented in the metric record.
+created_at: '2026-06-03T00:00:00Z'

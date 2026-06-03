@@ -1,0 +1,12 @@
+schema_version: 1
+kind: entity
+id: entity:company:nvidia
+entity_type: company
+name: NVIDIA
+submitted_by: github:codex
+identifiers:
+  ticker: NVDA
+description: AI accelerator and networking platform owner whose public CPO announcements
+  create customer-side architecture context.
+state: active
+created_at: '2026-06-03T00:00:00Z'

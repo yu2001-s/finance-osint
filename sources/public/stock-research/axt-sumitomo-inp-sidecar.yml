@@ -1,0 +1,15 @@
+schema_version: 1
+kind: source
+id: source:public:stock-research:axt-sumitomo-inp-sidecar
+source_type: research_report
+title: AXT / Sumitomo Electric InP substrate sidecar
+public_status: unknown
+source_perspective: independent_research
+accessed_at: '2026-06-03T00:00:00Z'
+content_mode: summary
+submitted_by: github:codex
+publisher: local stock research snapshot
+published_at: '2026-05-31'
+provenance: Frozen stock-research path knowledge/imports/x_post_hypotheses/axt_sumitomo_inp_sidecar.md
+  at tag finance-osint-seed-20260603 commit d2d72bfd7cb791d7bbef4566ab0fceb9358b5e2e.
+created_at: '2026-06-03T00:00:00Z'

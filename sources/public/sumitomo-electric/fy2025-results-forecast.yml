@@ -1,0 +1,16 @@
+schema_version: 1
+kind: source
+id: source:public:sumitomo-electric:fy2025-results-forecast
+source_type: company_report
+title: Sumitomo Electric FY2025 results and FY2026 forecasts
+public_status: public
+source_perspective: company_self
+accessed_at: '2026-06-03T00:00:00Z'
+content_mode: external_link
+submitted_by: github:codex
+publisher: Sumitomo Electric Industries
+url: https://sumitomoelectric.com/sites/default/files/2026-05/download_documents/20260522ceo_e.pdf
+published_at: '2026-05-22'
+provenance: Migrated from frozen stock-research source src_sumitomo_fy2025_results
+  at finance-osint-seed-20260603.
+created_at: '2026-06-03T00:00:00Z'

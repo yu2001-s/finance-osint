@@ -1,0 +1,15 @@
+schema_version: 1
+kind: source
+id: source:public:sumitomo-electric:fy2025-interim-qa
+source_type: transcript
+title: Sumitomo Electric FY2025 interim Q&A
+public_status: public
+source_perspective: company_self
+accessed_at: '2026-06-03T00:00:00Z'
+content_mode: external_link
+submitted_by: github:codex
+publisher: Sumitomo Electric Industries
+url: https://sumitomoelectric.com/sites/default/files/2025-12/download_documents/QA_Summary.pdf
+published_at: '2025-12-10'
+provenance: Migrated from frozen stock-research source src_sumitomo_fy2025_qa at finance-osint-seed-20260603.
+created_at: '2026-06-03T00:00:00Z'

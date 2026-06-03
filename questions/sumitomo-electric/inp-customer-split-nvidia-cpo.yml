@@ -1,0 +1,29 @@
+schema_version: 1
+kind: question
+id: question:sumitomo-electric:inp-customer-split-nvidia-cpo
+question: How much of Sumitomo Electric's InP substrate capacity is internal optical-device
+  use versus merchant external sales, and can any substrate customer or NVIDIA CPO/ELSFP
+  role be named?
+entities:
+- entity:architecture:co-packaged-optics
+- entity:company:nvidia
+- entity:company:sumitomo-electric-industries
+- entity:component:indium-phosphide-substrate
+proof_type: customer_design_in
+priority: high
+submitted_by: github:codex
+related_evidence:
+- evidence:public:nvidia:sumitomo-cpo-ecosystem
+- evidence:public:stock-research:axt-sumitomo-proof-gaps
+- evidence:public:sumitomo-electric:data-center-optical-products
+related_claims:
+- claim:sumitomo-electric:nvidia-cpo-ecosystem-adjacency
+related_relationships:
+- relationship:sumitomo-electric:manufactures-inp-substrates
+next_actions:
+- Search Sumitomo Electric fact books, Q&A, customer decks, trade-show slides, SEIEM
+  capacity disclosures, and NVIDIA CPO materials for named component or substrate
+  roles.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- ecosystem_adjacency_not_supplier_proof
