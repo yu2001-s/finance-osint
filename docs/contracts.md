@@ -57,6 +57,11 @@ Do not use `author` for canonical contribution ownership. If a record is about
 a written artifact whose author is part of the source content, use
 `attributed_to` or source metadata instead.
 
+On pull requests, CI verifies that new database records use
+`submitted_by: github:<pull-request-author>`. Existing records may retain their
+original `submitted_by`; changes to `submitted_by` must point to the PR author
+or to a maintainer-approved automation identity.
+
 Use `attributed_to` for the person, firm, management team, speaker, source
 category, or public entity whose statement, forecast, or attestation is being
 recorded.

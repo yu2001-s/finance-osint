@@ -749,7 +749,9 @@ attributed_to
 
 For public-statement workflows, use `attributed_to` rather than implying the subject authorized the record.
 
-`submitted_by` is useful but not sufficient by itself. Before public launch, CI should verify that `submitted_by` matches the PR author unless an explicit and reviewable `submitted_on_behalf_of` workflow exists.
+`submitted_by` is useful but not sufficient by itself. CI verifies that new
+database records match the PR author unless a maintainer explicitly allows an
+automation identity for that PR.
 
 ## Schema Versioning And Migrations
 

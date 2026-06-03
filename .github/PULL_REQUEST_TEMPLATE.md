@@ -95,6 +95,7 @@ reports:
 
 ## Contributor Check
 
+- [ ] New records use `submitted_by: github:<my GitHub login>`.
 - [ ] I ran `uv run fo lint --json`.
 - [ ] I ran `uv run python -m unittest discover -s tests`.
 - [ ] I ran `uv run fo index build --json`.
