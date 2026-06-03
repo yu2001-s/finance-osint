@@ -1449,6 +1449,59 @@ class CliValidationTests(unittest.TestCase):
         fallback = cli.record_not_found_error("claim:test:no-match", include_archive=True)
         self.assertIn('fo search "no-match" --include-archive --json', fallback["hint"])
 
+    def test_archived_review_records_do_not_affect_default_current_review(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            target_id = "claim:synthetic:exdev-uses-fndwy-for-x1"
+            archived_challenge_id = "challenge:test:archived-open-review"
+            write_yaml(
+                repo / "archive" / "records" / "challenges" / "archived-open-review.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "challenge",
+                    "id": archived_challenge_id,
+                    "target": target_id,
+                    "submitted_by": "github:tester",
+                    "challenge_type": "missing_evidence",
+                    "summary": "Archived open challenge should not affect current review.",
+                    "depends_on": {
+                        "evidence": ["evidence:synthetic:exdev-fy2025-supplier-note"],
+                        "claims": [target_id],
+                    },
+                    "archive_reason": "Synthetic archived review fixture.",
+                },
+            )
+
+            status, build_payload = run_json_command(cli.run_index_build, repo)
+            self.assertEqual(status, 0, build_payload)
+            status, review = run_json_command(cli.run_review, repo, target_id)
+            self.assertEqual(status, 0, review)
+            status, context = run_json_command(cli.run_context, repo, target_id)
+            self.assertEqual(status, 0, context)
+            status, archived_review = run_json_command(
+                cli.run_review,
+                repo,
+                target_id,
+                include_archive=True,
+            )
+            self.assertEqual(status, 0, archived_review)
+            status, archived_context = run_json_command(
+                cli.run_context,
+                repo,
+                target_id,
+                include_archive=True,
+            )
+
+        self.assertEqual(status, 0, archived_context)
+        self.assertEqual(review["review_state"]["primary_label"], "supported")
+        self.assertEqual(review["challenge_summary"]["open_count"], 0)
+        self.assertEqual(context["challenges"], [])
+        self.assertEqual(archived_review["review_state"]["primary_label"], "contested")
+        self.assertEqual(archived_review["challenge_summary"]["open_count"], 1)
+        self.assertEqual(archived_review["challenge_summary"]["open_challenge_ids"], [archived_challenge_id])
+        archived_challenges = {item["id"]: item for item in archived_context["challenges"]}
+        self.assertTrue(archived_challenges[archived_challenge_id]["archived"])
+
     def test_qualified_supplier_fixture_surfaces_strong_relationship_review(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))

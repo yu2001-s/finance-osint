@@ -2699,14 +2699,19 @@ def related_record_ids(conn: sqlite3.Connection, record_id: str) -> list[str]:
 
 
 def target_review_records(
-    conn: sqlite3.Connection, table_name: str, target_id: str
+    conn: sqlite3.Connection,
+    table_name: str,
+    target_id: str,
+    include_archive: bool = False,
 ) -> list[dict[str, Any]]:
+    archive_clause = "" if include_archive else "and r.archived = 0"
     rows = conn.execute(
         f"""
         select r.*
         from {table_name} t
         join records r on r.id = t.id
         where t.target_id = ?
+        {archive_clause}
         order by r.id
         """,
         (target_id,),
@@ -5666,8 +5671,12 @@ def run_context(
             edges = graph_edge_rows(conn, record_id)
             neighbor_ids = related_record_ids(conn, record_id)
             neighbors = fetch_records(conn, neighbor_ids)
-            validations = target_review_records(conn, "validations", record_id)
-            challenges = target_review_records(conn, "challenges", record_id)
+            validations = target_review_records(
+                conn, "validations", record_id, include_archive=include_archive
+            )
+            challenges = target_review_records(
+                conn, "challenges", record_id, include_archive=include_archive
+            )
     except FileNotFoundError as exc:
         error = command_error("index_missing", str(exc), "Run `fo index build` first.")
         if json_output:
@@ -5744,8 +5753,12 @@ def run_review(
                 raise KeyError(record_id)
             id_map = load_index_record_map(conn)
             target = id_map[record_id]
-            validations = target_review_records(conn, "validations", record_id)
-            challenges = target_review_records(conn, "challenges", record_id)
+            validations = target_review_records(
+                conn, "validations", record_id, include_archive=include_archive
+            )
+            challenges = target_review_records(
+                conn, "challenges", record_id, include_archive=include_archive
+            )
             evidence_ids = evidence_ids_for_record(target, id_map)
             evidence_records = fetch_records(conn, evidence_ids, include_data=True)
             review_analysis = build_review_analysis(
