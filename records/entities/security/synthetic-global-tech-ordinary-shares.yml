@@ -1,0 +1,18 @@
+schema_version: 1
+kind: entity
+id: entity:security:synthetic-global-tech-ordinary-shares
+entity_type: security
+name: Synthetic Global Technology ordinary shares
+identifiers:
+  isin: TW000SGT0001
+  figi: BBG00SGTORD1
+issuer: entity:company:synthetic-global-tech
+security_type: ordinary_share
+share_class: ordinary
+primary_listing: entity:listing:synthetic-global-tech-twse
+description: Synthetic ordinary-share security underlying the SGT ADR/ADS fixture.
+state: proposed
+submitted_by: github:scaffold
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - synthetic_fixture

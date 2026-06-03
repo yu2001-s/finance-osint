@@ -1,0 +1,27 @@
+schema_version: 1
+kind: entity
+id: entity:security:synthetic-global-tech-ads
+entity_type: security
+name: Synthetic Global Technology American Depositary Shares
+aliases:
+  - SGT ADS
+  - SGT ADR
+identifiers:
+  isin: US000SGTADS1
+  cusip: 000SGTADS
+  figi: BBG00SGTADS1
+issuer: entity:company:synthetic-global-tech
+security_type: depositary_receipt
+depositary_receipt_type: ADS
+underlying_security: entity:security:synthetic-global-tech-ordinary-shares
+depositary: Synthetic Depositary Bank
+depositary_ratio:
+  ads: 1
+  underlying_shares: 2
+primary_listing: entity:listing:synthetic-global-tech-nasdaq-ads
+description: Synthetic ADS security used to model ADR/underlying-share identity separation.
+state: proposed
+submitted_by: github:scaffold
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - synthetic_fixture

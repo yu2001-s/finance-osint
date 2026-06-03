@@ -58,13 +58,22 @@ Rationale: Global investor use needs issuer, security, and listing separation.
 Ticker-only identity is not enough for ADRs, dual listings, share classes, and
 local exchange symbols.
 
+Status: first identity-model slice addressed locally. The contract now separates
+company, security, and listing records; duplicate warnings cover expanded
+security identifiers and listing ticker/local-symbol plus MIC; a synthetic
+ADR/ADS fixture exercises issuer, underlying security, depositary ratio,
+primary local listing, and secondary ADS listing.
+Schema enforcement for identity-specific fields remains deferred until existing
+company records are migrated.
+
 Acceptance criteria:
 
-- Decide required fields for company, security, and listing records.
-- Cover exchange/MIC, quote currency, primary listing, share class, ADR/ADS
+- [x] Decide required fields for company, security, and listing records; hard
+  schema enforcement remains deferred until migration.
+- [x] Cover exchange/MIC, quote currency, primary listing, share class, ADR/ADS
   ratio, depositary, underlying security, and delisting/ticker-change history.
-- Expand duplicate checks beyond ticker/CIK/LEI/ISIN/FIGI where appropriate.
-- Add examples for at least one dual-listed or ADR case.
+- [x] Expand duplicate checks beyond ticker/CIK/LEI/ISIN/FIGI where appropriate.
+- [x] Add examples for at least one dual-listed or ADR case.
 
 ### Define Non-US Filing Metadata
 

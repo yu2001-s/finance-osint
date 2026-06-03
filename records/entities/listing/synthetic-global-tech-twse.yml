@@ -1,0 +1,21 @@
+schema_version: 1
+kind: entity
+id: entity:listing:synthetic-global-tech-twse
+entity_type: listing
+name: Synthetic Global Technology TWSE listing
+identifiers:
+  ticker: "9999"
+  local_symbol: "9999"
+  mic: XTAI
+issuer: entity:company:synthetic-global-tech
+security: entity:security:synthetic-global-tech-ordinary-shares
+exchange: Taiwan Stock Exchange
+quote_currency: TWD
+listing_role: primary
+listing_date: "2020-01-01"
+description: Synthetic primary local listing for the SGT ordinary-share fixture.
+state: proposed
+submitted_by: github:scaffold
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - synthetic_fixture
