@@ -1,0 +1,32 @@
+schema_version: 1
+kind: metric
+id: metric:synthetic-exdev:cloud-titan-x1-allocation-share-2026
+entity: entity:company:exdev
+metric_definition: metric_definition:allocation_share_percent
+value: 60.0
+unit: percent
+period:
+  type: fiscal_year
+  fiscal_year: "2026"
+  period_start: "2026-01-01"
+  period_end: "2026-12-31"
+value_basis: reported
+evidence:
+  - evidence:synthetic:exdev-fy2026-supply-chain-note
+source_locator:
+  section: Synthetic FY2026 named purchase order and revenue bridge note
+dimensions:
+  customer: entity:company:cloud-titan
+  supplier: entity:company:fndwy
+  product: entity:product:example-phone
+  component: entity:component:x1-processor
+  program: Cloud Titan Example Phone X1 program
+  purchase_order: PO-2026-X1-004
+  allocation_basis: FY2026 Example Phone X1 processor demand
+reported_at: "2026-06-03"
+published_at: "2026-06-03"
+submitted_by: github:scaffold
+created_at: "2026-06-03T00:00:00Z"
+limitations: Synthetic fixture is bounded to the named purchase order, program, and FY2026 allocation basis.
+risk_flags:
+  - synthetic_fixture

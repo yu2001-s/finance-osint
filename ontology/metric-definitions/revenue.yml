@@ -11,5 +11,5 @@ default_unit: USD
 allowed_units: [USD, TWD, JPY, EUR, HKD, SEK, local_currency]
 allowed_value_basis: [reported, derived, estimated, restated]
 required_dimensions: [period]
-optional_dimensions: [segment, geography, product, customer]
+optional_dimensions: [segment, geography, product, customer, supplier, component, program, purchase_order]
 source_requirements: [evidence]

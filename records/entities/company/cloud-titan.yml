@@ -1,0 +1,10 @@
+schema_version: 1
+kind: entity
+id: entity:company:cloud-titan
+entity_type: company
+name: Synthetic Cloud Titan Corp.
+aliases:
+  - Cloud Titan
+description: Synthetic downstream customer used to exercise named supply-chain conversion examples.
+state: proposed
+created_at: "2026-06-03T00:00:00Z"

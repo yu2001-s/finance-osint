@@ -1071,6 +1071,27 @@ derived_from:
   notes: Numerator and denominator used for the calculation.
 ```
 
+Supply-chain conversion should remain decomposed:
+
+- BOM evidence is a `uses_component` relationship, usually with
+  `bill_of_material` or teardown qualifiers.
+- AVL evidence is a `qualified_supplier` relationship when the qualifier and
+  qualified item are named.
+- Purchase orders are events, not relationship types. Use a stable event id and
+  keep the source order identifier in `properties.purchase_order_id`.
+- Allocation share is a metric, currently
+  `metric_definition:allocation_share_percent`.
+- Shipments are `metric_definition:unit_shipments` metrics and, when useful,
+  shipment events.
+- Revenue bridges are `metric_definition:revenue` metrics with scoped
+  dimensions and `derived_from` inputs; they should not be encoded as a
+  relationship.
+
+Strong named relationships may cite revenue metrics only when the revenue metric
+is scoped by at least one named customer, program, or purchase-order dimension.
+Broad consolidated, segment, product-line, or market revenue can be context for a
+thesis, question, or challenge, but does not prove named customer allocation.
+
 Company guidance is source-backed public information, not a thesis forecast. It
 should be represented as an event, metric, claim, or management statement derived
 from a source.

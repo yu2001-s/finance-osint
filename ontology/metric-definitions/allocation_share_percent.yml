@@ -1,0 +1,15 @@
+schema_version: 1
+kind: metric_definition
+id: metric_definition:allocation_share_percent
+name: allocation_share_percent
+label: Allocation Share Percent
+description: Percentage of demand, supply, orders, capacity, or revenue allocation tied to a named customer, program, product, component, supplier, or purchase order.
+state: registered
+ontology_version: 1
+value_type: percentage
+default_unit: percent
+allowed_units: [percent, basis_points]
+allowed_value_basis: [reported, derived, estimated, restated]
+required_dimensions: [period]
+optional_dimensions: [customer, supplier, product, component, program, purchase_order, allocation_basis]
+source_requirements: [evidence]

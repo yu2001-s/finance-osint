@@ -239,12 +239,15 @@ CHAIN_RISK_FLAG_CATEGORIES = {
     },
     "relationship_promotion": {
         "architecture_layer_not_supplier_allocation",
+        "broad_segment_bucket",
         "capability_not_customer_revenue",
         "customer_design_in_unproven",
         "customer_names_not_disclosed",
         "customer_split_missing",
+        "demo_not_order_or_revenue",
         "ecosystem_adjacency_not_supplier_proof",
         "nvidia_allocation_unproven",
+        "order_value_unproven",
         "product_fit_not_customer_proof",
         "product_fit_not_revenue",
         "revenue_bridge_missing",
@@ -254,6 +257,7 @@ CHAIN_RISK_FLAG_CATEGORIES = {
         "sole_source_unproven",
         "supplier_allocation_unproven",
         "unnamed_customer",
+        "validation_not_order_or_revenue",
     },
     "timing_or_conversion": {
         "backlog_not_revenue",
@@ -1035,6 +1039,53 @@ def metric_comparability_warnings(root: Path, records: list[Record]) -> list[dic
                     "estimated_metric_missing_limitations",
                     "Estimated metric does not describe limitations.",
                     "Add limitations describing uncertainty, inputs, and what the estimate does not prove.",
+                )
+            )
+    return warnings
+
+
+def broad_revenue_metric_ids_for_named_relationship(
+    record: Record, id_map: dict[str, Record]
+) -> list[str]:
+    named_allocation_dimensions = {"customer", "program", "purchase_order"}
+    if record.kind != "relationship":
+        return []
+    if record.data.get("type") not in STRONG_RELATIONSHIP_TYPES:
+        return []
+    derived_from = record.data.get("derived_from")
+    if not isinstance(derived_from, dict):
+        return []
+
+    broad_revenue_metric_ids: list[str] = []
+    for metric_id in as_reference_list(derived_from.get("metrics")):
+        metric = id_map.get(metric_id)
+        if not metric or metric.kind != "metric":
+            continue
+        if metric.data.get("metric_definition") != "metric_definition:revenue":
+            continue
+        dimensions = metric.data.get("dimensions")
+        dimension_keys = set(dimensions) if isinstance(dimensions, dict) else set()
+        if dimension_keys.isdisjoint(named_allocation_dimensions):
+            broad_revenue_metric_ids.append(metric.id)
+    return broad_revenue_metric_ids
+
+
+def relationship_promotion_policy_warnings(
+    root: Path, records: list[Record]
+) -> list[dict[str, Any]]:
+    id_map, _ = build_id_map(root, records)
+    warnings: list[dict[str, Any]] = []
+    for record in records:
+        broad_revenue_metric_ids = broad_revenue_metric_ids_for_named_relationship(record, id_map)
+        if broad_revenue_metric_ids:
+            warnings.append(
+                lint_warning(
+                    root,
+                    record,
+                    "broad_revenue_metric_used_for_named_relationship",
+                    "Strong named relationship cites revenue without customer, program, or purchase-order dimensions.",
+                    "Use direct named-customer evidence or a revenue metric dimensioned by customer, program, or purchase_order; otherwise keep broad revenue as context, thesis, question, or challenge.",
+                    broad_revenue_metric_ids,
                 )
             )
     return warnings
@@ -4009,6 +4060,17 @@ def diff_review_warnings(
                     record.id,
                 )
             )
+        if record.kind == "relationship":
+            broad_revenue_metric_ids = broad_revenue_metric_ids_for_named_relationship(record, after)
+            if broad_revenue_metric_ids:
+                warnings.append(
+                    warning_item(
+                        "broad_revenue_metric_used_for_named_relationship",
+                        "Strong named relationship cites revenue without customer, program, or purchase-order dimensions.",
+                        record.id,
+                        related_ids=broad_revenue_metric_ids,
+                    )
+                )
 
     for item in delta["deleted"]:
         if item["kind"] == "evidence":
@@ -4775,6 +4837,7 @@ def run_lint(root: Path, json_output: bool = False, current_only: bool = False) 
         *source_policy_warnings(root, records),
         *translation_policy_warnings(root, records),
         *metric_comparability_warnings(root, records),
+        *relationship_promotion_policy_warnings(root, records),
         *preservation_policy_warnings(root, records),
         *duplicate_detection_warnings(root, records),
     ]

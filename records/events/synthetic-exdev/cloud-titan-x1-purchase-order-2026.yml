@@ -1,0 +1,29 @@
+schema_version: 1
+kind: event
+id: event:synthetic-exdev:cloud-titan-x1-purchase-order-2026
+event_type: purchase_order
+event_state: occurred
+title: Synthetic Cloud Titan PO-2026-X1-004 for Example Phone X1 processors
+entities:
+  - entity:company:cloud-titan
+  - entity:company:exdev
+  - entity:company:fndwy
+  - entity:product:example-phone
+  - entity:component:x1-processor
+occurred_at: "2026-01-15"
+evidence:
+  - evidence:synthetic:exdev-fy2026-supply-chain-note
+properties:
+  purchase_order_id: PO-2026-X1-004
+  buyer: entity:company:cloud-titan
+  seller: entity:company:exdev
+  manufacturing_supplier: entity:company:fndwy
+  product: entity:product:example-phone
+  component: entity:component:x1-processor
+  allocation_share_percent: 60.0
+  ordered_unit: X1 processor
+  shipment_period: 2026Q2
+submitted_by: github:scaffold
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - synthetic_fixture

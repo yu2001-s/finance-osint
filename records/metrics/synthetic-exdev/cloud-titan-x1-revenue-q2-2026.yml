@@ -1,0 +1,38 @@
+schema_version: 1
+kind: metric
+id: metric:synthetic-exdev:cloud-titan-x1-revenue-q2-2026
+entity: entity:company:exdev
+metric_definition: metric_definition:revenue
+value: 30000000.0
+unit: USD
+period:
+  type: fiscal_quarter
+  fiscal_year: "2026"
+  fiscal_quarter: Q2
+  period_start: "2026-04-01"
+  period_end: "2026-06-30"
+value_basis: reported
+comparability:
+  reporting_currency: USD
+  accounting_standard: US_GAAP
+  consolidation_scope: consolidated
+  fiscal_year_end: "12-31"
+  fx_methodology: not_applicable
+evidence:
+  - evidence:synthetic:exdev-fy2026-supply-chain-note
+source_locator:
+  section: Synthetic FY2026 named purchase order and revenue bridge note
+dimensions:
+  customer: entity:company:cloud-titan
+  supplier: entity:company:fndwy
+  product: entity:product:example-phone
+  component: entity:component:x1-processor
+  program: Cloud Titan Example Phone X1 program
+  purchase_order: PO-2026-X1-004
+reported_at: "2026-06-03"
+published_at: "2026-06-03"
+submitted_by: github:scaffold
+created_at: "2026-06-03T00:00:00Z"
+limitations: Synthetic revenue bridge is bounded to the named customer program and Q2 2026; it does not imply total customer economics or margin.
+risk_flags:
+  - synthetic_fixture

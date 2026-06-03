@@ -11,5 +11,5 @@ default_unit: units
 allowed_units: [units, thousands, millions]
 allowed_value_basis: [reported, observed, derived, estimated, restated]
 required_dimensions: [period]
-optional_dimensions: [product, geography, channel, customer]
+optional_dimensions: [product, geography, channel, customer, supplier, component, program, purchase_order]
 source_requirements: [evidence]

@@ -1,0 +1,37 @@
+schema_version: 1
+kind: relationship
+id: relationship:synthetic:exdev-cloud-titan-customer-relationship
+type: customer_relationship
+participants:
+  - role: seller
+    entity: entity:company:exdev
+  - role: customer
+    entity: entity:company:cloud-titan
+scope:
+  product: entity:product:example-phone
+  component: entity:component:x1-processor
+  market: entity:market:consumer-devices
+  geography: entity:geography:global
+  program: Cloud Titan Example Phone X1 program
+direction:
+  supply_chain: downstream
+time_scope:
+  start: "2026-01-15"
+  end: "2026-06-30"
+materiality:
+  level: medium
+  basis: observed
+derived_from:
+  evidence:
+    - evidence:synthetic:exdev-fy2026-supply-chain-note
+  metrics:
+    - metric:synthetic-exdev:cloud-titan-x1-allocation-share-2026
+    - metric:synthetic-exdev:cloud-titan-x1-revenue-q2-2026
+    - metric:synthetic-exdev:cloud-titan-x1-shipments-q2-2026
+  events:
+    - event:synthetic-exdev:cloud-titan-x1-purchase-order-2026
+submitted_by: github:scaffold
+created_at: "2026-06-03T00:00:00Z"
+limitations: Synthetic relationship is limited to the named purchase order, program, and Q2 2026 revenue/shipments; it is not evidence of customer economics outside that scope.
+risk_flags:
+  - synthetic_fixture
