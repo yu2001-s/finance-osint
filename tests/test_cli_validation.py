@@ -103,6 +103,15 @@ class CliValidationTests(unittest.TestCase):
         self.assertEqual(status, 0, output)
         self.assertIn("OK", output)
 
+    def test_public_record_kinds_have_templates(self) -> None:
+        template_dir = ROOT / "templates"
+        for kind, schema_file in cli.SCHEMA_BY_KIND.items():
+            template_name = schema_file.replace(".schema.json", ".yaml.template")
+            template_path = template_dir / template_name
+            self.assertTrue(template_path.exists(), f"missing template for {kind}")
+            template = load_yaml(template_path)
+            self.assertEqual(template.get("kind"), kind)
+
     def test_direct_claim_cannot_rely_only_on_rumor(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))

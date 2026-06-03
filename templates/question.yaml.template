@@ -1,0 +1,20 @@
+schema_version: 1
+kind: question
+id: question:company-topic-proof-gap
+question: What evidence would prove or disprove this specific research gap?
+entities:
+  - entity:company:company-slug
+proof_type: customer_order_conversion
+priority: high
+related_evidence:
+  - evidence:provider:slug
+related_claims:
+  - claim:company-topic-slug
+related_relationships: []
+related_theses: []
+next_actions:
+  - Find a primary source that directly addresses the proof gap.
+resolved_by: []
+submitted_by: github:username
+created_at: "YYYY-MM-DDTHH:MM:SSZ"
+risk_flags: []

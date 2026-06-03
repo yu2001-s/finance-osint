@@ -233,11 +233,11 @@ Rationale: The first contribution path is still tool-heavy.
 Status: first preview slice addressed locally. `fo new` helpers now support
 `--dry-run` to validate and preview records without writing files. ID recovery
 hints for `context`, `review`, and `graph neighbors` are addressed locally.
-Template coverage remains open.
+Every public v1 kind now has a YAML template.
 
 Acceptance criteria:
 
 - Test `docs/first-pr-quickstart.md` from a clean clone.
 - [x] Add `fo new --dry-run` or equivalent preview mode.
 - [x] Improve not-found ID hints with search suggestions.
-- Ensure every public record type has a template or helper.
+- [x] Ensure every public record type has a template or helper.
