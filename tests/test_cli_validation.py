@@ -78,11 +78,11 @@ def run_lint(root: Path) -> tuple[int, str]:
     return status, stdout.getvalue() + stderr.getvalue()
 
 
-def run_json_command(func, *args) -> tuple[int, dict]:
+def run_json_command(func, *args, **kwargs) -> tuple[int, dict]:
     stderr = io.StringIO()
     stdout = io.StringIO()
     with contextlib.redirect_stderr(stderr), contextlib.redirect_stdout(stdout):
-        status = func(*args, json_output=True)
+        status = func(*args, json_output=True, **kwargs)
     payload = yaml.safe_load(stdout.getvalue())
     assert isinstance(payload, dict), stderr.getvalue()
     return status, payload
@@ -737,6 +737,73 @@ class CliValidationTests(unittest.TestCase):
         self.assertEqual(source_summary["company_originated_source_count"], 3)
         self.assertEqual(source_summary["independent_source_count"], 0)
         self.assertEqual(source_summary["source_perspective_counts"], {"company_self": 3})
+
+    def test_review_chain_summary_surfaces_source_to_claim_chain(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            status, build_payload = run_json_command(cli.run_index_build, repo)
+            self.assertEqual(status, 0, build_payload)
+
+            status, plain_review = run_json_command(
+                cli.run_review,
+                repo,
+                "thesis:xfab-navitas:800-vdc-foundry-watch",
+            )
+            self.assertEqual(status, 0, plain_review)
+            self.assertNotIn("chain_summary", plain_review)
+
+            status, review = run_json_command(
+                cli.run_review,
+                repo,
+                "thesis:xfab-navitas:800-vdc-foundry-watch",
+                chain=True,
+            )
+
+        self.assertEqual(status, 0, review)
+        chain = review["chain_summary"]
+        self.assertEqual(chain["target"]["kind"], "thesis")
+        self.assertEqual(chain["source_evidence_chain"]["evidence_count"], 9)
+        self.assertEqual(
+            chain["source_evidence_chain"]["evidence_class_counts"],
+            {"public_primary": 6, "public_secondary": 3},
+        )
+        self.assertEqual(chain["dependency_counts"]["claims"], 7)
+        self.assertEqual(chain["dependency_counts"]["relationships"], 4)
+        self.assertEqual(chain["dependency_counts"]["metrics"], 6)
+        self.assertEqual(chain["dependency_counts"]["events"], 1)
+        self.assertEqual(chain["question_summary"]["open_count"], 2)
+        self.assertEqual(
+            chain["question_summary"]["open_question_ids"],
+            [
+                "question:xfab:navitas-nvidia-revenue-bridge",
+                "question:xfab:wbg-revenue-customer-split",
+            ],
+        )
+        self.assertEqual(chain["challenge_summary"]["open_count"], 2)
+        self.assertIn(
+            "relationship:navitas:xfab-sic-manufacturing-partner",
+            chain["relationship_chain"]["strong_relationship_type_ids"],
+        )
+        self.assertEqual(
+            chain["relationship_chain"]["type_counts"]["manufacturing_partner"],
+            1,
+        )
+        self.assertIn(
+            "nvidia_allocation_unproven",
+            chain["relationship_promotion_pressure"]["promotion_risk_flags"],
+        )
+        self.assertIn(
+            "social_reported_by_media",
+            chain["risk_flag_summary"]["by_category"]["social_or_media"],
+        )
+        self.assertIn(
+            "market_data_snapshot",
+            chain["risk_flag_summary"]["by_category"]["market_data"],
+        )
+        self.assertIn(
+            "compiled_research",
+            chain["risk_flag_summary"]["by_category"]["compiled_or_negative_search"],
+        )
 
     def test_review_deduplicates_validation_paths_and_counts_independent_sources(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

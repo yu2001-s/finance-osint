@@ -11,6 +11,7 @@ uv sync
 uv run fo lint
 uv run fo diff-review main --json
 uv run fo index build --json
+uv run python scripts/chain_review_changed.py main
 uv run fo graph build
 ```
 
@@ -24,7 +25,8 @@ uv run fo graph build
 6. Add validations or challenges as append-only review records when you support, dispute, or pressure an object.
 7. Add relationships when a typed connection is supported by claims or evidence.
 8. Add theses as the interpretive layer.
-9. Run `uv run fo lint` and `uv run fo diff-review BASE --json` before opening a PR.
+9. Run `uv run fo lint`, `uv run fo diff-review BASE --json`, and
+   `uv run python scripts/chain_review_changed.py BASE` before opening a PR.
 
 You may use deterministic constructors instead of hand-writing YAML:
 
@@ -54,6 +56,7 @@ uv run fo lint --json
 uv run fo diff-review "origin/${{ github.base_ref }}" --json  # pull_request only
 uv run python -m unittest discover -s tests
 uv run fo index build --json
+uv run python scripts/chain_review_changed.py "origin/${{ github.base_ref }}"  # pull_request only
 uv run fo graph build --json
 ```
 
@@ -63,6 +66,11 @@ read artifacts. It does not decide investment truth.
 `fo diff-review` is useful before CI because it summarizes what a PR changes as
 OSINT records: evidence edits, review-state movement, graph impact, reference
 impact, ontology changes, and deterministic warnings.
+
+`scripts/chain_review_changed.py BASE` runs `fo review --chain --json` for each
+changed current thesis or relationship record. It is the PR-safe source-to-claim
+review gate: source/evidence mix, dependency counts, relationship types, open
+questions, open challenges, and relationship-promotion pressure.
 
 ## Evidence Classes
 

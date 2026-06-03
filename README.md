@@ -87,6 +87,11 @@ uv run fo graph inspect exdev  # find graph records mentioning a string
 truth. It derives a local label and supporting details from evidence classes,
 source independence and source perspective, validation dependency paths, open challenges,
 contradictions, supersession, stale markers, and low-trust/private evidence.
+Use `fo review RECORD --chain --json` when reviewing a thesis or PR-sensitive
+record end to end; it adds a compact source-to-claim chain summary with
+dependency counts, source/evidence mix, relationship types, open questions,
+open challenges, and risk-flag categories such as social/media, market data,
+compiled research, and relationship-promotion pressure.
 
 `fo diff-review BASE` compares the current working tree against a Git base ref
 and summarizes repo-native PR impact: record deltas, validation errors, evidence
