@@ -1,0 +1,15 @@
+schema_version: 1
+kind: metric_definition
+id: metric_definition:backlog_value
+name: backlog_value
+label: Backlog Value
+description: Management-disclosed or source-reported value of orders, backlog, or booked business not yet recognized as revenue.
+state: registered
+ontology_version: 1
+value_type: monetary
+default_unit: USD
+allowed_units: [USD, SEK, JPY, TWD, local_currency]
+allowed_value_basis: [reported, derived, estimated, restated]
+required_dimensions: [period]
+optional_dimensions: [segment, product, customer, geography, lower_bound]
+source_requirements: [evidence]

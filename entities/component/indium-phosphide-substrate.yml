@@ -1,0 +1,12 @@
+schema_version: 1
+kind: entity
+id: entity:component:indium-phosphide-substrate
+entity_type: component
+name: Indium phosphide substrate
+submitted_by: github:codex
+aliases:
+- InP substrate
+description: Compound semiconductor substrate layer used for InP optical devices including
+  lasers, photodiodes, and optical communication components.
+state: active
+created_at: '2026-06-03T00:00:00Z'

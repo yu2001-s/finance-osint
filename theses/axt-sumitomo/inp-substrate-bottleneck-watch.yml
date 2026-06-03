@@ -1,0 +1,129 @@
+schema_version: 1
+kind: thesis
+id: thesis:axt-sumitomo:inp-substrate-bottleneck-watch
+title: AXT / Sumitomo InP substrate bottleneck watch
+summary: AXT and Sumitomo Electric have source-backed InP substrate and data-center
+  optical layer exposure. The watch thesis is that InP substrate availability may
+  matter for AI optical links, but the current canonical evidence still lacks named
+  customer/design-in proof, current market-share proof, and revenue/cash conversion
+  proof after AXT's May 29, 2026 rerating.
+depends_on:
+  evidence:
+  - evidence:public:axt:fy2025-export-controls
+  - evidence:public:axt:fy2025-inp-products
+  - evidence:public:axt:q1-2026-10q-data-center-growth
+  - evidence:public:axt:q1-2026-transcript-inp-revenue-backlog
+  - evidence:public:nvidia:sumitomo-cpo-ecosystem
+  - evidence:public:stock-research:axt-sumitomo-proof-gaps
+  - evidence:public:sumitomo-electric:data-center-optical-products
+  claims:
+  - claim:axt:export-permit-risk
+  - claim:axt:makes-inp-substrates
+  - claim:axt:q1-2026-inp-backlog-lower-bound
+  - claim:axt:q1-2026-inp-data-center-growth
+  - claim:axt:q1-2026-inp-revenue
+  - claim:axt:valuation-rerated-20260529
+  - claim:sumitomo-electric:datacenter-optical-products
+  - claim:sumitomo-electric:nvidia-cpo-ecosystem-adjacency
+  - claim:sumitomo-electric:supplies-inp-substrates
+  relationships:
+  - relationship:axt:manufactures-inp-substrates
+  - relationship:axt:regulatory-exposure-inp-export-controls
+  - relationship:eml-cw-laser:supports-800g-1p6t-optical-links
+  - relationship:eml-cw-laser:supports-cpo
+  - relationship:inp-substrate:used-by-eml-cw-laser-layer
+  - relationship:sumitomo-electric:manufactures-inp-substrates
+  theses: []
+  metrics:
+  - metric:axt:fy2025-substrate-revenue
+  - metric:axt:market-cap-20260529
+  - metric:axt:price-to-sales-20260529
+  - metric:axt:q1-2026-inp-backlog-lower-bound
+  - metric:axt:q1-2026-inp-revenue
+  events:
+  - event:axt:china-inp-export-control-20250204
+  - event:axt:tongmei-inp-capacity-financing-20260424
+  datasets: []
+submitted_by: github:codex
+stance: watch
+time_horizon: 2026-2027
+pillars:
+- statement: AXT and Sumitomo Electric both clear source-backed InP substrate product
+    exposure.
+  depends_on:
+    claims:
+    - claim:axt:makes-inp-substrates
+    - claim:sumitomo-electric:supplies-inp-substrates
+    relationships:
+    - relationship:axt:manufactures-inp-substrates
+    - relationship:sumitomo-electric:manufactures-inp-substrates
+  proof_points:
+  - Current filings, customer-side sources, or supplier qualification materials
+    showing named InP substrate customers or volumes.
+  kill_criteria:
+  - New primary evidence showing the substrate products are not used in relevant
+    AI optical-device supply chains.
+- statement: InP substrate availability is relevant to AI optical links through
+    the EML/CW laser and silicon-photonics/CPO architecture layer.
+  depends_on:
+    claims:
+    - claim:sumitomo-electric:datacenter-optical-products
+    relationships:
+    - relationship:inp-substrate:used-by-eml-cw-laser-layer
+    - relationship:eml-cw-laser:supports-800g-1p6t-optical-links
+    - relationship:eml-cw-laser:supports-cpo
+  proof_points:
+  - Primary customer or standards evidence connecting InP-derived EML/CW laser
+    components to named 800G, 1.6T, CPO, or ELS programs.
+  kill_criteria:
+  - Evidence that the named AI optical platforms primarily use alternative layers
+    that bypass the InP substrate suppliers in this thesis.
+- statement: AXT has a company-material InP numerator, but conversion depends on
+    export permits, backlog conversion, gross margin, and cash flow.
+  depends_on:
+    claims:
+    - claim:axt:q1-2026-inp-data-center-growth
+    - claim:axt:q1-2026-inp-revenue
+    - claim:axt:q1-2026-inp-backlog-lower-bound
+    - claim:axt:export-permit-risk
+    metrics:
+    - metric:axt:q1-2026-inp-revenue
+    - metric:axt:q1-2026-inp-backlog-lower-bound
+    relationships:
+    - relationship:axt:regulatory-exposure-inp-export-controls
+  proof_points:
+  - Subsequent filings showing permit normalization, customer shipments, revenue
+    recognition, margin expansion, and cash conversion from InP backlog.
+  kill_criteria:
+  - Filings showing backlog cancellation, persistent permit blockage, weak gross
+    margin, or North America revenue failing to recover.
+- statement: Current customer/design-in and current share claims are not proven
+    by this batch.
+  depends_on:
+    evidence:
+    - evidence:public:stock-research:axt-sumitomo-proof-gaps
+    questions:
+    - question:axt:current-inp-share
+    - question:axt:named-ai-customer-design-in
+    - question:sumitomo-electric:inp-customer-split-nvidia-cpo
+  proof_points:
+  - Named customer, BOM, AVL, qualification, purchase order, or current market-share
+    evidence from primary or near-primary sources.
+  kill_criteria:
+  - Continued absence of named customer and current-share proof while valuation
+    and expectations remain elevated.
+next_missing_evidence:
+- Current InP substrate supplier share by supplier and wafer size.
+- AXT named customer, platform, qualification, or shipment-value evidence.
+- Sumitomo Electric merchant-versus-internal InP substrate split and named customer
+  evidence.
+- AXT export-permit cadence, North America revenue recovery, gross margin, and cash
+  conversion in later filings.
+- Customer-side CPO, ELSFP, 800G, or 1.6T materials that name InP substrate or
+  optical-device suppliers.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- current_share_unproven
+- customer_design_in_unproven
+- export_permit_risk
+- valuation_conversion_unproven

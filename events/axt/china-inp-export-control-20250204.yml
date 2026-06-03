@@ -1,0 +1,20 @@
+schema_version: 1
+kind: event
+id: event:axt:china-inp-export-control-20250204
+event_type: regulatory_action
+event_state: occurred
+title: China added InP substrates to export controls
+entities:
+- entity:company:axt-inc
+- entity:component:indium-phosphide-substrate
+- entity:regulation:china-inp-substrate-export-controls-2025
+evidence:
+- evidence:public:axt:fy2025-export-controls
+submitted_by: github:codex
+occurred_at: '2025-02-04'
+effective_at: '2025-02-04'
+properties:
+  jurisdiction: China
+  affected_product: entity:component:indium-phosphide-substrate
+  timing_basis: company_disclosed
+created_at: '2026-06-03T00:00:00Z'

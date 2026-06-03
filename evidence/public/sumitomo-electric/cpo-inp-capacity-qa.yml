@@ -1,0 +1,23 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:sumitomo-electric:cpo-inp-capacity-qa
+evidence_class: public_primary
+source: source:public:sumitomo-electric:fy2025-interim-qa
+summary: Sumitomo Electric FY2025 interim Q&A addressed CPO impact on CW lasers and
+  InP substrate capacity expansion.
+content_mode: excerpt
+observed_at: '2025-12-10T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: Sumitomo Electric's FY2025 interim Q&A discusses CPO impact on CW lasers
+  and InP substrate capacity expansion.
+locator:
+  section: Data-center optical Q&A
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_official_public_source
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- company_originated

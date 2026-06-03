@@ -1,0 +1,26 @@
+schema_version: 1
+kind: question
+id: question:axt:named-ai-customer-design-in
+question: Can AXT be tied by a primary or near-primary source to named AI optical,
+  CPO, ELSFP, silicon-photonics, 800G, or 1.6T customer programs?
+entities:
+- entity:architecture:800g-1p6t-optical-links
+- entity:architecture:co-packaged-optics
+- entity:company:axt-inc
+- entity:component:indium-phosphide-substrate
+proof_type: customer_design_in
+priority: high
+submitted_by: github:codex
+related_evidence:
+- evidence:public:axt:q1-2026-10q-data-center-growth
+- evidence:public:stock-research:axt-sumitomo-proof-gaps
+related_claims:
+- claim:axt:q1-2026-inp-data-center-growth
+related_relationships:
+- relationship:axt:manufactures-inp-substrates
+next_actions:
+- Track AXT filings, export-permit updates, customer references, and downstream optical-device
+  supplier qualification materials for named customer or platform proof.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- customer_design_in_unproven

@@ -1,0 +1,16 @@
+schema_version: 1
+kind: claim
+id: claim:axt:export-permit-risk
+statement: AXT discloses that China added InP substrates to its export-control list
+  on February 4, 2025, making InP export permits a significant challenge and reducing
+  North America revenue exposure in 2025.
+subject: entity:company:axt-inc
+predicate: regulatory_action
+support_type: direct
+evidence:
+- id: evidence:public:axt:fy2025-export-controls
+submitted_by: github:codex
+object: event:axt:china-inp-export-control-20250204
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- export_permit_risk

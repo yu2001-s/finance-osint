@@ -1,0 +1,13 @@
+schema_version: 1
+kind: entity
+id: entity:architecture:800g-1p6t-optical-links
+entity_type: architecture
+name: 800G / 1.6T optical links
+submitted_by: github:codex
+aliases:
+- 1.6T
+- 800G
+description: High-speed optical-link generation relevant to AI data-center transceivers,
+  EML/CW laser components, silicon photonics, and CPO-adjacent optical systems.
+state: active
+created_at: '2026-06-03T00:00:00Z'

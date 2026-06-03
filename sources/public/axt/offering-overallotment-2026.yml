@@ -1,0 +1,16 @@
+schema_version: 1
+kind: source
+id: source:public:axt:offering-overallotment-2026
+source_type: press_release
+title: AXT April 2026 offering over-allotment
+public_status: public
+source_perspective: company_self
+accessed_at: '2026-06-03T00:00:00Z'
+content_mode: external_link
+submitted_by: github:codex
+publisher: AXT
+url: https://investors.axt.com/Investors/news/news-details/2026/AXT-Announces-Exercise-of-Over-Allotment-Option-in-Public-Offering-of-Common-Stock/default.aspx
+published_at: '2026-04-24'
+provenance: Migrated from frozen stock-research source src_axt_offering_overallotment_2026
+  at finance-osint-seed-20260603.
+created_at: '2026-06-03T00:00:00Z'

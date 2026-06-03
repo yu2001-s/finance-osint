@@ -1,0 +1,18 @@
+schema_version: 1
+kind: claim
+id: claim:sumitomo-electric:nvidia-cpo-ecosystem-adjacency
+statement: NVIDIA's March 2025 Spectrum-X Photonics announcement names Sumitomo Electric
+  Industries in NVIDIA's silicon-photonics ecosystem; this supports CPO ecosystem
+  adjacency, not a specific InP substrate supply relationship.
+subject: entity:company:sumitomo-electric-industries
+predicate: disclosed_relationship
+support_type: direct
+evidence:
+- id: evidence:public:nvidia:sumitomo-cpo-ecosystem
+submitted_by: github:codex
+object: entity:company:nvidia
+qualifiers:
+  architecture: entity:architecture:co-packaged-optics
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- ecosystem_adjacency_not_supplier_proof

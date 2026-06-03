@@ -1,0 +1,21 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:sumitomo-electric:inp-substrates
+evidence_class: public_primary
+source: source:public:sumitomo-electric:inp-substrates
+summary: Sumitomo Electric's official InP substrate product page identifies Sumitomo
+  Electric as a supplier of InP substrates.
+content_mode: excerpt
+observed_at: '2026-06-03T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: Sumitomo Electric's official product page identifies InP substrates as a
+  Sumitomo Electric semiconductor product line.
+locator:
+  section: InP substrate product page
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_official_public_source
+created_at: '2026-06-03T00:00:00Z'

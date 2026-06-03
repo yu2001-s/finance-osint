@@ -1,0 +1,23 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:axt:fy2025-inp-products
+evidence_class: public_primary
+source: source:public:axt:fy2025-form-10-k
+summary: AXT's FY2025 Form 10-K disclosed indium phosphide substrate products and
+  applications including fiber optic and wireless telecommunications, lasers, LEDs,
+  and solar cells.
+content_mode: excerpt
+observed_at: '2026-03-17T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: AXT's FY2025 10-K describes indium phosphide substrate products and says
+  those substrates are used to produce semiconductor devices for fiber optic and wireless
+  telecommunications, lasers, LEDs, and solar cells.
+locator:
+  section: Business product disclosure
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_official_public_source
+created_at: '2026-06-03T00:00:00Z'

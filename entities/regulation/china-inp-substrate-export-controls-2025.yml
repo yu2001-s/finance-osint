@@ -1,0 +1,10 @@
+schema_version: 1
+kind: entity
+id: entity:regulation:china-inp-substrate-export-controls-2025
+entity_type: regulation
+name: China InP substrate export controls added February 2025
+submitted_by: github:codex
+description: China export-control context for indium phosphide substrates disclosed
+  by AXT as affecting export permits and North America revenue.
+state: active
+created_at: '2026-06-03T00:00:00Z'

@@ -1,0 +1,12 @@
+schema_version: 1
+kind: entity
+id: entity:company:beijing-tongmei-xtal-technology
+entity_type: company
+name: Beijing Tongmei Xtal Technology Co., Ltd.
+submitted_by: github:codex
+aliases:
+- Tongmei
+description: AXT-controlled substrate manufacturing affiliate referenced in AXT filings
+  and offering materials for InP substrate capacity expansion.
+state: active
+created_at: '2026-06-03T00:00:00Z'

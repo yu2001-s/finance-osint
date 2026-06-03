@@ -1,0 +1,25 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:axt:q1-2026-results-revenue-capacity
+evidence_class: public_primary
+source: source:public:axt:q1-2026-results-exhibit
+summary: AXT Q1 2026 results reported USD 26.9M revenue, 29.6% GAAP gross margin,
+  USD 1.6M GAAP net loss, and Tongmei financing for InP capacity expansion and 6-inch
+  InP R&D.
+content_mode: excerpt
+observed_at: '2026-04-30T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: AXT's Q1 2026 results exhibit reported revenue of USD 26.9M, GAAP gross
+  margin of 29.6%, GAAP net loss of USD 1.6M, and described Tongmei financing
+  for InP capacity expansion and 6-inch InP research and development.
+locator:
+  section: Q1 2026 financial results and Tongmei financing discussion
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_official_public_source
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- forward_looking_capacity

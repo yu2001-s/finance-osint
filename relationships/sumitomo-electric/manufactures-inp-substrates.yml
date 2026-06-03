@@ -1,0 +1,23 @@
+schema_version: 1
+kind: relationship
+id: relationship:sumitomo-electric:manufactures-inp-substrates
+type: manufactures_product
+participants:
+- role: manufacturer
+  entity: entity:company:sumitomo-electric-industries
+- role: product
+  entity: entity:component:indium-phosphide-substrate
+derived_from:
+  claims:
+  - claim:sumitomo-electric:supplies-inp-substrates
+  evidence:
+  - evidence:public:sumitomo-electric:inp-substrates
+submitted_by: github:codex
+scope:
+  market: entity:market:ai-datacenter-infrastructure
+qualifiers:
+- product_fit
+materiality:
+  level: high
+  basis: observed
+created_at: '2026-06-03T00:00:00Z'

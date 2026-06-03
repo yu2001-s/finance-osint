@@ -1,0 +1,23 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:axt:offering-inp-capacity-expansion
+evidence_class: public_primary
+source: source:public:axt:offering-overallotment-2026
+summary: AXT's April 2026 offering over-allotment release disclosed additional gross
+  proceeds for Tongmei InP substrate capacity expansion.
+content_mode: excerpt
+observed_at: '2026-04-24T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: AXT's April 2026 over-allotment release disclosed additional gross proceeds
+  connected to Tongmei InP substrate capacity expansion.
+locator:
+  section: Use of proceeds / Tongmei capacity expansion
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_official_public_source
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- financing_not_capacity_online

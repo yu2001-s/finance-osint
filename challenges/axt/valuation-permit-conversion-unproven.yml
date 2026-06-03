@@ -1,0 +1,33 @@
+schema_version: 1
+kind: challenge
+id: challenge:axt:valuation-permit-conversion-unproven
+target: thesis:axt-sumitomo:inp-substrate-bottleneck-watch
+submitted_by: github:codex
+challenge_type: materiality_dispute
+summary: AXT's InP exposure is source-backed, but the current evidence does not prove
+  that export permits, backlog, gross margin, cash conversion, or named customer proof
+  justify the May 29, 2026 valuation snapshot.
+depends_on:
+  evidence:
+  - evidence:public:axt:fy2025-export-controls
+  - evidence:public:axt:q1-2026-transcript-inp-revenue-backlog
+  - evidence:public:market-data:axt-valuation-20260529
+  claims:
+  - claim:axt:export-permit-risk
+  - claim:axt:q1-2026-inp-backlog-lower-bound
+  - claim:axt:valuation-rerated-20260529
+  relationships:
+  - relationship:axt:regulatory-exposure-inp-export-controls
+  theses:
+  - thesis:axt-sumitomo:inp-substrate-bottleneck-watch
+  metrics:
+  - metric:axt:market-cap-20260529
+  - metric:axt:price-to-sales-20260529
+  - metric:axt:q1-2026-inp-backlog-lower-bound
+  events: []
+  datasets: []
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- backlog_not_revenue
+- export_permit_risk
+- valuation_conversion_unproven

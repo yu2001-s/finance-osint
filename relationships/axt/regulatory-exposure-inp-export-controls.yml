@@ -1,0 +1,26 @@
+schema_version: 1
+kind: relationship
+id: relationship:axt:regulatory-exposure-inp-export-controls
+type: regulatory_exposure
+participants:
+- role: exposed_entity
+  entity: entity:company:axt-inc
+- role: regulatory_object
+  entity: entity:regulation:china-inp-substrate-export-controls-2025
+derived_from:
+  claims:
+  - claim:axt:export-permit-risk
+  evidence:
+  - evidence:public:axt:fy2025-export-controls
+submitted_by: github:codex
+scope:
+  product: entity:component:indium-phosphide-substrate
+  geography: China
+qualifiers:
+- active
+materiality:
+  level: high
+  basis: observed
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- export_permit_risk

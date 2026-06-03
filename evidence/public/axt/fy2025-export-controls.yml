@@ -1,0 +1,26 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:axt:fy2025-export-controls
+evidence_class: public_primary
+source: source:public:axt:fy2025-form-10-k
+summary: AXT's FY2025 Form 10-K disclosed that China added InP substrates to its export-control
+  list on February 4, 2025, making export permits a significant challenge and reducing
+  North America revenue exposure.
+content_mode: excerpt
+observed_at: '2026-03-17T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: AXT's FY2025 10-K says China added indium phosphide substrates to export
+  controls on February 4, 2025; AXT described InP export permits as a significant
+  challenge and disclosed that North America revenue fell to about 2% of total revenue
+  in 2025.
+locator:
+  section: Risk factors and geographic revenue discussion
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_official_public_source
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- export_permit_risk

@@ -1,0 +1,13 @@
+schema_version: 1
+kind: entity
+id: entity:component:eml-cw-laser
+entity_type: component
+name: EML and CW laser layer
+submitted_by: github:codex
+aliases:
+- CW-LD
+- EML
+description: Electro-absorption modulated laser and continuous-wave laser component
+  layer used in high-speed optical communication products.
+state: active
+created_at: '2026-06-03T00:00:00Z'

@@ -1,0 +1,23 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:nvidia:sumitomo-cpo-ecosystem
+evidence_class: public_primary
+source: source:public:nvidia:spectrum-x-cpo-20250318
+summary: NVIDIA's March 2025 Spectrum-X Photonics announcement names Sumitomo Electric
+  Industries in NVIDIA's silicon-photonics ecosystem.
+content_mode: excerpt
+observed_at: '2025-03-18T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: NVIDIA's Spectrum-X Photonics announcement identifies Sumitomo Electric Industries
+  among companies in NVIDIA's silicon-photonics ecosystem for CPO networking switches.
+locator:
+  section: Silicon photonics ecosystem partner list
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_official_public_source
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- ecosystem_adjacency_not_supplier_proof

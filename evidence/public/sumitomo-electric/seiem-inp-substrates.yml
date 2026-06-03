@@ -1,0 +1,23 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:sumitomo-electric:seiem-inp-substrates
+evidence_class: public_primary
+source: source:public:sumitomo-electric:seiem-company-profile
+summary: SEI Electronics Materials company profile describes GaAs/InP wafers, 3-inch,
+  4-inch, and 6-inch InP substrates, MOCVD epi wafers, and fiber-communication LD/PD
+  use cases.
+content_mode: excerpt
+observed_at: '2026-06-03T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: The SEI Electronics Materials profile describes GaAs/InP wafers including
+  3-inch, 4-inch, and 6-inch InP substrates, MOCVD epi wafers, LD/PD fiber communication
+  use, and expected data-center use.
+locator:
+  section: SEI Electronics Materials product and application description
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_official_public_source
+created_at: '2026-06-03T00:00:00Z'

@@ -1,0 +1,22 @@
+schema_version: 1
+kind: question
+id: question:axt:current-inp-share
+question: What is the current supplier share for InP substrates by supplier and wafer
+  size, and can current evidence update or falsify the dated Tongmei/Yole 2020 share
+  data referenced in the old stock-research trail?
+entities:
+- entity:company:axt-inc
+- entity:company:sumitomo-electric-industries
+- entity:component:indium-phosphide-substrate
+proof_type: market_share
+priority: high
+submitted_by: github:codex
+related_evidence:
+- evidence:public:stock-research:axt-sumitomo-proof-gaps
+next_actions:
+- Search current Yole, TechInsights, Omdia, company filings, customer qualification
+  materials, and trade-show presentations for current InP substrate share by wafer
+  size.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- current_share_unproven
