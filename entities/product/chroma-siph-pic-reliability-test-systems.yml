@@ -1,0 +1,14 @@
+schema_version: 1
+kind: entity
+id: entity:product:chroma-siph-pic-reliability-test-systems
+entity_type: product
+name: Chroma SiPh/PIC reliability test systems
+submitted_by: github:codex
+aliases:
+- Chroma photonics reliability test systems
+- Chroma optics test solutions
+description: Chroma reliability and burn-in test systems for SiPh/PIC manufacturing,
+  including laser diode, photodiode, optical modulator, and photonics IC assembly
+  and sorting workflows.
+state: active
+created_at: '2026-06-03T00:00:00Z'

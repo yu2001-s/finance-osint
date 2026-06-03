@@ -1,0 +1,25 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:chroma-ate:siph-pic-reliability-test-solutions
+evidence_class: public_primary
+source: source:public:chroma-ate:siph-pic-reliability-test-solutions
+summary: Chroma's official SiPh/PIC page describes reliability and burn-in test
+  systems for laser diodes, photodiodes, optical modulators, and photonics IC
+  assembly and sorting.
+content_mode: excerpt
+observed_at: '2026-05-31T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: Chroma's official SiPh/PIC page says SiPh and PIC devices support high-bandwidth,
+  low-power, low-latency data communication applications such as network switching
+  and HPC, and that Chroma's 58604, 58605, and 58606 systems test laser diodes,
+  photodiodes, and optical modulators for aging, reliability, lifetime, and burn-in
+  workflows.
+locator:
+  section: Chroma optics test solutions
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_official_public_source
+created_at: '2026-06-03T00:00:00Z'

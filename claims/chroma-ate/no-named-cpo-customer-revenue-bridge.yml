@@ -1,0 +1,18 @@
+schema_version: 1
+kind: claim
+id: claim:chroma-ate:no-named-cpo-customer-revenue-bridge
+statement: The frozen stock-research pass records no verified primary or near-primary
+  source naming Chroma's CPO customer or platform, exact order value, CPO revenue
+  split, gross margin, or customer-side vendor-list item.
+subject: entity:company:chroma-ate
+predicate: source_attestation
+support_type: observed
+evidence:
+- id: evidence:public:stock-research:chroma-proof-gaps
+submitted_by: github:codex
+object: no_named_cpo_customer_revenue_bridge_verified
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- compiled_research
+- negative_search
+- not_primary_source

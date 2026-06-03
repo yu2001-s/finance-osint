@@ -1,0 +1,29 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:stock-research:chroma-proof-gaps
+evidence_class: public_secondary
+source: source:public:stock-research:chroma-cpo-insertion-sidecar
+summary: The frozen Chroma sidecar records that CPO insertion purchase-order and
+  SiPh/PIC test-system proof were found, but no named CPO customer or platform,
+  exact order value, CPO revenue split, gross margin, or customer-side vendor-list
+  item was verified.
+content_mode: summary
+observed_at: '2026-05-31T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: The frozen stock-research pass found Chroma CPO insertion purchase-order
+  and SiPh/PIC test-system proof, but no primary or near-primary source naming the
+  CPO customer/platform, exact order value, CPO revenue split, gross margin, or
+  customer-side vendor-list item.
+locator:
+  section: claim_chroma_no_named_cpo_customer_revenue_bridge_found
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: compiled_research_negative_search
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- compiled_research
+- negative_search
+- not_primary_source

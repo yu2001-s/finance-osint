@@ -1,0 +1,15 @@
+schema_version: 1
+kind: source
+id: source:public:chroma-ate:siph-pic-reliability-test-solutions
+source_type: product_page
+title: Chroma reliability test solutions for SiPh/PIC manufacturing
+public_status: public
+source_perspective: company_self
+accessed_at: '2026-06-03T00:00:00Z'
+content_mode: external_link
+submitted_by: github:codex
+publisher: Chroma ATE
+url: https://www.chromaate.com/en/chroma/pages/chroma_optics_test_solutions
+provenance: Migrated from frozen stock-research source src_chroma_siph_pic_reliability_test
+  at finance-osint-seed-20260603.
+created_at: '2026-06-03T00:00:00Z'
