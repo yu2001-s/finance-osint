@@ -1,0 +1,28 @@
+schema_version: 1
+kind: challenge
+id: challenge:foci:product-demo-validation-not-supplier-allocation
+target: thesis:foci-himax:relfacon-hidden-allocation-watch
+submitted_by: github:codex
+challenge_type: materiality_dispute
+summary: FOCI has product-fit, customer-validation, planned-delivery, Himax-collaboration,
+  and Wiwynn demo evidence, but these records do not establish BOM/AVL/procurement,
+  production orders, named NVIDIA/TSMC/COUPE supplier allocation, revenue split,
+  or margin bridge.
+depends_on:
+  evidence:
+  - evidence:public:foci:relfacon-cpo-product-fit
+  - evidence:public:foci:q1-2026-unnamed-customer-delivery-plan
+  - evidence:public:himax:foci-cpo-collaboration
+  - evidence:public:himax:q1-2026-foci-limited-shipments
+  - evidence:public:wiwynn:computex-cpo-demo-foci
+  - evidence:public:stock-research:foci-hidden-allocation-proof-gaps
+  claims:
+  - claim:foci:no-named-nvidia-tsmc-coupe-supplier-or-revenue-bridge
+  relationships:
+  - relationship:foci:manufactures-relfacon
+  - relationship:foci-himax:cpo-development-partnership
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- supplier_allocation_unproven
+- demo_not_order_or_revenue
+- valuation_conversion_unproven

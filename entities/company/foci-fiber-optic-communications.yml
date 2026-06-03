@@ -1,0 +1,16 @@
+schema_version: 1
+kind: entity
+id: entity:company:foci-fiber-optic-communications
+entity_type: company
+name: FOCI Fiber Optic Communications
+submitted_by: github:codex
+aliases:
+- FOCI
+- Fiber Optic Communications, Inc.
+identifiers:
+  ticker: 3363.TWO
+description: Taiwan-listed optical communications company with source-backed
+  ReLFACon reflowable lensed fiber-array connector products for silicon-photonics
+  co-packaged-optics components.
+state: active
+created_at: '2026-06-03T00:00:00Z'

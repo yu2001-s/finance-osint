@@ -1,0 +1,116 @@
+schema_version: 1
+kind: thesis
+id: thesis:foci-himax:relfacon-hidden-allocation-watch
+title: FOCI ReLFACon hidden-allocation watch
+summary: FOCI has source-backed ReLFACon product fit for silicon-photonics CPO
+  components, customer-validation and planned-delivery language in FOCI materials,
+  an ongoing Himax CPO collaboration with H2 2026 limited-shipment timing, and
+  Wiwynn customer-side demo adjacency. The watch thesis is that FOCI may sit near
+  the CPO FAU / fiber-to-PIC interface layer, but current evidence still lacks
+  BOM/AVL/procurement, named NVIDIA/TSMC/COUPE supplier allocation, order value,
+  CPO revenue split, margin bridge, and current financial conversion after the
+  May 29, 2026 market-data snapshot.
+depends_on:
+  evidence:
+  - evidence:public:foci:relfacon-cpo-product-fit
+  - evidence:public:foci:q1-2026-unnamed-customer-delivery-plan
+  - evidence:public:himax:foci-cpo-collaboration
+  - evidence:public:himax:q1-2026-foci-limited-shipments
+  - evidence:public:wiwynn:computex-cpo-demo-foci
+  - evidence:public:foci:monthly-revenue-through-april-2026
+  - evidence:public:foci:q1-2026-financial-report
+  - evidence:public:market-data:foci-valuation-20260529
+  - evidence:public:stock-research:foci-hidden-allocation-proof-gaps
+  claims:
+  - claim:foci:relfacon-cpo-product-fit
+  - claim:foci:q1-2026-unnamed-customer-delivery-plan
+  - claim:himax:foci-cpo-collaboration
+  - claim:himax:q1-2026-foci-limited-shipments
+  - claim:wiwynn:computex-cpo-demo-names-foci
+  - claim:foci:valuation-rerated-20260529
+  - claim:foci:financial-monitor-no-cpo-inflection-20260601
+  - claim:foci:no-named-nvidia-tsmc-coupe-supplier-or-revenue-bridge
+  relationships:
+  - relationship:foci:manufactures-relfacon
+  - relationship:foci-relfacon:supports-cpo
+  - relationship:fau-fiber-to-pic-coupling-interface:supports-cpo
+  - relationship:foci-himax:cpo-development-partnership
+  theses: []
+  metrics:
+  - metric:foci:market-cap-20260529
+  - metric:foci:price-to-sales-20260529
+  - metric:foci:ttm-revenue-20260529
+  - metric:foci:jan-apr-2026-revenue
+  - metric:foci:q1-2026-revenue
+  events:
+  - event:foci:planned-cpo-fau-deliveries-2026
+  - event:foci-himax:limited-cpo-shipments-h2-2026
+  datasets: []
+submitted_by: github:codex
+stance: watch
+time_horizon: 2026-2027
+pillars:
+- statement: FOCI clears source-backed product fit for a CPO FAU / fiber-to-PIC
+    interface layer through ReLFACon.
+  depends_on:
+    claims:
+    - claim:foci:relfacon-cpo-product-fit
+    relationships:
+    - relationship:foci:manufactures-relfacon
+    - relationship:foci-relfacon:supports-cpo
+    - relationship:fau-fiber-to-pic-coupling-interface:supports-cpo
+  proof_points:
+  - Customer-side or platform-owner source naming ReLFACon or FOCI FAU in a production
+    CPO BOM, AVL, procurement flow, or service part list.
+  kill_criteria:
+  - Named high-volume FAU supplier evidence showing the CPO platform work went
+    elsewhere, or later source evidence limiting ReLFACon activity to demos/samples.
+- statement: Himax and Wiwynn strengthen customer-adjacent validation, but neither
+    source currently proves production supplier allocation or material revenue.
+  depends_on:
+    claims:
+    - claim:himax:foci-cpo-collaboration
+    - claim:himax:q1-2026-foci-limited-shipments
+    - claim:wiwynn:computex-cpo-demo-names-foci
+    relationships:
+    - relationship:foci-himax:cpo-development-partnership
+    events:
+    - event:foci-himax:limited-cpo-shipments-h2-2026
+  proof_points:
+  - Himax, Wiwynn, FOCI, NVIDIA, TSMC, or SPIL source naming FOCI/ReLFACon in
+    production qualification, supplier allocation, order, or revenue context.
+  kill_criteria:
+  - H2 2026/2027 shipment language remains sample-level or demo-only without
+    customer, order, or revenue conversion.
+- statement: The valuation and current financial monitor make conversion proof
+    necessary before the thesis can move beyond watch.
+  depends_on:
+    claims:
+    - claim:foci:valuation-rerated-20260529
+    - claim:foci:financial-monitor-no-cpo-inflection-20260601
+    - claim:foci:no-named-nvidia-tsmc-coupe-supplier-or-revenue-bridge
+    metrics:
+    - metric:foci:market-cap-20260529
+    - metric:foci:price-to-sales-20260529
+    - metric:foci:jan-apr-2026-revenue
+    - metric:foci:q1-2026-revenue
+  proof_points:
+  - Q2/Q3/Q4 2026 financial or MOPS disclosure showing CPO FAU revenue, customer
+    concentration, gross margin, or order conversion.
+  kill_criteria:
+  - Continued absence of named customer/order-value/revenue bridge while FOCI's
+    public valuation remains elevated.
+next_missing_evidence:
+- Named FOCI/ReLFACon customer, platform, BOM, AVL, procurement, or service-part
+  source.
+- Exact order value, production order, shipment volume, customer concentration,
+  or CPO revenue split.
+- Gross margin, cash conversion, and capex evidence tied to ReLFACon/CPO FAU.
+- Confirmation that H2 2026 limited shipments and 2026 specified-quantity deliveries
+  occurred and converted into product-coded revenue.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- supplier_allocation_unproven
+- revenue_conversion_unproven
+- valuation_conversion_unproven
+- demo_not_order_or_revenue

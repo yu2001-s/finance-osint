@@ -1,0 +1,19 @@
+schema_version: 1
+kind: source
+id: source:public:foci:q1-2026-investor-deck
+source_type: company_report
+title: FOCI 2026 first quarter earnings conference deck
+public_status: public
+source_perspective: company_self
+accessed_at: '2026-06-03T00:00:00Z'
+content_mode: external_link
+submitted_by: github:codex
+publisher: MOPS / FOCI Fiber Optic Communications
+url: https://mopsov.twse.com.tw/nas/STR/336320260528E001.pdf
+published_at: '2026-05-28'
+provenance: Migrated from frozen stock-research source src_foci_q1_2026_mops_deck_20260528
+  at finance-osint-seed-20260603.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- company_originated
+- mops_hosted

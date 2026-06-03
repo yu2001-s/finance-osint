@@ -1,0 +1,24 @@
+schema_version: 1
+kind: challenge
+id: challenge:foci:financial-monitor-not-revenue-inflection
+target: thesis:foci-himax:relfacon-hidden-allocation-watch
+submitted_by: github:codex
+challenge_type: materiality_dispute
+summary: FOCI's Jan-April 2026 MOPS revenue and Q1 2026 financial report do not
+  yet show material CPO revenue or profit conversion from ReLFACon and customer-validation
+  evidence, so H2 2026/2027 delivery language remains a conversion monitor rather
+  than current revenue proof.
+depends_on:
+  evidence:
+  - evidence:public:foci:monthly-revenue-through-april-2026
+  - evidence:public:foci:q1-2026-financial-report
+  - evidence:public:stock-research:foci-hidden-allocation-proof-gaps
+  claims:
+  - claim:foci:financial-monitor-no-cpo-inflection-20260601
+  metrics:
+  - metric:foci:jan-apr-2026-revenue
+  - metric:foci:q1-2026-revenue
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- revenue_conversion_unproven
+- financial_monitor_negative_to_neutral

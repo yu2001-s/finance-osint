@@ -1,0 +1,26 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:foci:q1-2026-financial-report
+evidence_class: public_primary
+source: source:public:foci:q1-2026-financial-report
+summary: FOCI's Q1 2026 MOPS financial report showed revenue of NT$381.969M versus
+  NT$411.403M a year earlier, gross profit of NT$7.197M versus NT$70.544M, operating
+  loss of NT$156.077M, net loss of NT$107.036M, and EPS of -0.98.
+content_mode: excerpt
+observed_at: '2026-03-31T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: FOCI Q1 2026 revenue was NT$381.969M versus NT$411.403M in the prior-year
+  period; gross profit was NT$7.197M versus NT$70.544M; operating loss was NT$156.077M;
+  net loss was NT$107.036M; basic EPS was -0.98.
+locator:
+  section: Q1 2026 MOPS financial report
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: company_financial_report
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- company_originated
+- financial_report_snapshot

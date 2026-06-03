@@ -1,0 +1,20 @@
+schema_version: 1
+kind: claim
+id: claim:foci:financial-monitor-no-cpo-inflection-20260601
+statement: The frozen conversion monitor records that FOCI's Jan-April 2026 monthly
+  revenue and Q1 2026 financial report did not yet show material CPO revenue or
+  profit conversion from the ReLFACon/customer-validation evidence.
+subject: entity:company:foci-fiber-optic-communications
+predicate: source_attestation
+support_type: observed
+evidence:
+- id: evidence:public:foci:monthly-revenue-through-april-2026
+- id: evidence:public:foci:q1-2026-financial-report
+- id: evidence:public:stock-research:foci-hidden-allocation-proof-gaps
+submitted_by: github:codex
+object: no_material_cpo_revenue_inflection_observed_by_2026_04
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- compiled_research
+- revenue_conversion_unproven
+- financial_monitor_negative_to_neutral

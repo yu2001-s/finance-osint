@@ -1,0 +1,29 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:himax:q1-2026-foci-limited-shipments
+evidence_class: public_primary
+source: source:public:himax:q1-2026-call-script
+summary: Himax's Q1 2026 call script says the Himax-FOCI Gen 1 CPO solution supports
+  1.6T and 3.2T and is ready, small-quantity shipments are expected in the second
+  half of 2026, Gen 2 6.4T is nearing customer product validation for AI data
+  centers, and volume ramp is expected to accelerate in 2027.
+content_mode: excerpt
+observed_at: '2026-05-07T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: Himax described its Gen 1 CPO solution with FOCI for 1.6T/3.2T as ready,
+  expected small-quantity shipments in H2 2026, said Gen 2 6.4T was nearing customer
+  product validation for AI data centers, and expected volume ramp acceleration
+  in 2027.
+locator:
+  section: Q1 2026 call script CPO update
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: company_prepared_remarks
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- company_originated
+- expected_shipments
+- revenue_split_missing

@@ -1,0 +1,23 @@
+schema_version: 1
+kind: metric
+id: metric:foci:jan-apr-2026-revenue
+entity: entity:company:foci-fiber-optic-communications
+metric_definition: metric_definition:revenue
+value: 509912000.0
+unit: TWD
+period:
+  type: year_to_date
+  start: '2026-01-01'
+  end: '2026-04-30'
+value_basis: reported
+evidence:
+- evidence:public:foci:monthly-revenue-through-april-2026
+submitted_by: github:codex
+source_locator:
+  section: MOPS monthly revenue endpoint for company code 3363
+dimensions:
+  period_detail: jan_apr
+reported_at: '2026-05-10'
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- monthly_revenue_snapshot

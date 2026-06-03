@@ -1,0 +1,19 @@
+schema_version: 1
+kind: claim
+id: claim:himax:q1-2026-foci-limited-shipments
+statement: Himax stated in Q1 2026 prepared remarks that its Gen 1 CPO solution
+  with FOCI supported 1.6T/3.2T and was ready, small-quantity shipments were expected
+  in H2 2026, Gen 2 6.4T was nearing customer product validation, and volume ramp
+  was expected to accelerate in 2027.
+subject: entity:company:himax-technologies
+predicate: forecast_statement
+support_type: direct
+evidence:
+- id: evidence:public:himax:q1-2026-foci-limited-shipments
+submitted_by: github:codex
+object: himax_foci_cpo_limited_shipments_h2_2026
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- company_originated
+- expected_shipments
+- revenue_split_missing

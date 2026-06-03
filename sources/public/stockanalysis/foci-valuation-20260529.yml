@@ -1,0 +1,18 @@
+schema_version: 1
+kind: source
+id: source:public:stockanalysis:foci-valuation-20260529
+source_type: market_data_page
+title: FOCI statistics and valuation on May 29, 2026
+public_status: public
+source_perspective: aggregator
+accessed_at: '2026-06-03T00:00:00Z'
+content_mode: external_link
+submitted_by: github:codex
+publisher: StockAnalysis
+url: https://stockanalysis.com/quote/tpex/3363/statistics/
+published_at: '2026-05-29'
+provenance: Migrated from frozen stock-research sources src_stockanalysis_foci_stats_20260529
+  and src_stockanalysis_foci_revenue_20260529 at finance-osint-seed-20260603.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- market_data_snapshot
