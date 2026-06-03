@@ -3,18 +3,18 @@
 # This file documents who should review high-risk surfaces. Actual enforcement
 # still depends on GitHub branch protection and required review settings.
 
-* @shaoyuhuang
+* @yu2001-s
 
-.github/ @shaoyuhuang
-docs/governance.md @shaoyuhuang
-docs/review-policy.md @shaoyuhuang
-docs/contracts.md @shaoyuhuang
-docs/review-rubric.md @shaoyuhuang
-schemas/ @shaoyuhuang
-ontology/ @shaoyuhuang
-fosint/ @shaoyuhuang
-scripts/ @shaoyuhuang
-records/evidence/ @shaoyuhuang
-records/sources/ @shaoyuhuang
-records/relationships/ @shaoyuhuang
-records/theses/ @shaoyuhuang
+.github/ @yu2001-s
+docs/governance.md @yu2001-s
+docs/review-policy.md @yu2001-s
+docs/contracts.md @yu2001-s
+docs/review-rubric.md @yu2001-s
+schemas/ @yu2001-s
+ontology/ @yu2001-s
+fosint/ @yu2001-s
+scripts/ @yu2001-s
+records/evidence/ @yu2001-s
+records/sources/ @yu2001-s
+records/relationships/ @yu2001-s
+records/theses/ @yu2001-s
