@@ -1276,6 +1276,68 @@ class CliValidationTests(unittest.TestCase):
         self.assertEqual(status, 0, payload)
         self.assertEqual(payload["base"], "HEAD")
         self.assertEqual(payload["base_sha"], base_sha)
+        self.assertIn("base_record_load_ms", payload["timings_ms"])
+
+    def test_base_loader_uses_batched_cat_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            init_git_repo(repo)
+            calls: list[tuple[str, ...]] = []
+            original_run_git = cli.run_git
+            original_run_git_bytes = cli.run_git_bytes
+
+            def counting_run_git(root: Path, args: list[str]):
+                calls.append(tuple(args))
+                return original_run_git(root, args)
+
+            def counting_run_git_bytes(
+                root: Path, args: list[str], input_bytes: bytes | None = None
+            ):
+                calls.append(tuple(args))
+                return original_run_git_bytes(root, args, input_bytes)
+
+            cli.run_git = counting_run_git
+            cli.run_git_bytes = counting_run_git_bytes
+            try:
+                timings: dict[str, object] = {}
+                records, errors = cli.load_records_from_git(repo, "HEAD", timings)
+            finally:
+                cli.run_git = original_run_git
+                cli.run_git_bytes = original_run_git_bytes
+
+        self.assertEqual(errors, [])
+        self.assertGreater(len(records), 0)
+        self.assertEqual(sum(1 for args in calls if args and args[0] == "show"), 0)
+        self.assertEqual(sum(1 for args in calls if args[:2] == ("cat-file", "--batch")), 1)
+        self.assertEqual(timings["base_record_git_process_count"], 2)
+
+    def test_base_loader_ignores_non_utf8_paths_outside_records(self) -> None:
+        original_run_git_bytes = cli.run_git_bytes
+
+        def fake_run_git_bytes(root: Path, args: list[str], input_bytes: bytes | None = None):
+            self.assertEqual(args, ["ls-tree", "-rz", "-r", "--full-tree", "HEAD"])
+            return subprocess.CompletedProcess(
+                args,
+                0,
+                stdout=(
+                    b"100644 blob aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\tdocs/bad\x80.txt\0"
+                    b"100644 blob bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                    b"\trecords/claims/example.yml\0"
+                ),
+                stderr=b"",
+            )
+
+        cli.run_git_bytes = fake_run_git_bytes
+        try:
+            blobs, error = cli.git_tree_record_blobs(Path("."), "HEAD")
+        finally:
+            cli.run_git_bytes = original_run_git_bytes
+
+        self.assertIsNone(error)
+        self.assertEqual(
+            blobs,
+            [("records/claims/example.yml", "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")],
+        )
 
     def test_index_build_and_search_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
