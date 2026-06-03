@@ -17,6 +17,9 @@ uv run fo graph build
 
 ## Add Data
 
+For a full research-batch workflow, see
+`docs/research-batch-contribution.md`.
+
 1. Add or update entities under `entities/`.
 2. Add source metadata under `sources/`.
 3. Add exact evidence or observation reports under `evidence/`.

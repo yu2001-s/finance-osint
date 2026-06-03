@@ -2,8 +2,8 @@
 
 Review date: 2026-06-03
 
-Scope: stock-research seed records through commit `a8481be` (`Seed X-FAB
-Navitas 800 VDC foundry watch`).
+Scope: stock-research seed records through commit `2a12379` (`Seed FIT Hon Teng
+CPO ELSFP conversion watch`).
 
 Excluded from this review: synthetic fixture data such as
 `thesis:synthetic-exdev-margin-risk-from-foundry-concentration`.
@@ -46,6 +46,13 @@ thesis:chroma-ate:cpo-insertion-test-watch
   source perspectives: 2 company_self, 1 independent_research, 1 aggregator
   open challenges: 1 materiality_dispute
 
+thesis:fit-hon-teng:cpo-elsfp-conversion-watch
+  review: contested
+  evidence: 7 public_primary, 2 public_secondary
+  source perspectives: 4 company_self, 1 counterparty_self, 1 independent_research,
+    1 aggregator
+  open challenges: 1 materiality_dispute
+
 thesis:foci-himax:relfacon-hidden-allocation-watch
   review: contested
   evidence: 7 public_primary, 2 public_secondary
@@ -70,6 +77,7 @@ Mini-review checkpoints were completed for:
 
 - `docs/seed-review-axt-sumitomo-20260603.md`
 - `docs/seed-review-chroma-ate-20260603.md`
+- `docs/seed-review-fit-hon-teng-20260603.md`
 - `docs/seed-review-foci-himax-20260603.md`
 - `docs/seed-review-xfab-navitas-20260603.md`
 
@@ -114,6 +122,9 @@ Examples of correct claim shape:
   backlog lower bound, and NVIDIA ecosystem adjacency are separate claims.
 - Chroma: CPO insertion purchase-order language is a management-statement claim,
   not a named customer claim.
+- FIT Hon Teng: 102.4T ELSFP validation, Broadcom TH5-Bailly interconnect
+  evidence, AI/cloud growth, 2027/2028 revenue timing, customer-economics
+  nondisclosure, and valuation snapshot are separate claims.
 - FOCI/Himax: ReLFACon product fit, Himax collaboration, planned delivery
   windows, and Wiwynn demo naming are separate claims.
 - X-FAB/Navitas: Navitas naming X-FAB as U.S. manufacturer is a claim backed by
@@ -144,6 +155,8 @@ Correct event treatment:
 - Chroma's June 2026 Insertion 4E pilot is an expected timing window.
 - FOCI/Himax H2 2026 limited shipments and 2026 planned deliveries are expected
   event windows, not completed shipments or revenue records.
+- FIT Hon Teng's expected initial 102.4T ELSFP revenue contribution in 2027 is
+  an expected event, not current revenue, backlog, or margin proof.
 - X-FAB CHIPS-funded SiC/GaN expansion is capacity context, not customer revenue.
 
 ## Claims To Relationships
@@ -165,13 +178,15 @@ Accepted relationship promotions:
   counterparties.
 - `manufacturing_partner` where Navitas's Form 10-K names X-FAB as the U.S.
   manufacturer for Navitas SiC products.
+- `supplier_relationship` where both company-side and counterparty-side evidence
+  support the narrow supplied product or component relationship.
 
 Rejected or avoided relationship promotions:
 
-- No named NVIDIA, hyperscaler, TSMC, COUPE, or customer-design-in relationship
-  was created from ecosystem adjacency, demo naming, customer-adjacent language,
-  unnamed customer language, purchase-order language, social posts, or negative
-  searches.
+- No named NVIDIA, hyperscaler, TSMC, COUPE, NTT customer, or customer-design-in
+  relationship was created from ecosystem adjacency, validation language, demo
+  naming, customer-adjacent language, unnamed customer language, purchase-order
+  language, social posts, or negative searches.
 - No supplier/customer/qualified-supplier/design-win edge was created unless the
   evidence supported that exact relationship.
 
@@ -179,6 +194,11 @@ Learning: the graph can represent a real manufacturing relationship without
 accepting the downstream investment thesis. X-FAB/Navitas is the clean example:
 the Navitas-to-X-FAB manufacturing edge is canonical, while NVIDIA production,
 order value, X-FAB revenue, margin, and customer split remain challenged.
+
+FIT Hon Teng adds the stronger supplier-edge example. The Broadcom-side release
+supports a scoped `supplier_relationship` for TH5-Bailly CPO interconnect
+hardware, while product-line revenue, signed backlog, order value, margin, and
+valuation conversion remain challenged.
 
 ## Relationships To Questions And Challenges
 
@@ -199,6 +219,9 @@ Current open pressure surfaces:
 - FOCI/Himax: product/demo/collaboration/planned-delivery evidence does not
   prove supplier allocation, production orders, revenue split, margin, or
   current financial inflection.
+- FIT Hon Teng: ELSFP validation and Broadcom CPO interconnect evidence do not
+  prove current product-line revenue, signed backlog, order value, margin,
+  BOM/AVL allocation, or valuation conversion.
 - Sivers: CPO/DFB laser partnerships and pipeline do not prove volume revenue.
 - X-FAB/Navitas: named manufacturing relationship does not prove NVIDIA
   qualification, purchase orders, customer-specific revenue, margin, or social
@@ -225,6 +248,7 @@ crowdsourced interpretation and forecast layer.
 1. The ontology is strong enough for more controlled seeding.
 
    The current relationship set handled CPO optical components, InP substrates,
+   ELSFP external-laser platforms, PLS cage/socket interconnect hardware,
    FAU/fiber-to-PIC coupling, test equipment, SiC/GaN foundry services, WBG
    power devices, and 800 VDC architecture without forcing premature new
    relationship types.
@@ -243,13 +267,21 @@ crowdsourced interpretation and forecast layer.
    market evidence or as a source claim about what someone said. It should not
    support underlying company truth unless backed by hard evidence.
 
-4. Richer interface-layer ontology can wait.
+4. Strong supplier edges can exist without blessing the thesis.
 
-   FOCI ReLFACon/FAU and X-FAB WBG/800 VDC suggest possible future relationship
-   types such as `implements_interface_layer`, but current `supports_architecture`
-   is adequate until repeated cases demand sharper semantics.
+   FIT/Broadcom shows that a narrow `supplier_relationship` can be accepted from
+   company-side plus counterparty-side support while the equity thesis remains
+   contested. Relationship records need scoped risk flags and related questions
+   when revenue or customer-program economics are not disclosed.
 
-5. Full-chain review should remain part of seeding.
+5. Richer interface-layer ontology can wait.
+
+   FOCI ReLFACon/FAU, FIT PLS cage/socket hardware, and X-FAB WBG/800 VDC
+   suggest possible future relationship types such as `implements_interface_layer`,
+   but current `supports_architecture` is adequate until repeated cases demand
+   sharper semantics.
+
+6. Full-chain review should remain part of seeding.
 
    The batch mini-reviews caught the main overclaim risks early. The full review
    confirmed the repeated rules and gave a clearer migration standard for future
