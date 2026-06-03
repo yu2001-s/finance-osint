@@ -40,6 +40,25 @@ uv run fo lint --json
 uv run fo review thesis:... --json
 ```
 
+## Quality Bar
+
+A thesis should make its reasoning inspectable:
+
+```yaml
+pillars:
+  - statement: "Narrow pillar built from explicit dependencies."
+    proof_points:
+      - "Observable evidence that would strengthen this pillar."
+    kill_criteria:
+      - "Observable evidence that would weaken or break this pillar."
+next_missing_evidence:
+  - "Specific source, metric, event, or relationship still needed."
+```
+
+Use `pillars` and `next_missing_evidence` only when they are grounded in the
+listed dependencies. If a thesis cannot name proof points or kill criteria, add
+a question or challenge first.
+
 ## Forecasts
 
 Contributor forecasts belong inside thesis records:

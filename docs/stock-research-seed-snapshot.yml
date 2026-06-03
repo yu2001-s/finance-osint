@@ -1,0 +1,28 @@
+schema_version: 1
+kind: source_snapshot
+id: source_snapshot:stock-research:20260603
+title: Stock research seed snapshot for Finance OSINT migration
+source_repo_path: /path/to/stock-research
+source_branch: codex/finance-osint-seed-snapshot
+source_tag: finance-osint-seed-20260603
+source_commit: d2d72bfd7cb791d7bbef4566ab0fceb9358b5e2e
+created_at: "2026-06-03"
+purpose: Freeze the local stock research corpus as source material for controlled Finance OSINT seed migration.
+validation:
+  command: python3 knowledge/tools/validate_wiki.py
+  result: knowledge validation passed
+  counts:
+    entities: 171
+    aliases: 140
+    sources: 245
+    claims: 242
+    edges: 265
+    discovery_trails: 39
+    questions: 63
+    vetoes: 39
+rules:
+  - Migrate from this tag or commit, not from a moving dirty tree.
+  - Treat old records as source material, not canonical truth.
+  - Do not copy old status, confidence, evidence_strength, reliability, verdict, proven, unproven, watch, or veto fields into canonical records.
+  - Convert old proof labels into support type, evidence class, risk flags, validations, challenges, questions, or thesis wording.
+  - Preserve Finance OSINT evidence, claim, relationship, metric, event, question, challenge, and thesis boundaries.
