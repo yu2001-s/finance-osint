@@ -15,7 +15,8 @@ For now, maintainers are the GitHub users with merge rights on the repo.
 
 The GitHub repository is the contribution queue and public audit trail. Before
 public launch, maintainers should verify the controls in
-`docs/github-public-launch-checklist.md`.
+`docs/github-public-launch-checklist.md` and review the current pre-public
+assessment in `docs/pre-public-review-20260603.md`.
 
 At minimum:
 
