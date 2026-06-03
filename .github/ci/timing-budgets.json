@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "budget_mode": "warning",
+  "steps": {
+    "lint": {
+      "budget_ms": 15000,
+      "class": "full_corpus"
+    },
+    "unit_tests": {
+      "budget_ms": 180000,
+      "class": "full_corpus"
+    },
+    "index_build": {
+      "budget_ms": 30000,
+      "class": "derived_artifact"
+    },
+    "changed_chain_review": {
+      "budget_ms": 60000,
+      "class": "changed_records"
+    },
+    "graph_build": {
+      "budget_ms": 30000,
+      "class": "derived_artifact"
+    },
+    "diff_review": {
+      "budget_ms": 60000,
+      "class": "git_delta"
+    },
+    "scale_smoke_10k": {
+      "budget_ms": 120000,
+      "class": "generated_scale"
+    }
+  }
+}

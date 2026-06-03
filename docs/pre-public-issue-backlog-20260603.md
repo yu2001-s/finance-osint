@@ -250,13 +250,20 @@ Acceptance criteria:
 Rationale: Tests and diff-review are already slower than lint at the current
 small corpus size.
 
+Status: CI timing and scale-smoke slice addressed locally. The validation
+workflow now runs the existing checklist through a timing wrapper, uploads
+generated JSON reports from `.local/ci`, and runs a deterministic generated 10k
+scale smoke. SQLite index coverage now includes major lookup paths and the scale
+smoke fails on query-plan regressions. 100k remains documented as a manual
+pre-tag benchmark, not a normal PR gate.
+
 Acceptance criteria:
 
-- Track timing for lint, tests, diff-review, index build, graph build, and
+- [x] Track timing for lint, tests, diff-review, index build, graph build, and
   changed chain review.
-- Add a generated 10k-record scale smoke test.
-- Define a path to 100k-record benchmarking.
-- Add SQLite query-plan checks for major lookup paths.
+- [x] Add a generated 10k-record scale smoke test.
+- [x] Define a path to 100k-record benchmarking.
+- [x] Add SQLite query-plan checks for major lookup paths.
 
 ### Improve GitHub-Only Viewing
 

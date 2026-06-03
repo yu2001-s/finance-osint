@@ -58,6 +58,16 @@ are review pressure even when CI passes.
 - Archive additions or moves:
 - Why each warning is acceptable or how this PR addresses it:
 
+## CI Timing / Scale Impact
+
+For tooling, schema, graph/index, or large data PRs, summarize generated CI
+reports:
+
+- Timing report path or artifact:
+- Steps over advisory budget:
+- 10k scale smoke result:
+- Query-plan or generated-artifact concerns:
+
 ## Contributor Check
 
 - [ ] I ran `uv run fo lint --json`.
@@ -66,6 +76,7 @@ are review pressure even when CI passes.
 - [ ] I ran `uv run fo review ID --chain --json` for changed records/theses/relationships.
 - [ ] I ran `uv run fo graph build --json`.
 - [ ] I ran `uv run fo diff-review BASE --json`.
+- [ ] For tooling/schema/index/graph changes, I reviewed the timing and scale-smoke reports.
 - [ ] I reviewed and explained every `fo diff-review` warning.
 - [ ] All support-affecting information is visible in the repo.
 - [ ] I did not add hidden source knowledge, hidden agent state, canonical `status`, or canonical `confidence`.

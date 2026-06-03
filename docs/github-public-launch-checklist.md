@@ -109,13 +109,19 @@ uv run fo index build --json
 uv run python scripts/chain_review_changed.py HEAD
 uv run fo graph build --json
 uv run fo diff-review HEAD --json
+uv run python scripts/validate_with_timing.py HEAD --json
+uv run python scripts/scale_smoke.py --records 10000 --json
 git status --short
 ```
 
 Also record:
 
 ```bash
+uv run python scripts/scale_smoke.py --records 100000 --json --output .local/scale-smoke-100k.json
 git count-objects -vH
-du -sh .git artifacts 2>/dev/null || true
+du -sh .git .local artifacts 2>/dev/null || true
 ```
 
+Do not tag until the timing report, 10k generated smoke, query-plan checks, and
+artifact-size policy have been reviewed. The 100k generated smoke is a manual
+pre-tag benchmark, not a normal PR requirement.
