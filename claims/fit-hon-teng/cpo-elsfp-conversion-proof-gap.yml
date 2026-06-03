@@ -1,0 +1,17 @@
+schema_version: 1
+kind: claim
+id: claim:fit-hon-teng:cpo-elsfp-conversion-proof-gap
+statement: The frozen FIT conversion notes found real 102.4T ELSFP validation, Broadcom TH5-Bailly CPO interconnect evidence, AI/cloud growth, and management 2027/2028 revenue timing, but no current product-line revenue, named customer order/backlog, shipment value, margin, BOM/AVL allocation, or valuation bridge for CPO/ELSFP/PLS/LGA hardware.
+subject: entity:company:fit-hon-teng
+predicate: source_attestation
+object: current_cpo_elsfp_revenue_bridge_not_found
+support_type: observed
+evidence:
+  - id: evidence:public:stock-research:fit-cpo-elsfp-conversion-proof-gaps
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - compiled_research
+  - negative_search
+  - not_primary_source
+  - revenue_conversion_unproven

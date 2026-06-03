@@ -1,0 +1,22 @@
+schema_version: 1
+kind: claim
+id: claim:fit-hon-teng:102p4t-elsfp-platform-validation
+statement: FIT announced that its 102.4T CPO External Laser Solution completed key development milestones and entered ecosystem validation; the ELSFP platform is OIF ELSFP 2.0 and CMIS 5.1 compliant, uses a 1310 nm CW DFB laser architecture, and was technically validated by NTT Innovative Devices.
+subject: entity:company:fit-hon-teng
+predicate: product_signal
+object: entity:product:fit-102p4t-elsfp-platform
+qualifiers:
+  validation_counterparty: entity:company:ntt-innovative-devices
+  architecture:
+    - entity:architecture:external-laser-source-els
+    - entity:architecture:co-packaged-optics
+  output_power: above_20_dbm
+  power_consumption: below_10_w
+support_type: direct
+evidence:
+  - id: evidence:public:fit-hon-teng:102p4t-elsfp-validation
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - company_originated
+  - validation_not_order_or_revenue

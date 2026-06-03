@@ -1,0 +1,19 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:stock-research:fit-cpo-elsfp-conversion-proof-gaps
+evidence_class: public_secondary
+source: source:public:stock-research:fit-cpo-elsfp-conversion-sidecar
+summary: The frozen FIT conversion notes found real 102.4T ELSFP validation, Broadcom TH5-Bailly CPO interconnect evidence, AI/cloud growth, and management 2027/2028 revenue timing, but no current product-line revenue, named customer order/backlog, shipment value, margin, BOM/AVL allocation, or valuation bridge for CPO/ELSFP/PLS/LGA hardware.
+content_mode: summary
+excerpt: Frozen wave58 and wave59 notes kept FIT as a future revenue-timing watch because source-backed product validation, Broadcom CPO interconnect proof, and AI/cloud growth did not convert into current product-line revenue, order value, margin, BOM/AVL allocation, or valuation support.
+locator:
+  section: wave58 and wave59 FIT conversion notes
+observed_at: "2026-05-31T00:00:00Z"
+submitted_by: github:codex
+source_attribution: named_public
+verification_status: migrated_from_frozen_stock_research_snapshot
+risk_flags:
+  - compiled_research
+  - negative_search
+  - not_primary_source
+  - revenue_conversion_unproven

@@ -1,0 +1,21 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:broadcom:third-generation-cpo-fit-partner
+evidence_class: public_primary
+source: source:public:broadcom:third-generation-cpo-20250515
+summary: Broadcom described its TH5-Bailly volume-production CPO solution and listed partner milestones, including FIT production release of CPO LGA sockets and PLS cages/connectors.
+content_mode: excerpt
+excerpt: Broadcom's CPO ecosystem announcement identified FIT production release of CPO LGA sockets and PLS cages/connectors as a partner milestone for TH5-Bailly.
+locator:
+  section: partner milestones
+observed_at: "2025-05-15T00:00:00Z"
+submitted_by: github:codex
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_from_frozen_stock_research_source_page
+risk_flags:
+  - counterparty_originated
+  - product_revenue_unquantified

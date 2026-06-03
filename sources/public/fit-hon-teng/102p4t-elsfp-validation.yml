@@ -1,0 +1,13 @@
+schema_version: 1
+kind: source
+id: source:public:fit-hon-teng:102p4t-elsfp-validation
+source_type: press_release
+title: FIT advances 102.4T CPO external laser platform into validation
+publisher: FIT Hon Teng
+url: https://www.fit-foxconn.com/main/modules/MySpace/BlogInfo.php?xmlid=28162
+published_at: "2026-03-02"
+accessed_at: "2026-06-03T00:00:00Z"
+public_status: public
+source_perspective: company_self
+content_mode: external_link
+provenance: Migrated from frozen stock-research tag finance-osint-seed-20260603 source src_fit_102p4t_elsfp_ofc2026.

@@ -1,0 +1,13 @@
+schema_version: 1
+kind: source
+id: source:public:market-data:fit-valuation-20260529
+source_type: market_data_page
+title: FIT Hon Teng stock overview on May 29, 2026
+publisher: StockAnalysis
+url: https://stockanalysis.com/quote/hkg/6088/
+published_at: "2026-05-29"
+accessed_at: "2026-06-03T00:00:00Z"
+public_status: public
+source_perspective: aggregator
+content_mode: external_link
+provenance: Migrated from frozen stock-research tag finance-osint-seed-20260603 source src_stockanalysis_fit_20260529.

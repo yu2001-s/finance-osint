@@ -1,0 +1,22 @@
+schema_version: 1
+kind: claim
+id: claim:fit-hon-teng:valuation-rerated-20260529
+statement: StockAnalysis showed FIT Hon Teng at HKD8.90 on May 29, 2026 with about HKD63.29B market cap, HKD38.94B TTM revenue, 51.98x P/E, and +340.59% one-year price change, indicating the AI interconnect story was already materially recognized before a narrow CPO/ELSFP revenue bridge was disclosed.
+subject: entity:company:fit-hon-teng
+predicate: market_signal
+object: valuation_snapshot
+qualifiers:
+  market_cap_metric: metric:fit-hon-teng:market-cap-20260529
+  ttm_revenue_metric: metric:fit-hon-teng:ttm-revenue-20260529
+  share_price_hkd: 8.90
+  price_to_earnings_ratio: 51.98
+  one_year_price_change_percent: 340.59
+support_type: observed
+evidence:
+  - id: evidence:public:market-data:fit-valuation-20260529
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - market_data_snapshot
+  - valuation_rerated
+  - cpo_revenue_bridge_unproven

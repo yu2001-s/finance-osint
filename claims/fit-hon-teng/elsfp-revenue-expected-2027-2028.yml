@@ -1,0 +1,22 @@
+schema_version: 1
+kind: claim
+id: claim:fit-hon-teng:elsfp-revenue-expected-2027-2028
+statement: FIT management said the 102.4T ELSFP solution was in deep co-design and validation with key ecosystem partners, was expected to begin initial revenue contribution in 2027, and was expected to ramp significantly in 2028 as CPO architectures become standard for 1.6T and 3.2T applications.
+subject: entity:company:fit-hon-teng
+predicate: forecast_statement
+object: elsfp_initial_revenue_expected_2027
+qualifiers:
+  expected_revenue_event: event:fit-hon-teng:elsfp-initial-revenue-expected-2027
+  initial_revenue_year: 2027
+  ramp_year: 2028
+  architecture_context: external_laser_source_and_co_packaged_optics
+support_type: direct
+evidence:
+  - id: evidence:public:fit-hon-teng:q1-2026-elsfp-revenue-timing
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - company_originated
+  - transcript_secondary_host
+  - forward_looking_timing
+  - future_revenue_not_current_bridge

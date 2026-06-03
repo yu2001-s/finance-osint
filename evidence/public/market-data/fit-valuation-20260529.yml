@@ -1,0 +1,17 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:market-data:fit-valuation-20260529
+evidence_class: public_secondary
+source: source:public:market-data:fit-valuation-20260529
+summary: StockAnalysis showed FIT Hon Teng at HKD8.90 on May 29, 2026, with about HKD63.29B market cap, HKD38.94B TTM revenue, 51.98x P/E, and +340.59% one-year price change.
+content_mode: excerpt
+excerpt: StockAnalysis showed FIT Hon Teng at HKD 8.90, about HKD 63.29B market cap, HKD 38.94B TTM revenue, 51.98x P/E, and +340.59% one-year price change on May 29, 2026.
+locator:
+  section: StockAnalysis 6088.HK overview page
+observed_at: "2026-05-29T00:00:00Z"
+submitted_by: github:codex
+source_attribution: named_public
+verification_status: verified_from_frozen_stock_research_source_page
+risk_flags:
+  - market_data_snapshot
+  - valuation_rerated

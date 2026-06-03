@@ -1,0 +1,10 @@
+schema_version: 1
+kind: entity
+id: entity:company:ntt-innovative-devices
+entity_type: company
+name: NTT Innovative Devices
+aliases:
+  - NTT Innovative Devices Corporation
+description: NTT optical-device and photonics company named by FIT as a technical validation counterparty for FIT's 102.4T ELSFP external-laser platform.
+state: active
+created_at: "2026-06-03T00:00:00Z"
