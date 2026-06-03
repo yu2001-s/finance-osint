@@ -4,6 +4,9 @@ Finance OSINT is a local-first, git-native evidence graph for retail investors.
 
 The repo is the canonical database. Contributors pull it, add structured data locally, validate it, and submit changes by pull request. There is no server, hosted database, private moderation layer, or hidden agent state.
 
+Licensed under the Apache License, Version 2.0. The repo is not public or tagged
+yet; publication is intentionally deferred.
+
 ## Core Layers
 
 ```text
@@ -202,3 +205,7 @@ write-thesis
 
 These skills teach agents how to use deterministic `fo` commands. They are not
 canonical data and do not create hidden agent state.
+
+## License
+
+Finance OSINT is licensed under the Apache License, Version 2.0. See `LICENSE`.
