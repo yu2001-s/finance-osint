@@ -80,13 +80,21 @@ Acceptance criteria:
 Rationale: SEC fields exist, but non-US source records need normalized filing
 metadata for global review.
 
+Status: first global filing-metadata slice addressed locally. Source records now
+support `exchange_filing` plus normalized jurisdiction, filing authority,
+filing regime, issuer reference/code, local form/report type, report period,
+filing date, source language, and preservation locator fields. HKEX, MOPS, and
+European issuer examples are present in existing source chains. Duplicate-source
+warnings now cover normalized filing identity; exchange filings participate in
+preservation warnings.
+
 Acceptance criteria:
 
-- Define fields for jurisdiction, regulator/exchange, filing regime, local form
+- [x] Define fields for jurisdiction, regulator/exchange, filing regime, local form
   or report type, issuer code, report period, filing date, source language, and
   preservation path.
-- Add examples for HKEX, TWSE/TPEX MOPS, and a European issuer.
-- Update source templates or docs.
+- [x] Add examples for HKEX, TWSE/TPEX MOPS, and a European issuer.
+- [x] Update source templates or docs.
 
 ### Define Translation And OCR Provenance
 

@@ -185,6 +185,7 @@ MUTABLE_WEB_SOURCE_TYPES = {
     "research_report",
     "product_page",
     "market_data_page",
+    "exchange_filing",
 }
 INDEPENDENT_SOURCE_PERSPECTIVES = {
     "independent_media",
@@ -1343,6 +1344,45 @@ def add_source_duplicate_signatures(
         for value in values:
             if value:
                 add_duplicate_signature(groups, record, code, message, (field, value))
+
+    filing_jurisdictions = duplicate_scalar_values(record.data.get("filing_jurisdiction"))
+    filing_authorities = duplicate_scalar_values(record.data.get("filing_authority"))
+    filing_regimes = duplicate_scalar_values(record.data.get("filing_regime"))
+    issuer_codes = sorted(
+        set(duplicate_scalar_values(record.data.get("issuer_code")))
+        | set(duplicate_scalar_values(record.data.get("filing_issuer")))
+    )
+    form_types = sorted(
+        set(duplicate_scalar_values(record.data.get("local_form_type")))
+        | set(duplicate_scalar_values(record.data.get("form_type")))
+    )
+    report_periods = sorted(
+        set(duplicate_scalar_values(record.data.get("report_period")))
+        | set(duplicate_scalar_values(record.data.get("period_of_report")))
+    )
+    filing_dates = duplicate_scalar_values(record.data.get("filing_date"))
+    for jurisdiction in filing_jurisdictions:
+        for authority in filing_authorities:
+            for regime in filing_regimes:
+                for issuer_code in issuer_codes:
+                    for form_type in form_types:
+                        for report_period in report_periods:
+                            for filing_date in filing_dates:
+                                add_duplicate_signature(
+                                    groups,
+                                    record,
+                                    "possible_duplicate_source_filing_identity",
+                                    "Possible duplicate source: same filing jurisdiction, authority, regime, issuer, form/report type, report period, and filing date.",
+                                    (
+                                        jurisdiction,
+                                        authority,
+                                        regime,
+                                        issuer_code,
+                                        form_type,
+                                        report_period,
+                                        filing_date,
+                                    ),
+                                )
 
 
 def add_evidence_duplicate_signatures(
@@ -4205,6 +4245,22 @@ def run_new_source(root: Path, args: argparse.Namespace) -> int:
         value = getattr(args, field)
         if value:
             data[field] = value
+    for field in (
+        "filing_jurisdiction",
+        "filing_authority",
+        "filing_regime",
+        "filing_issuer",
+        "local_form_type",
+        "issuer_code",
+        "issuer_code_scheme",
+        "report_period",
+        "filing_date",
+        "source_language",
+        "preservation_path",
+    ):
+        value = getattr(args, field, None)
+        if value:
+            data[field] = value
     source_artifacts = sorted(set(getattr(args, "source_artifact", []) or []))
     if source_artifacts:
         data["source_artifacts"] = source_artifacts
@@ -5206,6 +5262,17 @@ def build_parser() -> argparse.ArgumentParser:
     source_parser.add_argument("--archive-url")
     source_parser.add_argument("--published-at")
     source_parser.add_argument("--provenance")
+    source_parser.add_argument("--filing-jurisdiction")
+    source_parser.add_argument("--filing-authority")
+    source_parser.add_argument("--filing-regime")
+    source_parser.add_argument("--filing-issuer")
+    source_parser.add_argument("--local-form-type")
+    source_parser.add_argument("--issuer-code")
+    source_parser.add_argument("--issuer-code-scheme")
+    source_parser.add_argument("--report-period")
+    source_parser.add_argument("--filing-date")
+    source_parser.add_argument("--source-language")
+    source_parser.add_argument("--preservation-path")
     source_parser.add_argument(
         "--source-artifact",
         action="append",

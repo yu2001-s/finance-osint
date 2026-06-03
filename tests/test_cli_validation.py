@@ -510,6 +510,46 @@ class CliValidationTests(unittest.TestCase):
             ["unknown_source_perspective"],
         )
 
+    def test_lint_warns_for_duplicate_global_filing_identity(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            source = load_yaml(
+                repo
+                / "records"
+                / "sources"
+                / "public"
+                / "foci"
+                / "q1-2026-financial-report.yml"
+            )
+            source["id"] = "source:public:foci:q1-2026-financial-report-alt"
+            source["title"] = "Duplicate FOCI MOPS financial report for Q1 2026"
+            source["url"] = "https://example.test/duplicate-foci-filing"
+            write_yaml(
+                repo
+                / "records"
+                / "sources"
+                / "public"
+                / "foci"
+                / "q1-2026-financial-report-alt.yml",
+                source,
+            )
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        warning_codes = {warning["code"] for warning in payload["warnings"]}
+        self.assertIn("possible_duplicate_source_filing_identity", warning_codes)
+        warning = next(
+            warning
+            for warning in payload["warnings"]
+            if warning["code"] == "possible_duplicate_source_filing_identity"
+        )
+        self.assertEqual(warning["record_id"], "source:public:foci:q1-2026-financial-report")
+        self.assertEqual(
+            warning["related_ids"],
+            ["source:public:foci:q1-2026-financial-report-alt"],
+        )
+
     def test_submitted_by_shape_is_validated_when_present_on_foundational_records(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
@@ -590,6 +630,71 @@ class CliValidationTests(unittest.TestCase):
             [warning["code"] for warning in payload["warnings"]],
             ["mutable_source_without_preservation"],
         )
+
+    def test_lint_warns_for_exchange_filing_without_durable_preservation(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            write_yaml(
+                repo / "records" / "sources" / "public" / "unpreserved-exchange-filing.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "source",
+                    "id": "source:test:unpreserved-exchange-filing",
+                    "source_type": "exchange_filing",
+                    "title": "Unpreserved exchange filing",
+                    "url": "https://example.test/unpreserved-filing.pdf",
+                    "public_status": "public",
+                    "source_perspective": "company_self",
+                    "accessed_at": "2026-06-03T00:00:00Z",
+                    "content_mode": "external_link",
+                    "filing_jurisdiction": "HK",
+                    "filing_authority": "HKEXnews",
+                    "filing_regime": "hkex_listed_company_announcement",
+                    "local_form_type": "quarterly_financial_information",
+                    "issuer_code": "9999",
+                    "report_period": "2026-Q1",
+                    "filing_date": "2026-05-11",
+                    "source_language": "en",
+                    "preservation_path": "external:hkexnews/unpreserved-filing.pdf",
+                },
+            )
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        self.assertEqual(
+            [warning["code"] for warning in payload["warnings"]],
+            ["mutable_source_without_preservation"],
+        )
+
+    def test_lint_rejects_partial_filing_date(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            source = load_yaml(
+                repo
+                / "records"
+                / "sources"
+                / "public"
+                / "foci"
+                / "q1-2026-financial-report.yml"
+            )
+            source["filing_date"] = "2026-05"
+            write_yaml(
+                repo
+                / "records"
+                / "sources"
+                / "public"
+                / "foci"
+                / "bad-filing-date.yml",
+                source,
+            )
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 1, payload)
+        messages = "\n".join(error["message"] for error in payload["errors"])
+        self.assertIn("filing_date", messages)
+        self.assertIn("does not match", messages)
 
     def test_lint_accepts_referenced_source_artifact_for_mutable_source(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -1679,6 +1784,49 @@ class CliValidationTests(unittest.TestCase):
         self.assertTrue(source["dry_run"])
         self.assertFalse(created_path_exists)
         self.assertEqual(source["record"]["title"], "Dry Run Helper Source")
+
+    def test_new_source_helper_records_global_filing_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+
+            status, source = run_new_json(
+                cli.run_new_source,
+                repo,
+                source_type="exchange_filing",
+                title="Helper HKEX Filing",
+                public_status="public",
+                source_perspective="company_self",
+                accessed_at="2026-06-03T00:00:00Z",
+                content_mode="external_link",
+                submitted_by="github:tester",
+                publisher="HKEXnews / Helper Issuer",
+                url="https://example.test/helper-hkex-filing.pdf",
+                archive_url="https://web.archive.org/example-helper-hkex-filing",
+                published_at="2026-05-11",
+                provenance="Synthetic global filing helper test.",
+                filing_jurisdiction="HK",
+                filing_authority="HKEXnews",
+                filing_regime="hkex_listed_company_announcement",
+                filing_issuer="entity:company:exdev",
+                local_form_type="quarterly_financial_information",
+                issuer_code="9999",
+                issuer_code_scheme="hkex_stock_code",
+                report_period="2026-Q1",
+                filing_date="2026-05-11",
+                source_language="en",
+                preservation_path="external:hkexnews/helper-hkex-filing.pdf",
+            )
+            self.assertEqual(status, 0, source)
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        self.assertEqual(payload["warnings"], [])
+        self.assertEqual(source["record"]["source_type"], "exchange_filing")
+        self.assertEqual(source["record"]["filing_authority"], "HKEXnews")
+        self.assertEqual(source["record"]["filing_issuer"], "entity:company:exdev")
+        self.assertEqual(source["record"]["issuer_code_scheme"], "hkex_stock_code")
+        self.assertEqual(source["record"]["report_period"], "2026-Q1")
 
     def test_new_metric_helper_validates_metric_definition_rules(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -1,7 +1,7 @@
 schema_version: 1
 kind: source
 id: source:public:provider:slug
-source_type: sec_filing
+source_type: exchange_filing
 title: Source title
 publisher: Publisher
 url: https://example.com/source
@@ -14,3 +14,18 @@ content_mode: external_link
 provenance: How this source was obtained.
 submitted_by: github:username
 risk_flags: []
+# Optional filing metadata. Omit for non-filing sources.
+filing_jurisdiction: HK
+filing_authority: HKEXnews
+filing_regime: hkex_listed_company_announcement
+filing_issuer: entity:company:slug
+local_form_type: quarterly_financial_information
+issuer_code: "0000"
+issuer_code_scheme: hkex_stock_code
+report_period:
+  fiscal_year: YYYY
+  fiscal_quarter: Q1
+  period_end: "YYYY-MM-DD"
+filing_date: "YYYY-MM-DD"
+source_language: en
+preservation_path: external:provider/slug.pdf

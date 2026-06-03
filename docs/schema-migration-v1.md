@@ -170,10 +170,15 @@ Target changes:
 - add `schema_version: 1`
 - require `source_type`, `title`, `public_status`, `accessed_at`, and
   `content_mode`
-- use `source_type: sec_filing` for SEC filings
-- add SEC fields when applicable:
-  `accession_number`, `form_type`, `filing_date`, `accepted_at`,
-  `period_of_report`, `amends`, `url`, `archive_url`, `content_hash`
+- use `source_type: sec_filing` for SEC filings and `source_type:
+  exchange_filing` for non-US exchange, regulator, or official-disclosure
+  filings
+- add filing fields when applicable:
+  `filing_jurisdiction`, `filing_authority`, `filing_regime`,
+  `filing_issuer`, `accession_number`, `form_type`, `local_form_type`,
+  `issuer_code`, `issuer_code_scheme`, `report_period`, `filing_date`,
+  `accepted_at`, `period_of_report`, `amends`, `source_language`, `url`,
+  `archive_url`, `preservation_path`, `source_artifacts`, `content_hash`
 - store metadata, URLs, hashes, excerpts, and summaries rather than large raw
   files
 

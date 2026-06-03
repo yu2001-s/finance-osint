@@ -1,7 +1,7 @@
 schema_version: 1
 kind: source
 id: source:public:fit-hon-teng:q1-2026-financial-update
-source_type: company_report
+source_type: exchange_filing
 title: FIT Hon Teng certain financial information for Q1 2026
 publisher: FIT Hon Teng / HKEX
 url: https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0511/2026051100402.pdf
@@ -10,4 +10,18 @@ accessed_at: "2026-06-03T00:00:00Z"
 public_status: public
 source_perspective: company_self
 content_mode: external_link
+filing_jurisdiction: HK
+filing_authority: HKEXnews
+filing_regime: hkex_listed_company_announcement
+filing_issuer: entity:company:fit-hon-teng
+local_form_type: quarterly_financial_information
+issuer_code: "6088"
+issuer_code_scheme: hkex_stock_code
+report_period:
+  fiscal_year: 2026
+  fiscal_quarter: Q1
+  period_end: "2026-03-31"
+filing_date: "2026-05-11"
+source_language: en
+preservation_path: external:hkexnews/listedco/listconews/sehk/2026/0511/2026051100402.pdf
 provenance: Migrated from frozen stock-research tag finance-osint-seed-20260603 source src_fit_q1_2026_financial_update_hkex.
