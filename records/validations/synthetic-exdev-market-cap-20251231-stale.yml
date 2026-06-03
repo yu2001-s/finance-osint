@@ -1,0 +1,18 @@
+schema_version: 1
+kind: validation
+id: validation:synthetic:exdev-market-cap-20251231-stale
+target: metric:synthetic-exdev:market-cap-stale-20251231
+submitted_by: github:scaffold
+verdict: marks_stale
+summary: The December 31, 2025 synthetic market-cap snapshot is stale for current review because a June 3, 2026 refreshed synthetic market-data snapshot supersedes it.
+depends_on:
+  evidence:
+    - evidence:synthetic:exdev-market-data-20251231
+    - evidence:synthetic:exdev-market-data-20260603
+  metrics:
+    - metric:synthetic-exdev:market-cap-stale-20251231
+    - metric:synthetic-exdev:market-cap-refreshed-20260603
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - synthetic_fixture
+  - staleness_risk

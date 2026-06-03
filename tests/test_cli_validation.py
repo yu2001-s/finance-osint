@@ -1922,6 +1922,94 @@ class CliValidationTests(unittest.TestCase):
         self.assertEqual(review["staleness_summary"]["stale_challenge_ids"], [])
         self.assertEqual(review["staleness_summary"]["stale_risk_flags"], [])
 
+    def test_lint_warns_for_freshness_sensitive_metric_missing_policy(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            metric_path = repo / "records" / "metrics" / "xfab" / "market-cap-20260529.yml"
+            metric = load_yaml(metric_path)
+            metric.pop("freshness", None)
+            write_yaml(metric_path, metric)
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        warning = next(
+            warning
+            for warning in payload["warnings"]
+            if warning["code"] == "freshness_sensitive_record_missing_policy"
+        )
+        self.assertEqual(warning["record_id"], "metric:xfab:market-cap-20260529")
+
+    def test_diff_review_warns_for_changed_freshness_sensitive_metric_missing_policy(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            init_git_repo(repo)
+            metric_path = repo / "records" / "metrics" / "xfab" / "market-cap-20260529.yml"
+            metric = load_yaml(metric_path)
+            metric.pop("freshness", None)
+            write_yaml(metric_path, metric)
+
+            status, payload = run_json_command(cli.run_diff_review, repo, "HEAD")
+
+        self.assertEqual(status, 0, payload)
+        warning = next(
+            warning
+            for warning in payload["warnings"]
+            if warning["code"] == "freshness_sensitive_record_missing_policy"
+        )
+        self.assertEqual(warning["record_id"], "metric:xfab:market-cap-20260529")
+
+    def test_lint_warns_for_elapsed_freshness_window_without_stale_review(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            metric_path = repo / "records" / "metrics" / "xfab" / "market-cap-20260529.yml"
+            metric = load_yaml(metric_path)
+            metric["freshness"]["review_after"] = "2026-01-01"
+            write_yaml(metric_path, metric)
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        warning = next(
+            warning
+            for warning in payload["warnings"]
+            if warning["code"] == "freshness_review_window_elapsed"
+        )
+        self.assertEqual(warning["record_id"], "metric:xfab:market-cap-20260529")
+
+    def test_review_distinguishes_stale_and_refreshed_market_data_snapshots(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            status, build_payload = run_json_command(cli.run_index_build, repo)
+            self.assertEqual(status, 0, build_payload)
+
+            status, stale_review = run_json_command(
+                cli.run_review,
+                repo,
+                "metric:synthetic-exdev:market-cap-stale-20251231",
+            )
+            self.assertEqual(status, 0, stale_review)
+
+            status, refreshed_review = run_json_command(
+                cli.run_review,
+                repo,
+                "metric:synthetic-exdev:market-cap-refreshed-20260603",
+            )
+
+        self.assertEqual(status, 0, refreshed_review)
+        self.assertEqual(stale_review["review_state"]["primary_label"], "stale")
+        self.assertIn("has_staleness_risk", stale_review["review_state"]["flags"])
+        self.assertEqual(
+            stale_review["staleness_summary"]["stale_validation_ids"],
+            ["validation:synthetic:exdev-market-cap-20251231-stale"],
+        )
+        self.assertEqual(
+            stale_review["staleness_summary"]["time_window_policy"],
+            "automatic_windows_warning_only",
+        )
+        self.assertEqual(refreshed_review["review_state"]["primary_label"], "supported")
+        self.assertNotIn("has_staleness_risk", refreshed_review["review_state"]["flags"])
+
     def test_review_derives_low_trust_only_for_rumor_supported_claim(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))

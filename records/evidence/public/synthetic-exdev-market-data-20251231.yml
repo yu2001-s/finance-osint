@@ -1,0 +1,28 @@
+schema_version: 1
+kind: evidence
+id: evidence:synthetic:exdev-market-data-20251231
+evidence_class: public_secondary
+source: source:public:synthetic:exdev-market-data-20251231
+summary: Synthetic market-data snapshot showed Example Devices at USD 150.0 million market capitalization on December 31, 2025.
+content_mode: small_fixture
+excerpt: "Synthetic market-data snapshot: Example Devices market capitalization was USD 150.0 million as of December 31, 2025."
+locator:
+  section: Synthetic stale market-data snapshot
+observed_at: "2025-12-31T00:00:00Z"
+freshness:
+  freshness_class: valuation_snapshot
+  as_of: "2025-12-31"
+  review_after: "2026-01-30"
+  automatic_window_days: 30
+  policy: warning_only
+submitted_by: github:scaffold
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: synthetic_market_data_snapshot
+limitations: Synthetic stale fixture only; not real market data.
+risk_flags:
+  - synthetic_fixture
+  - market_data_snapshot

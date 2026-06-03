@@ -8,6 +8,12 @@ summary: StockAnalysis showed Chroma ATE at about TWD 1.07T market cap, TWD 33.3
   stock-price change as of May 29, 2026.
 content_mode: excerpt
 observed_at: '2026-05-29T00:00:00Z'
+freshness:
+  freshness_class: valuation_snapshot
+  as_of: "2026-05-29"
+  review_after: "2026-06-28"
+  automatic_window_days: 30
+  policy: warning_only
 submitted_by: github:codex
 source_attribution: named_public
 excerpt: StockAnalysis showed Chroma ATE at about TWD 1.07T market cap, TWD 33.31B

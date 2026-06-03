@@ -1,0 +1,28 @@
+schema_version: 1
+kind: evidence
+id: evidence:synthetic:exdev-market-data-20260603
+evidence_class: public_secondary
+source: source:public:synthetic:exdev-market-data-20260603
+summary: Synthetic refreshed market-data snapshot showed Example Devices at USD 190.0 million market capitalization on June 3, 2026.
+content_mode: small_fixture
+excerpt: "Synthetic refreshed market-data snapshot: Example Devices market capitalization was USD 190.0 million as of June 3, 2026."
+locator:
+  section: Synthetic refreshed market-data snapshot
+observed_at: "2026-06-03T00:00:00Z"
+freshness:
+  freshness_class: valuation_snapshot
+  as_of: "2026-06-03"
+  review_after: "2026-07-03"
+  automatic_window_days: 30
+  policy: warning_only
+submitted_by: github:scaffold
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: synthetic_market_data_snapshot
+limitations: Synthetic refreshed fixture only; not real market data.
+risk_flags:
+  - synthetic_fixture
+  - market_data_snapshot

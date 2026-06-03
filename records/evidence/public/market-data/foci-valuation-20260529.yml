@@ -8,6 +8,12 @@ summary: StockAnalysis showed FOCI at TWD82.60B market cap, TWD1.86B TTM revenue
   free cash flow as of May 29, 2026.
 content_mode: excerpt
 observed_at: '2026-05-29T00:00:00Z'
+freshness:
+  freshness_class: valuation_snapshot
+  as_of: "2026-05-29"
+  review_after: "2026-06-28"
+  automatic_window_days: 30
+  policy: warning_only
 submitted_by: github:codex
 source_attribution: named_public
 excerpt: StockAnalysis showed FOCI at TWD82.60B market cap, TWD1.86B TTM revenue,

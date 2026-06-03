@@ -249,9 +249,27 @@ fo graph neighbors ID --json
 `fo review` reports deterministic review state without writing truth back into
 canonical records. The JSON includes `review_state` plus summaries for support
 evidence, source independence, validation dependency paths, challenges,
-contradictions, supersession, staleness, and scope limitations. Staleness is v1
-explicit-signal only: a `marks_stale` validation, open `outdated` challenge, or
-matching risk flag on current support/review pressure.
+contradictions, supersession, staleness, and scope limitations. Automatic
+freshness windows are v1 warning-only; stale review state still requires a
+`marks_stale` validation, open `outdated` challenge, or matching risk flag on
+current support/review pressure.
+
+Freshness-sensitive records include market-data-page and news-article evidence,
+observed market-cap metrics, observed valuation-ratio metrics, and market-data
+TTM metrics flagged as snapshots. These records should include:
+
+```yaml
+freshness:
+  freshness_class: valuation_snapshot
+  as_of: "2026-05-29"
+  review_after: "2026-06-28"
+  automatic_window_days: 30
+  policy: warning_only
+```
+
+Use `marks_stale` validations or open `outdated` challenges when a dated market
+observation should actually move a record to stale. Use refreshed market-data
+metrics to preserve newer observations instead of mutating old snapshots.
 
 `fo review RECORD --chain --json` keeps the same review surface and adds
 `chain_summary`. This is the deterministic source-to-claim review layer for
