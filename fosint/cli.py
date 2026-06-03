@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import difflib
 import json
 import re
 import sqlite3
@@ -2125,7 +2126,12 @@ def print_json(payload: dict[str, Any]) -> None:
     print(json.dumps(payload, indent=2, sort_keys=True, default=str))
 
 
-def command_error(code: str, message: str, hint: str | None = None) -> dict[str, Any]:
+def command_error(
+    code: str,
+    message: str,
+    hint: str | None = None,
+    related_ids: list[str] | None = None,
+) -> dict[str, Any]:
     return {
         "code": code,
         "path": "",
@@ -2133,8 +2139,65 @@ def command_error(code: str, message: str, hint: str | None = None) -> dict[str,
         "message": message,
         "hint": hint,
         "record_id": None,
-        "related_ids": [],
+        "related_ids": related_ids or [],
     }
+
+
+def suggested_record_ids(record_id: str, candidate_ids: list[str], limit: int = 5) -> list[str]:
+    candidates = sorted({candidate for candidate in candidate_ids if candidate != record_id})
+    if not candidates:
+        return []
+
+    same_kind_candidates = candidates
+    if ":" in record_id:
+        kind_prefix = record_id.split(":", 1)[0] + ":"
+        same_kind = [candidate for candidate in candidates if candidate.startswith(kind_prefix)]
+        if same_kind:
+            same_kind_candidates = same_kind
+
+    matches = difflib.get_close_matches(record_id, same_kind_candidates, n=limit, cutoff=0.55)
+    if len(matches) < limit and same_kind_candidates is not candidates:
+        for match in difflib.get_close_matches(record_id, candidates, n=limit, cutoff=0.55):
+            if match not in matches:
+                matches.append(match)
+            if len(matches) >= limit:
+                break
+    return matches
+
+
+def indexed_record_ids(conn: sqlite3.Connection, include_archive: bool = False) -> list[str]:
+    archive_clause = "" if include_archive else "where archived = 0"
+    rows = conn.execute(f"select id from records {archive_clause} order by id").fetchall()
+    return [str(row["id"]) for row in rows]
+
+
+def record_not_found_error(
+    record_id: str,
+    suggestions: list[str] | None = None,
+    include_archive: bool = False,
+    archived_exact: bool = False,
+) -> dict[str, Any]:
+    if archived_exact:
+        return command_error(
+            "record_not_found",
+            f"record `{record_id}` is archived and hidden from the current view",
+            "Rerun with `--include-archive` to view archived records.",
+            [record_id],
+        )
+
+    suggested_ids = suggestions or []
+    if suggested_ids:
+        hint = "Did you mean: " + ", ".join(suggested_ids)
+    else:
+        query = record_id.rsplit(":", 1)[-1]
+        archive_arg = " --include-archive" if include_archive else ""
+        hint = f"Run `fo search \"{query}\"{archive_arg} --json` to find matching record IDs."
+    return command_error(
+        "record_not_found",
+        f"record `{record_id}` was not found",
+        hint,
+        suggested_ids,
+    )
 
 
 def fts_query(query: str) -> str:
@@ -4574,10 +4637,19 @@ def run_context(
     json_output: bool = False,
     include_archive: bool = False,
 ) -> int:
+    suggestions: list[str] = []
+    archived_exact = False
     try:
         with connect_index(root) as conn:
             record = indexed_record(conn, record_id)
-            if record is None or (record["archived"] and not include_archive):
+            if record is not None and record["archived"] and not include_archive:
+                archived_exact = True
+                raise KeyError(record_id)
+            if record is None:
+                suggestions = suggested_record_ids(
+                    record_id,
+                    indexed_record_ids(conn, include_archive=include_archive),
+                )
                 raise KeyError(record_id)
             outgoing = outgoing_refs(conn, record_id)
             incoming = incoming_refs(conn, record_id)
@@ -4594,11 +4666,18 @@ def run_context(
             print(f"ERROR {error['message']}", file=sys.stderr)
         return 1
     except KeyError:
-        error = command_error("record_not_found", f"record `{record_id}` was not found")
+        error = record_not_found_error(
+            record_id,
+            suggestions,
+            include_archive=include_archive,
+            archived_exact=archived_exact,
+        )
         if json_output:
             print_json(result_envelope("context", root, ok=False, errors=[error], id=record_id))
         else:
             print(f"ERROR {error['message']}", file=sys.stderr)
+            if error["hint"]:
+                print(f"HINT {error['hint']}", file=sys.stderr)
         return 1
 
     if json_output:
@@ -4639,10 +4718,19 @@ def run_review(
     include_archive: bool = False,
     chain: bool = False,
 ) -> int:
+    suggestions: list[str] = []
+    archived_exact = False
     try:
         with connect_index(root) as conn:
             record = indexed_record(conn, record_id)
-            if record is None or (record["archived"] and not include_archive):
+            if record is not None and record["archived"] and not include_archive:
+                archived_exact = True
+                raise KeyError(record_id)
+            if record is None:
+                suggestions = suggested_record_ids(
+                    record_id,
+                    indexed_record_ids(conn, include_archive=include_archive),
+                )
                 raise KeyError(record_id)
             id_map = load_index_record_map(conn)
             target = id_map[record_id]
@@ -4669,11 +4757,18 @@ def run_review(
             print(f"ERROR {error['message']}", file=sys.stderr)
         return 1
     except KeyError:
-        error = command_error("record_not_found", f"record `{record_id}` was not found")
+        error = record_not_found_error(
+            record_id,
+            suggestions,
+            include_archive=include_archive,
+            archived_exact=archived_exact,
+        )
         if json_output:
             print_json(result_envelope("review", root, ok=False, errors=[error], id=record_id))
         else:
             print(f"ERROR {error['message']}", file=sys.stderr)
+            if error["hint"]:
+                print(f"HINT {error['hint']}", file=sys.stderr)
         return 1
 
     if json_output:
@@ -4785,11 +4880,25 @@ def run_graph_neighbors(
 
     id_map = {record.id: record for record in records if record.id}
     if record_id not in id_map:
-        error = command_error("record_not_found", f"record `{record_id}` was not found")
+        archived_exact = False
+        candidate_ids = sorted(id_map)
+        if not include_archive:
+            all_records, all_errors = load_records(root, include_archive=True)
+            if not all_errors:
+                all_ids = sorted({record.id for record in all_records if record.id})
+                archived_exact = record_id in all_ids
+        error = record_not_found_error(
+            record_id,
+            suggested_record_ids(record_id, candidate_ids),
+            include_archive=include_archive,
+            archived_exact=archived_exact,
+        )
         if json_output:
             print_json(result_envelope("graph neighbors", root, ok=False, errors=[error], id=record_id))
         else:
             print(f"ERROR {error['message']}", file=sys.stderr)
+            if error["hint"]:
+                print(f"HINT {error['hint']}", file=sys.stderr)
         return 1
 
     graph = build_graph_data(root, records)

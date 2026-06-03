@@ -653,6 +653,10 @@ Error shape:
 ```
 
 Human output can remain concise, but JSON output is the contract agents should use.
+For `record_not_found` command errors, `related_ids` carries deterministic
+close-match suggestions when available, and `hint` names those candidates or
+points users to `fo search`. If the exact ID exists only in archive, the hint
+points users to `--include-archive`.
 
 ## SQLite V1 Schema
 

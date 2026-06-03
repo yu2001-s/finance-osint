@@ -915,6 +915,80 @@ class CliValidationTests(unittest.TestCase):
             {neighbor["id"] for neighbor in neighbors["neighbors"]},
         )
 
+    def test_context_review_and_neighbors_suggest_close_record_ids(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            status, build_payload = run_json_command(cli.run_index_build, repo)
+            self.assertEqual(status, 0, build_payload)
+
+            typo = "claim:synthetic:exdev-uses-fndwy-for-xl"
+            status, context = run_json_command(cli.run_context, repo, typo)
+            self.assertEqual(status, 1, context)
+            status, review = run_json_command(cli.run_review, repo, typo)
+            self.assertEqual(status, 1, review)
+            status, neighbors = run_json_command(cli.run_graph_neighbors, repo, typo)
+
+        self.assertEqual(status, 1, neighbors)
+        expected = "claim:synthetic:exdev-uses-fndwy-for-x1"
+        for payload in (context, review, neighbors):
+            error = payload["errors"][0]
+            self.assertEqual(error["code"], "record_not_found")
+            self.assertIn(expected, error["related_ids"])
+            self.assertIn("Did you mean:", error["hint"])
+
+    def test_context_review_and_neighbors_hint_for_archived_exact_id(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            archived_id = "claim:test:archived-hint"
+            write_yaml(
+                repo / "archive" / "records" / "claims" / "archived-hint.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "claim",
+                    "id": archived_id,
+                    "statement": "Archived hint fixture.",
+                    "subject": "entity:company:exdev",
+                    "predicate": "disclosed_relationship",
+                    "object": "entity:company:fndwy",
+                    "support_type": "direct",
+                    "evidence": [{"id": "evidence:synthetic:exdev-fy2025-supplier-note"}],
+                    "submitted_by": "github:tester",
+                    "archive_reason": "Synthetic archive hint fixture.",
+                },
+            )
+
+            status, build_payload = run_json_command(cli.run_index_build, repo)
+            self.assertEqual(status, 0, build_payload)
+            status, context = run_json_command(cli.run_context, repo, archived_id)
+            self.assertEqual(status, 1, context)
+            status, review = run_json_command(cli.run_review, repo, archived_id)
+            self.assertEqual(status, 1, review)
+            status, neighbors = run_json_command(cli.run_graph_neighbors, repo, archived_id)
+            self.assertEqual(status, 1, neighbors)
+            status, archived_context = run_json_command(
+                cli.run_context,
+                repo,
+                archived_id,
+                include_archive=True,
+            )
+            self.assertEqual(status, 0, archived_context)
+            status, archived_typo_neighbors = run_json_command(
+                cli.run_graph_neighbors,
+                repo,
+                "claim:test:archived-hint-typo",
+            )
+
+        self.assertEqual(status, 1, archived_typo_neighbors)
+        self.assertNotIn(archived_id, archived_typo_neighbors["errors"][0]["related_ids"])
+        for payload in (context, review, neighbors):
+            error = payload["errors"][0]
+            self.assertEqual(error["code"], "record_not_found")
+            self.assertEqual(error["related_ids"], [archived_id])
+            self.assertIn("--include-archive", error["hint"])
+
+        fallback = cli.record_not_found_error("claim:test:no-match", include_archive=True)
+        self.assertIn('fo search "no-match" --include-archive --json', fallback["hint"])
+
     def test_qualified_supplier_fixture_surfaces_strong_relationship_review(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
