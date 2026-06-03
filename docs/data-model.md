@@ -47,6 +47,10 @@ Evidence
 Metric
   A structured numeric value with provenance.
 
+  Metrics reference registered `metric_definition` records. Lint enforces the
+  definition's allowed units, allowed value basis, and required `period` or
+  `as_of` context, with other required context represented in `dimensions`.
+
 Event
   A time-bound occurrence or expected occurrence.
 

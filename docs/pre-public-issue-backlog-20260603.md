@@ -96,13 +96,20 @@ Acceptance criteria:
 
 Rationale: Metric records need stronger comparability for global research.
 
+Status: first registry-enforcement slice addressed locally. `fo lint` now checks
+metrics against registered metric definitions for allowed unit, allowed value
+basis, and required `period`/`as_of` context. Broader global accounting fields
+remain open.
+
 Acceptance criteria:
 
-- Decide required fields for reporting currency, trading currency, fiscal
+- [ ] Decide required fields for reporting currency, trading currency, fiscal
   period, fiscal year-end, accounting standard, consolidation scope, value
   basis, and FX methodology.
-- Enforce metric units and basis against metric definitions.
-- Add examples for reported, observed, derived, estimated, and restated metrics.
+- [x] Enforce metric units and basis against metric definitions.
+- [x] Enforce metric-definition required context for current `period` and
+  `as_of` patterns.
+- [ ] Add examples for reported, observed, derived, estimated, and restated metrics.
 
 ## P2: Supply-Chain Depth
 

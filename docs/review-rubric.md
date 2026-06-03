@@ -28,7 +28,8 @@ Review:
 
 - Relationship roles, scope, materiality, qualifiers, and evidence support.
 - Claim predicate constraints and support-type compatibility.
-- Metric definitions, units, value basis, required dimensions, and period shape.
+- Metric definitions, lint-enforced units, value basis, required dimensions,
+  and period/as-of context.
 - Whether broad types such as `supports_architecture`, `product_signal`, and
   `market_signal` are becoming catch-alls.
 - Whether provisional ontology has a definition, concrete example, overlap
@@ -121,4 +122,3 @@ Review:
   tooling.
 - Whether PR summaries expose the important graph and review facts without
   forcing reviewers to parse large JSON by hand.
-

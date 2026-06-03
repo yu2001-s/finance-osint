@@ -518,6 +518,14 @@ def proposed_claim_predicates(records: list[Record]) -> dict[str, Record]:
     }
 
 
+def registered_metric_definitions(records: list[Record]) -> dict[str, Record]:
+    return {
+        record.id: record
+        for record in records
+        if record.kind == "metric_definition" and record.data.get("state") == "registered"
+    }
+
+
 def entity_type_for(record_id: str, id_map: dict[str, Record]) -> str | None:
     record = id_map.get(record_id)
     if not record or record.kind != "entity":
@@ -861,6 +869,85 @@ def validate_claim_predicates(
                         f"allowed by predicate `{predicate}`; expected one of "
                         f"{allowed_references}"
                     )
+
+    return errors
+
+
+def metric_has_required_context(data: dict[str, Any], required_context: str) -> bool:
+    if required_context == "period":
+        period = data.get("period")
+        return isinstance(period, dict) and bool(period)
+    if required_context == "as_of":
+        if data.get("as_of"):
+            return True
+        period = data.get("period")
+        return isinstance(period, dict) and bool(period.get("as_of"))
+    dimensions = data.get("dimensions")
+    if not isinstance(dimensions, dict) or required_context not in dimensions:
+        return False
+    value = dimensions[required_context]
+    if value is None:
+        return False
+    if isinstance(value, str):
+        return bool(value.strip())
+    if isinstance(value, (dict, list)):
+        return bool(value)
+    return True
+
+
+def validate_metrics(root: Path, records: list[Record], id_map: dict[str, Record]) -> list[str]:
+    errors: list[str] = []
+    registered = registered_metric_definitions(records)
+
+    for metric_definition in registered.values():
+        relative = metric_definition.path.relative_to(root)
+        allowed_units = metric_definition.data.get("allowed_units", [])
+        if not allowed_units:
+            errors.append(f"{relative}: registered metric definition must declare allowed_units")
+        allowed_value_basis = metric_definition.data.get("allowed_value_basis", [])
+        if not allowed_value_basis:
+            errors.append(f"{relative}: registered metric definition must declare allowed_value_basis")
+
+    for record in records:
+        if record.kind != "metric":
+            continue
+
+        relative = record.path.relative_to(root)
+        metric_definition_id = str(record.data.get("metric_definition", ""))
+        metric_definition = id_map.get(metric_definition_id)
+        if not metric_definition or metric_definition.kind != "metric_definition":
+            continue
+        if metric_definition_id not in registered:
+            errors.append(f"{relative}: metric_definition `{metric_definition_id}` is not registered")
+            continue
+
+        allowed_units = metric_definition.data.get("allowed_units", [])
+        unit = record.data.get("unit")
+        if allowed_units and unit not in allowed_units:
+            errors.append(
+                f"{relative}: unit `{unit}` is not allowed by metric definition "
+                f"`{metric_definition_id}`; expected one of {allowed_units}"
+            )
+
+        allowed_value_basis = metric_definition.data.get("allowed_value_basis", [])
+        value_basis = record.data.get("value_basis")
+        if allowed_value_basis and value_basis not in allowed_value_basis:
+            errors.append(
+                f"{relative}: value_basis `{value_basis}` is not allowed by metric "
+                f"definition `{metric_definition_id}`; expected one of {allowed_value_basis}"
+            )
+
+        required_dimensions = [
+            str(dimension)
+            for dimension in metric_definition.data.get("required_dimensions", [])
+            if isinstance(dimension, str)
+        ]
+        for required_dimension in required_dimensions:
+            if not metric_has_required_context(record.data, required_dimension):
+                errors.append(
+                    f"{relative}: metric definition `{metric_definition_id}` requires "
+                    f"`{required_dimension}` context"
+                )
 
     return errors
 
@@ -3081,6 +3168,7 @@ def validate_repo(root: Path, current_only: bool = False) -> tuple[list[Record],
     errors.extend(validate_references(root, records, id_map))
     errors.extend(validate_claim_predicates(root, records, id_map))
     errors.extend(validate_relationships(root, records, id_map))
+    errors.extend(validate_metrics(root, records, id_map))
     errors.extend(validate_evidence_policy(root, records, id_map))
     errors.extend(validate_source_artifacts(root, records))
     errors.extend(validate_archive_policy(root, records, id_map))

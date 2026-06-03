@@ -848,11 +848,18 @@ Metric definition fields:
 schema_version
 kind: metric_definition
 id
+name
 label
 description
+state
+ontology_version
 value_type
+default_unit
 allowed_units
-allowed_basis
+allowed_value_basis
+required_dimensions
+optional_dimensions
+source_requirements
 ```
 
 Metric observation fields:
@@ -865,24 +872,27 @@ metric_definition
 entity
 value
 unit
-scale
-currency
-basis
+value_basis
 period
-fiscal_year
-fiscal_period
 as_of
 reported_at
 published_at
-segment
-geography
-product
-customer
+dimensions
 source_locator
-xbrl_concept
+methodology
+limitations
 restated_from
 evidence
+submitted_by
+created_at
 ```
+
+`fo lint` checks metric observations against registered metric definitions.
+Registered metric definitions must declare non-empty `allowed_units` and
+`allowed_value_basis`. Metric records must reference a registered definition,
+use an allowed `unit`, use an allowed `value_basis`, and include required
+definition context. In v1, definition context is enforced for `period`,
+`as_of`, and any named key under `dimensions`.
 
 Company guidance is source-backed public information, not a thesis forecast. It
 should be represented as an event, metric, claim, or management statement derived
