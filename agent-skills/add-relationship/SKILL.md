@@ -59,5 +59,7 @@ uv run fo graph neighbors relationship:... --json
 - Do not duplicate inverse relationships unless explicitly justified.
 - Do not put context entities in participants unless the relationship type defines that role.
 - Do not upgrade a broad supplier/customer mention into qualification, design-in, or capacity linkage without evidence.
+- Do not add `scope.market` to generic product/manufacture relationships unless
+  the supporting claim or evidence also supports that market relevance.
 - Do not invent relationship types when a registered type plus rich scope works.
 - Use `provisional:` only with a proposed relationship type definition.
