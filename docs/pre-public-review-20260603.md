@@ -390,6 +390,9 @@ Create GitHub issues from this review rather than solving all items in one PR:
 9. Improve GitHub-only viewing and first-time contributor workflow.
 10. Add staleness policy for market data, news, and dated valuation snapshots.
 
+Until the repository has a GitHub remote, track these as local backlog items in
+`docs/pre-public-issue-backlog-20260603.md`.
+
 ## Launch Recommendation
 
 Before public alpha:
@@ -404,4 +407,3 @@ Before public alpha:
 Do not broaden public contribution until GitHub enforcement is confirmed. The
 data model is promising, but the public-risk surface is now GitHub governance,
 global identity, and market-integrity operations.
-

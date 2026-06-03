@@ -69,6 +69,7 @@ guardrails, see:
 - `docs/governance.md`
 - `docs/review-rubric.md`
 - `docs/pre-public-review-20260603.md`
+- `docs/pre-public-issue-backlog-20260603.md`
 - `docs/github-public-launch-checklist.md`
 - `docs/first-pr-quickstart.md`
 
