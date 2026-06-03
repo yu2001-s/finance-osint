@@ -12,44 +12,48 @@ Current release posture:
 
 ```text
 private/dev release: ready
-private GitHub staging: active
-public alpha: blocked on GitHub launch gates and publication/tag owner decisions
+GitHub staging: public and protected
+public alpha: blocked on remaining launch gates and tag owner decision
 public v1: not ready
 ```
 
 The repo has a coherent local-first data model, deterministic validation, a PR
 review workflow, agent-operable skills, real seeded examples, a clean-clone
-smoke test pass, and a private GitHub staging repo.
+smoke test pass, and a public GitHub staging repo.
 
-## Private GitHub Staging
+## GitHub Staging Status
 
 Staging repo:
 
 ```text
 https://github.com/yu2001-s/finance-osint
-visibility: private
+visibility: public
 default branch: main
 ```
 
 Observed on 2026-06-03:
 
+- Repo visibility was changed to public.
 - Initial `main` push ran `Validate` successfully in GitHub Actions.
 - Draft staging PR #5 tested a source-only contribution.
 - Draft staging PR #6 tested a source/evidence/claim contribution.
 - Draft staging PR #7 tested a question/challenge contribution.
 - All three draft PRs passed the `Validate` workflow.
 - Each PR run uploaded `validation-reports` and `github-view` artifacts.
+- Branch protection is enabled on `main`: strict required `lint` check, one
+  approving review, CODEOWNERS review, stale review dismissal, conversation
+  resolution, admin enforcement, no force pushes, and no branch deletion.
 - GitHub emitted a Node.js 20 action deprecation annotation; this is tracked in
   GitHub issue #4.
-- Attempted branch protection on private `main` failed with GitHub HTTP 403:
-  branch protection for this private repo requires GitHub Pro or public
-  visibility. This is tracked in GitHub issue #1.
+
+Resolved launch-gate issues:
+
+- #1 Enable branch protection and required `Validate` check.
 
 Open launch-gate issues:
 
-- #1 Enable branch protection and required `Validate` check.
 - #2 Define abuse, MNPI, defamation, spam, and takedown operations.
-- #3 Decide public visibility and `v0.1.0-alpha` tag.
+- #3 Decide `v0.1.0-alpha` tag.
 - #4 Address GitHub Actions Node.js 20 deprecation annotation.
 
 ## Alpha Release Gate
@@ -68,12 +72,14 @@ Required before tagging `v0.1.0-alpha`:
 - [x] Contributor research-batch workflow exists.
 - [x] Clean clone smoke test passed.
 - [x] Owner chose and committed Apache-2.0 license.
-- [x] Private staging default branch is `main`.
-- [x] Private staging GitHub Actions workflow passes on `main` and draft PRs.
-- [x] Private staging draft PRs exercise source-only, source/evidence/claim,
+- [x] GitHub staging default branch is `main`.
+- [x] GitHub Actions workflow passes on `main` and draft PRs.
+- [x] GitHub draft PRs exercise source-only, source/evidence/claim,
   and question/challenge contribution shapes.
-- [ ] Branch protection and CODEOWNERS review enforcement are enabled.
-- [ ] Owner chooses public repo visibility.
+- [x] Branch protection and CODEOWNERS review enforcement are enabled.
+- [x] Owner chooses public repo visibility.
+- [ ] Abuse, MNPI, defamation, spam, and takedown operations are documented.
+- [ ] GitHub Actions Node.js 20 deprecation annotation is resolved or accepted.
 - [ ] Owner decides whether to tag `v0.1.0-alpha`.
 
 ## Clean Clone Smoke
@@ -127,7 +133,9 @@ This alpha release does not promise:
 
 ## Current Known Risks
 
-- Publication and release tagging are intentionally deferred by the owner.
+- The repo is public before an alpha tag; release operations are still tracked
+  through GitHub launch-gate issues.
+- Release tagging is intentionally deferred by the owner.
 - Governance is intentionally lightweight; maintainer decisions still matter.
 - Source archival policy is usable but not fully mature.
 - Seed data is representative, not comprehensive.

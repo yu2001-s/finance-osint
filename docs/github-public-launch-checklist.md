@@ -5,36 +5,41 @@ surface, contribution queue, and public audit trail. This checklist captures the
 GitHub-side controls that must be verified before a public launch or public
 alpha tag.
 
-## Private Staging Status
+## Public Staging Status
 
-Private staging repo:
+Public staging repo:
 
 ```text
 https://github.com/yu2001-s/finance-osint
-visibility: private
+visibility: public
 default branch: main
 ```
 
 Observed on 2026-06-03:
 
+- Repo visibility was changed to public.
 - Initial `main` push ran `Validate` successfully.
 - Draft PR #5 tested a source-only contribution and passed `Validate`.
 - Draft PR #6 tested a source/evidence/claim contribution and passed
   `Validate`.
 - Draft PR #7 tested a question/challenge contribution and passed `Validate`.
 - Each PR run uploaded `validation-reports` and `github-view` artifacts.
-- Branch protection configuration failed with GitHub HTTP 403 because the
-  current private repo cannot enable that feature without GitHub Pro or public
-  visibility. Track in GitHub issue #1 before any public launch or tag.
+- Branch protection is enabled on `main` and requires the `lint` status check,
+  one approving review, CODEOWNERS review, fresh strict checks, stale review
+  dismissal, and resolved conversations before merge.
+- Admin enforcement is enabled, force pushes are disabled, and branch deletion
+  is disabled.
+- GitHub issue #1 is closed after branch protection verification.
 - GitHub Actions emitted a Node.js 20 action deprecation annotation. Track in
-  GitHub issue #4 before public launch.
+  GitHub issue #4 before an alpha tag.
+- GitHub issue #2 and #3 remain open for launch operations and tag ownership
+  decisions.
 
 ## Required Repository Settings
 
 - Default branch is chosen and documented.
 - Branch protection is enabled for the default branch.
-- Direct pushes to the default branch are blocked except for emergency
-  maintainer recovery.
+- Direct pushes to the default branch require PR review and merge.
 - Force pushes and branch deletion are blocked on the default branch.
 - The `Validate` workflow is required before merge.
 - Required checks use fresh results from the PR head commit.
@@ -42,7 +47,7 @@ Observed on 2026-06-03:
 - Stale approvals are dismissed when support-affecting files change.
 - Conversations must be resolved before merge.
 - CODEOWNERS review is required for owned paths.
-- Maintainer admin bypass is disabled or explicitly documented.
+- Maintainer admin bypass is disabled.
 
 ## Required Review Ownership
 
