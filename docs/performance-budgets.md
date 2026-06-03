@@ -17,7 +17,8 @@ The script writes `.local/validation-timings.json` by default. CI writes
 includes:
 
 - lint, unit tests, index build, changed chain review, graph build, and
-  diff-review timings.
+  diff-review timings. `fo diff-review` also reports `timings_ms.base_record_load_ms`
+  for the base-tree record load.
 - Advisory budget comparison from `.github/ci/timing-budgets.json`.
 - Record, graph, `.local`, source-artifact, and git object summaries.
 
@@ -52,9 +53,9 @@ scheduled runner:
 uv run python scripts/scale_smoke.py --records 100000 --json --output .local/scale-smoke-100k.json
 ```
 
-Do not make 100k a normal PR gate until GitHub runner baselines exist. Also do
-not make 10k `diff-review` a hard scale gate until base-tree loading avoids one
-`git show` process per YAML file.
+Do not make 100k a normal PR gate until GitHub runner baselines exist. Keep
+`diff-review` scale checks advisory until GitHub runner baselines cover both
+base-tree loading and current-tree validation.
 
 ## Query-Plan Gate
 

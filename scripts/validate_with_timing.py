@@ -128,6 +128,16 @@ def output_summary(name: str, stdout: str) -> dict[str, Any]:
         total = loaded.get("record_delta", {}).get("total", {})
         if isinstance(total, dict):
             summary["record_delta"] = total
+        timings = loaded.get("timings_ms", {})
+        if isinstance(timings, dict):
+            for key in (
+                "base_record_load_ms",
+                "base_record_path_count",
+                "base_record_blob_count",
+                "base_record_git_process_count",
+            ):
+                if key in timings:
+                    summary[key] = timings[key]
         graph = loaded.get("graph_impact", {})
         if isinstance(graph, dict):
             for key in ("after_node_count", "after_edge_count", "added_edge_count", "removed_edge_count"):

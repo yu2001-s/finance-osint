@@ -8,6 +8,7 @@ import re
 import sqlite3
 import subprocess
 import sys
+import time
 from collections import deque
 from dataclasses import dataclass
 from datetime import date
@@ -4337,6 +4338,18 @@ def run_git(root: Path, args: list[str]) -> subprocess.CompletedProcess[str]:
     )
 
 
+def run_git_bytes(
+    root: Path, args: list[str], input_bytes: bytes | None = None
+) -> subprocess.CompletedProcess[bytes]:
+    return subprocess.run(
+        ["git", "-C", str(root), *args],
+        check=False,
+        input=input_bytes,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+
 def git_lines(root: Path, args: list[str]) -> tuple[list[str], str | None]:
     result = run_git(root, args)
     if result.returncode != 0:
@@ -4353,21 +4366,106 @@ def git_commit_sha(root: Path, ref: str) -> tuple[str | None, str | None]:
     return result.stdout.strip(), None
 
 
-def load_records_from_git(root: Path, base_ref: str) -> tuple[list[Record], list[str]]:
-    paths, error = git_lines(root, ["ls-tree", "-r", "--name-only", base_ref])
-    if error:
-        return [], [f"failed to list `{base_ref}`: {error}"]
+def git_tree_record_blobs(root: Path, base_ref: str) -> tuple[list[tuple[str, str]], str | None]:
+    result = run_git_bytes(root, ["ls-tree", "-rz", "-r", "--full-tree", base_ref])
+    if result.returncode != 0:
+        message = decode_git_bytes(result.stderr).strip() or decode_git_bytes(result.stdout).strip()
+        return [], message
 
-    records: list[Record] = []
-    errors: list[str] = []
-    for path_text in sorted(path for path in paths if is_record_yaml_path(path)):
-        result = run_git(root, ["show", f"{base_ref}:{path_text}"])
-        if result.returncode != 0:
-            message = result.stderr.strip() or result.stdout.strip() or "git show failed"
-            errors.append(f"{path_text}: failed to read `{base_ref}`: {message}")
+    blobs: list[tuple[str, str]] = []
+    for entry in result.stdout.split(b"\0"):
+        if not entry:
+            continue
+        if b"\t" not in entry:
+            continue
+        metadata, raw_path = entry.split(b"\t", 1)
+        parts = decode_git_bytes(metadata).split()
+        if len(parts) < 3 or parts[1] != "blob":
             continue
         try:
-            loaded = yaml.safe_load(result.stdout)
+            path_text = raw_path.decode("utf-8")
+        except UnicodeDecodeError:
+            continue
+        if is_record_yaml_path(path_text):
+            blobs.append((path_text, parts[2]))
+    return sorted(blobs), None
+
+
+def decode_git_bytes(value: bytes) -> str:
+    return value.decode("utf-8", errors="replace")
+
+
+def git_cat_file_batch(root: Path, object_ids: list[str]) -> tuple[dict[str, str], list[str]]:
+    if not object_ids:
+        return {}, []
+    unique_ids = sorted(set(object_ids))
+    result = run_git_bytes(
+        root,
+        ["cat-file", "--batch"],
+        input_bytes=("".join(f"{object_id}\n" for object_id in unique_ids)).encode("ascii"),
+    )
+    if result.returncode != 0:
+        message = decode_git_bytes(result.stderr).strip() or decode_git_bytes(result.stdout).strip()
+        return {}, [message or "git cat-file failed"]
+
+    output = result.stdout
+    offset = 0
+    contents: dict[str, str] = {}
+    errors: list[str] = []
+    for expected_id in unique_ids:
+        header_end = output.find(b"\n", offset)
+        if header_end < 0:
+            errors.append(f"{expected_id}: missing git cat-file header")
+            break
+        header = decode_git_bytes(output[offset:header_end])
+        offset = header_end + 1
+        parts = header.split()
+        if len(parts) >= 2 and parts[1] == "missing":
+            errors.append(f"{expected_id}: missing git object")
+            continue
+        if len(parts) != 3 or parts[1] != "blob":
+            errors.append(f"{expected_id}: unexpected git cat-file header `{header}`")
+            continue
+        try:
+            size = int(parts[2])
+        except ValueError:
+            errors.append(f"{expected_id}: invalid git cat-file size `{parts[2]}`")
+            continue
+        blob = output[offset : offset + size]
+        if len(blob) != size:
+            errors.append(f"{expected_id}: truncated git blob")
+            break
+        offset += size
+        if offset < len(output) and output[offset : offset + 1] == b"\n":
+            offset += 1
+        try:
+            contents[expected_id] = blob.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            errors.append(f"{expected_id}: failed to decode git blob as UTF-8: {exc}")
+    return contents, errors
+
+
+def load_records_from_git(
+    root: Path, base_ref: str, timings: dict[str, Any] | None = None
+) -> tuple[list[Record], list[str]]:
+    started = time.perf_counter()
+    blobs, error = git_tree_record_blobs(root, base_ref)
+    if error:
+        if timings is not None:
+            timings["base_record_load_ms"] = int(round((time.perf_counter() - started) * 1000))
+        return [], [f"failed to list `{base_ref}`: {error}"]
+
+    contents, batch_errors = git_cat_file_batch(root, [object_id for _, object_id in blobs])
+
+    records: list[Record] = []
+    errors: list[str] = [f"git cat-file --batch: {error}" for error in batch_errors]
+    for path_text, object_id in blobs:
+        content = contents.get(object_id)
+        if content is None:
+            errors.append(f"{path_text}: failed to read `{base_ref}` object `{object_id}`")
+            continue
+        try:
+            loaded = yaml.safe_load(content)
             if loaded is None:
                 loaded = {}
             if not isinstance(loaded, dict):
@@ -4375,6 +4473,11 @@ def load_records_from_git(root: Path, base_ref: str) -> tuple[list[Record], list
             records.append(Record(path=root / path_text, data=loaded))
         except Exception as exc:
             errors.append(f"{path_text}: failed to load YAML from `{base_ref}`: {exc}")
+    if timings is not None:
+        timings["base_record_load_ms"] = int(round((time.perf_counter() - started) * 1000))
+        timings["base_record_path_count"] = len(blobs)
+        timings["base_record_blob_count"] = len(set(object_id for _, object_id in blobs))
+        timings["base_record_git_process_count"] = 1 + int(bool(blobs))
     return records, errors
 
 
@@ -4991,7 +5094,8 @@ def diff_review_warnings(
 def build_diff_review(root: Path, base_ref: str) -> tuple[dict[str, Any], int]:
     base_sha, base_sha_error = git_commit_sha(root, base_ref)
     resolved_base_ref = base_sha or base_ref
-    base_records, base_errors = load_records_from_git(root, resolved_base_ref)
+    timings_ms: dict[str, Any] = {}
+    base_records, base_errors = load_records_from_git(root, resolved_base_ref, timings_ms)
     if base_sha_error:
         base_errors.append(f"failed to resolve `{base_ref}`: {base_sha_error}")
     path_changes, path_error = changed_git_paths(root, resolved_base_ref)
@@ -5013,6 +5117,7 @@ def build_diff_review(root: Path, base_ref: str) -> tuple[dict[str, Any], int]:
                 base=base_ref,
                 base_sha=base_sha,
                 changed_paths=path_changes,
+                timings_ms=timings_ms,
             ),
             2,
         )
@@ -5043,6 +5148,7 @@ def build_diff_review(root: Path, base_ref: str) -> tuple[dict[str, Any], int]:
             base=base_ref,
             base_sha=base_sha,
             changed_paths=path_changes,
+            timings_ms=timings_ms,
             record_delta=delta,
             chain_impact=chain_impact,
             reference_impact=refs,
