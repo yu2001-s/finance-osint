@@ -3,18 +3,18 @@
 # This file documents who should review high-risk surfaces. Actual enforcement
 # still depends on GitHub branch protection and required review settings.
 
-* @user
+* @yu2001-s
 
-.github/ @user
-docs/governance.md @user
-docs/review-policy.md @user
-docs/contracts.md @user
-docs/review-rubric.md @user
-schemas/ @user
-ontology/ @user
-fosint/ @user
-scripts/ @user
-records/evidence/ @user
-records/sources/ @user
-records/relationships/ @user
-records/theses/ @user
+.github/ @yu2001-s
+docs/governance.md @yu2001-s
+docs/review-policy.md @yu2001-s
+docs/contracts.md @yu2001-s
+docs/review-rubric.md @yu2001-s
+schemas/ @yu2001-s
+ontology/ @yu2001-s
+fosint/ @yu2001-s
+scripts/ @yu2001-s
+records/evidence/ @yu2001-s
+records/sources/ @yu2001-s
+records/relationships/ @yu2001-s
+records/theses/ @yu2001-s
