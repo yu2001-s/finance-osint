@@ -172,7 +172,131 @@ class CliValidationTests(unittest.TestCase):
             status, output = run_lint(repo)
 
         self.assertEqual(status, 1, output)
-        self.assertIn("direct support_type cannot rely only on rumor evidence", output)
+        self.assertIn("direct support_type cannot rely only on low-trust evidence", output)
+
+    def test_direct_claim_cannot_rely_only_on_anonymous_internal(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            write_yaml(
+                repo / "sources" / "firsthand" / "anonymous-internal.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "source",
+                    "id": "source:firsthand:anonymous-internal",
+                    "source_type": "anonymous_report",
+                    "title": "Anonymous internal fixture",
+                    "public_status": "unknown",
+                    "accessed_at": "2026-06-02T00:00:00Z",
+                    "content_mode": "summary",
+                    "risk_flags": ["anonymous_source"],
+                },
+            )
+            write_yaml(
+                repo / "evidence" / "firsthand" / "anonymous-internal.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "evidence",
+                    "id": "evidence:firsthand:anonymous-internal",
+                    "evidence_class": "anonymous_internal",
+                    "source": "source:firsthand:anonymous-internal",
+                    "summary": "Anonymous internal fixture.",
+                    "content_mode": "summary",
+                    "observed_at": "2026-06-02T00:00:00Z",
+                    "submitted_by": "github:tester",
+                    "source_attribution": "anonymous_to_public",
+                    "source_access": {
+                        "nda_or_confidentiality": "unknown",
+                        "recording_available": False,
+                        "source_identity_public": False,
+                    },
+                    "risk_flags": ["anonymous_source", "unverified_internal"],
+                },
+            )
+            write_yaml(
+                repo / "claims" / "anonymous-internal-direct.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "claim",
+                    "id": "claim:test:anonymous-internal-direct",
+                    "statement": "Anonymous internal fixture directly establishes a product issue.",
+                    "subject": "entity:company:exdev",
+                    "predicate": "product_signal",
+                    "object": "rumored product issue",
+                    "support_type": "direct",
+                    "evidence": [{"id": "evidence:firsthand:anonymous-internal"}],
+                    "submitted_by": "github:tester",
+                },
+            )
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 1, output)
+        self.assertIn("direct support_type cannot rely only on low-trust evidence", output)
+
+    def test_claim_predicate_rejects_wrong_object_kind(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            write_yaml(
+                repo / "claims" / "wrong-object-kind.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "claim",
+                    "id": "claim:test:wrong-object-kind",
+                    "statement": "Synthetic transaction disclosure points to a company object.",
+                    "subject": "entity:company:exdev",
+                    "predicate": "transaction_disclosure",
+                    "object": "entity:company:fndwy",
+                    "support_type": "direct",
+                    "evidence": [{"id": "evidence:synthetic:exdev-fy2025-supplier-note"}],
+                    "submitted_by": "github:tester",
+                },
+            )
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 1, output)
+        self.assertIn("object kind `entity` is not allowed by predicate", output)
+
+    def test_claim_predicate_rejects_missing_required_field(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            path = repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml"
+            claim = load_yaml(path)
+            claim.pop("object")
+            write_yaml(path, claim)
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 1, output)
+        self.assertIn("predicate `disclosed_relationship` requires field `object`", output)
+
+    def test_claim_predicate_rejects_disallowed_context_reference_kind(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            path = repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml"
+            claim = load_yaml(path)
+            claim["qualifiers"]["source_context"] = "source:public:synthetic:exdev-fy2025-report"
+            write_yaml(path, claim)
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 1, output)
+        self.assertIn("references kind `source`, which is not allowed", output)
+
+    def test_lint_rejects_hidden_agent_provenance_fields(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            path = repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml"
+            claim = load_yaml(path)
+            claim["generated_by"] = "codex"
+            claim["qualifiers"]["model"] = "gpt-test"
+            write_yaml(path, claim)
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 1, output)
+        self.assertIn("generated_by uses hidden agent provenance field", output)
+        self.assertIn("qualifiers.model uses hidden agent provenance field", output)
 
     def test_relationship_materiality_level_must_match_type(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -517,6 +641,26 @@ class CliValidationTests(unittest.TestCase):
         self.assertIn(
             "entity:company:exdev",
             {result["id"] for result in payload["results"]},
+        )
+
+    def test_graph_data_keeps_nested_id_references(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            records, errors = cli.load_records(repo)
+            self.assertEqual(errors, [])
+            graph = cli.build_graph_data(repo, records)
+
+        graph_edges = {
+            (edge["from"], edge["to"], edge.get("field"))
+            for edge in graph["edges"]
+        }
+        self.assertIn(
+            (
+                "claim:synthetic:exdev-uses-fndwy-for-x1",
+                "evidence:synthetic:exdev-fy2025-supplier-note",
+                "evidence.0.id",
+            ),
+            graph_edges,
         )
 
     def test_context_review_and_neighbors_json(self) -> None:

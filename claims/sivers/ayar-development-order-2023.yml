@@ -4,7 +4,7 @@ id: claim:sivers:ayar-development-order-2023
 statement: Sivers disclosed a $1m Ayar Labs order in July 2023 for development of next-generation laser arrays, with commercial terms for volume pricing in anticipation of larger-volume manufacturing.
 subject: entity:company:sivers-semiconductors
 predicate: transaction_disclosure
-object: entity:company:ayar-labs
+object: event:sivers:ayar-1m-development-order-2023
 qualifiers:
   order_value_usd: 1000000
   order_type: development_order

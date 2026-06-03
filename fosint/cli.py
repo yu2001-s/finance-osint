@@ -83,6 +83,26 @@ EVIDENCE_CLASSES_REQUIRING_ACCESS = {
     "rumor",
 }
 LOW_TRUST_EVIDENCE_CLASSES = {"anonymous_internal", "rumor"}
+BANNED_AGENT_PROVENANCE_FIELDS = {
+    "agent",
+    "agent_id",
+    "agent_model",
+    "agent_name",
+    "agent_run",
+    "completion_id",
+    "generated_by",
+    "generated_by_agent",
+    "llm",
+    "llm_model",
+    "model",
+    "model_name",
+    "prompt",
+    "response_id",
+    "run_id",
+    "system_prompt",
+    "tool_call_id",
+    "trace_id",
+}
 OLD_EVIDENCE_CLASSES = {
     "E0_public_primary",
     "E1_public_secondary",
@@ -92,7 +112,18 @@ OLD_EVIDENCE_CLASSES = {
     "E5_unverified_rumor",
 }
 NO_TRUTH_FIELDS_KINDS = {"claim", "relationship", "thesis", "metric", "event", "evidence"}
-NO_AUTHOR_FIELD_KINDS = {"validation", "challenge", "thesis"}
+NO_AUTHOR_FIELD_KINDS = {
+    "claim",
+    "relationship",
+    "thesis",
+    "metric",
+    "event",
+    "dataset",
+    "evidence",
+    "validation",
+    "challenge",
+    "question",
+}
 SUPPORTING_VERDICTS = {"attests", "supports"}
 PARTIAL_VERDICTS = {"partially_supports"}
 CONTESTING_VERDICTS = {"disputes", "falsifies"}
@@ -112,6 +143,12 @@ LINK_FIELDS = (
     "narrows",
     "broadens",
 )
+CLAIM_META_REFERENCE_FIELDS = {
+    *LINK_FIELDS,
+    "duplicate_of",
+    "superseded_by",
+    "withdrawn_by",
+}
 REVIEWABLE_KINDS = {"evidence", "claim", "relationship", "thesis", "metric", "event", "dataset"}
 ONTOLOGY_KINDS = {"claim_predicate", "relationship_type", "metric_definition"}
 EVIDENCE_INTEGRITY_FIELDS = {
@@ -300,8 +337,64 @@ def walk_strings(value: Any, path: tuple[str, ...] = ()) -> list[tuple[tuple[str
     return found
 
 
+def walk_keys(value: Any, path: tuple[str, ...] = ()) -> list[tuple[str, ...]]:
+    found: list[tuple[str, ...]] = []
+    if isinstance(value, dict):
+        for key, child in value.items():
+            key_path = (*path, str(key))
+            found.append(key_path)
+            found.extend(walk_keys(child, key_path))
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            found.extend(walk_keys(child, (*path, str(index))))
+    return found
+
+
 def is_reference(value: str) -> bool:
     return value.startswith(REF_PREFIXES)
+
+
+def reference_kind(value: str, id_map: dict[str, Record]) -> str:
+    record = id_map.get(value)
+    if record:
+        return record.kind
+    prefix = value.split(":", 1)[0]
+    if prefix == "rel":
+        return "relationship"
+    if prefix == "arg":
+        return "argument"
+    return prefix
+
+
+def value_kind(value: Any, id_map: dict[str, Record]) -> str:
+    if isinstance(value, bool):
+        return "boolean"
+    if isinstance(value, (int, float)):
+        return "number"
+    if isinstance(value, str):
+        if is_reference(value):
+            return reference_kind(value, id_map)
+        return "string"
+    if value is None:
+        return "null"
+    if isinstance(value, list):
+        return "array"
+    if isinstance(value, dict):
+        return "object"
+    return type(value).__name__
+
+
+def has_required_claim_field(record: Record, field: str) -> bool:
+    if field not in record.data:
+        return False
+    value = record.data.get(field)
+    if value is None:
+        return False
+    if isinstance(value, str):
+        return bool(value)
+    if isinstance(value, (list, dict)):
+        return bool(value)
+    return True
 
 
 def validate_references(root: Path, records: list[Record], id_map: dict[str, Record]) -> list[str]:
@@ -581,7 +674,9 @@ def evidence_items_have_methodology(record: Record) -> bool:
     return any(isinstance(item, dict) and bool(item.get("methodology")) for item in evidence)
 
 
-def validate_claim_predicates(root: Path, records: list[Record]) -> list[str]:
+def validate_claim_predicates(
+    root: Path, records: list[Record], id_map: dict[str, Record]
+) -> list[str]:
     errors: list[str] = []
     registered = registered_claim_predicates(records)
     proposed = proposed_claim_predicates(records)
@@ -624,6 +719,17 @@ def validate_claim_predicates(root: Path, records: list[Record]) -> list[str]:
         if predicate_def is None:
             continue
 
+        required_fields = [
+            str(field)
+            for field in predicate_def.data.get("required_fields", [])
+            if isinstance(field, str)
+        ]
+        for field in required_fields:
+            if not has_required_claim_field(record, field):
+                errors.append(
+                    f"{relative}: predicate `{predicate}` requires field `{field}`"
+                )
+
         allowed_support = predicate_def.data.get("allowed_support_type", [])
         support_type = record.data.get("support_type")
         if allowed_support and support_type not in allowed_support:
@@ -631,6 +737,57 @@ def validate_claim_predicates(root: Path, records: list[Record]) -> list[str]:
                 f"{relative}: support_type `{support_type}` is not allowed by predicate "
                 f"`{predicate}`"
             )
+
+        allowed_subject_kinds = [
+            str(kind)
+            for kind in predicate_def.data.get("allowed_subject_kinds", [])
+            if isinstance(kind, str)
+        ]
+        if allowed_subject_kinds:
+            subject_kind = value_kind(record.data.get("subject"), id_map)
+            if subject_kind not in allowed_subject_kinds:
+                errors.append(
+                    f"{relative}: subject kind `{subject_kind}` is not allowed by predicate "
+                    f"`{predicate}`; expected one of {allowed_subject_kinds}"
+                )
+
+        allowed_object_kinds = [
+            str(kind)
+            for kind in predicate_def.data.get("allowed_object_kinds", [])
+            if isinstance(kind, str)
+        ]
+        if allowed_object_kinds and "object" in record.data:
+            object_kind = value_kind(record.data.get("object"), id_map)
+            if object_kind not in allowed_object_kinds:
+                errors.append(
+                    f"{relative}: object kind `{object_kind}` is not allowed by predicate "
+                    f"`{predicate}`; expected one of {allowed_object_kinds}"
+                )
+
+        allowed_references = [
+            str(kind)
+            for kind in predicate_def.data.get("may_reference", [])
+            if isinstance(kind, str)
+        ]
+        if allowed_references:
+            for path, value in walk_strings(record.data):
+                if (
+                    path == ("id",)
+                    or path == ("subject",)
+                    or path == ("object",)
+                    or (path and path[0] == "evidence")
+                    or (path and path[0] in CLAIM_META_REFERENCE_FIELDS)
+                    or not is_reference(value)
+                ):
+                    continue
+                ref_kind = reference_kind(value, id_map)
+                if ref_kind not in allowed_references:
+                    dotted = ".".join(path) or "$"
+                    errors.append(
+                        f"{relative}: {dotted} references kind `{ref_kind}`, which is not "
+                        f"allowed by predicate `{predicate}`; expected one of "
+                        f"{allowed_references}"
+                    )
 
     return errors
 
@@ -642,6 +799,14 @@ def validate_evidence_policy(
 
     for record in records:
         relative = record.path.relative_to(root)
+
+        for path in walk_keys(record.data):
+            field = path[-1]
+            if field in BANNED_AGENT_PROVENANCE_FIELDS:
+                dotted = ".".join(path)
+                errors.append(
+                    f"{relative}: {dotted} uses hidden agent provenance field `{field}`"
+                )
 
         for path, value in walk_strings(record.data):
             if value == "anonymous_to_maintainers":
@@ -692,9 +857,13 @@ def validate_evidence_policy(
                 record
             )
 
-            if support_type == "direct" and evidence_classes and evidence_classes <= {"rumor"}:
+            if (
+                support_type == "direct"
+                and evidence_classes
+                and evidence_classes <= LOW_TRUST_EVIDENCE_CLASSES
+            ):
                 errors.append(
-                    f"{relative}: direct support_type cannot rely only on rumor evidence"
+                    f"{relative}: direct support_type cannot rely only on low-trust evidence"
                 )
             if support_type == "inferred" and len(evidence_ids) < 2 and not methodology_present:
                 errors.append(
@@ -1195,7 +1364,7 @@ def build_graph_data(root: Path, records: list[Record]) -> dict[str, Any]:
                 edges.append({"from": record.id, "to": obj, "type": str(predicate)})
 
         for path, value in walk_strings(record.data):
-            if path and path[-1] == "id":
+            if path == ("id",):
                 continue
             if is_reference(value):
                 edges.append(
@@ -2463,7 +2632,7 @@ def validate_repo(root: Path, current_only: bool = False) -> tuple[list[Record],
     errors.extend(validate_schemas(root, records, validators))
     errors.extend(id_errors)
     errors.extend(validate_references(root, records, id_map))
-    errors.extend(validate_claim_predicates(root, records))
+    errors.extend(validate_claim_predicates(root, records, id_map))
     errors.extend(validate_relationships(root, records, id_map))
     errors.extend(validate_evidence_policy(root, records, id_map))
     errors.extend(validate_source_artifacts(root, records))
@@ -3269,7 +3438,7 @@ def validate_new_record(root: Path, path: Path, data: dict[str, Any]) -> list[st
     id_map, id_errors = build_id_map(root, combined)
     errors.extend(id_errors)
     errors.extend(validate_references(root, [new_record], id_map))
-    errors.extend(validate_claim_predicates(root, combined))
+    errors.extend(validate_claim_predicates(root, combined, id_map))
     errors.extend(validate_relationships(root, combined, id_map))
     errors.extend(validate_evidence_policy(root, [new_record], id_map))
     errors.extend(validate_source_artifacts(root, combined))

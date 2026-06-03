@@ -13,11 +13,20 @@ agent-skills/operate-repo/SKILL.md
 agent-skills/add-evidence/SKILL.md
   Use when adding source or evidence records from explicit user-provided material.
 
+agent-skills/add-entity/SKILL.md
+  Use when adding companies, products, components, markets, architectures, or other graph entities.
+
+agent-skills/add-metric-event-dataset/SKILL.md
+  Use when adding structured numeric facts, events, guidance, datasets, orders, or time-based observations.
+
 agent-skills/add-claim/SKILL.md
   Use when creating a narrow sourced claim from existing evidence.
 
 agent-skills/add-relationship/SKILL.md
   Use when creating typed graph relationships from claims or evidence.
+
+agent-skills/propose-ontology/SKILL.md
+  Use when a needed predicate, relationship type, metric definition, entity type, or proof vocabulary is missing.
 
 agent-skills/validate-or-challenge/SKILL.md
   Use when reviewing, supporting, disputing, or pressuring an existing object.
@@ -39,6 +48,8 @@ Rules for all agents:
 
 ```bash
 uv run fo lint --json
+uv run python -m unittest discover -s tests
 uv run fo index build --json
 uv run fo graph build --json
+uv run fo diff-review HEAD --json
 ```
