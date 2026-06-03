@@ -3,11 +3,27 @@
 Finance OSINT uses lightweight repo governance. The goal is to keep evidence
 visible, reviewable, and falsifiable without creating hidden moderation state.
 
+## Adult Review Principle
+
+Finance OSINT treats contributors and readers as adults. The repository does
+not suppress unusual, speculative, low-trust, promotional, bearish, bullish, or
+disputed research views merely because they are uncertain or unpopular.
+
+Contributors may submit rumors, anonymous reports, unverifiable reports,
+speculative theses, weak signals, contradictions, and aggressive claims when
+they are formatted honestly and visibly labeled with provenance, evidence
+class, source perspective, source attribution, support type, risk flags, and
+open objections where applicable.
+
+The repository's job is not to decide what investors are allowed to think. Its
+job is to make evidence chains, uncertainty, and disagreement inspectable.
+
 ## Maintainer Role
 
 Maintainers review pull requests for structure, provenance, evidence quality,
 ontology fit, and repository hygiene. Maintainers do not turn review labels into
-canonical truth.
+canonical truth and should not reject a PR solely because they disagree with
+the investment view.
 
 For now, maintainers are the GitHub users with merge rights on the repo.
 
@@ -43,19 +59,33 @@ A PR is mergeable when:
 - Open proof gaps are captured as questions or challenges.
 - Agent-assisted output has been reviewed by the PR submitter.
 
-## Rejection Criteria
+## Review Outcomes
 
-A PR should be rejected or sent back when it:
+A PR should be handled with the narrowest intervention that preserves safety,
+provenance, and format.
+
+Allowed but visibly low-trust:
+
+- Rumor, anonymous, internal, social, first-hand, or unverifiable reports that
+  are labeled honestly.
+- Speculative, contrarian, promotional, bearish, bullish, or unusual theses that
+  declare dependencies and open proof gaps.
+- Weak signals that are used for investigation, questions, challenges, or
+  explicitly speculative theses.
+
+Send back for relabeling or narrowing:
+
+- Evidence class, source perspective, source attribution, support type, or risk
+  flags are missing or too strong.
+- A weak source path is promoted as direct support.
+- A thesis or claim overstates what the evidence supports.
+- New relationships are broader, narrower, or stronger than the source permits.
+
+Reject or remove only when the PR:
 
 - Adds hidden source knowledge, hidden agent state, `agent_run`, or
   `generated_by`.
 - Adds canonical truth `status` or `confidence`.
-- Adds unsupported supplier, customer, design-win, qualified-supplier, BOM, AVL,
-  revenue, margin, or valuation-conversion claims.
-- Treats social media as proof of underlying company facts without separate
-  source-backed evidence.
-- Relies on anonymous/internal/rumor evidence as strong support without visible
-  limitations.
 - Contains possible MNPI, private-source identity leakage, unsupported
   defamatory claims, coordinated promotion, spam, or rumor laundering.
 - Uploads secrets, credentials, doxxing material, malware, or large copyrighted
