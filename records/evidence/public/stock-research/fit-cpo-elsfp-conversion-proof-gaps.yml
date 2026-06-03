@@ -10,10 +10,15 @@ locator:
   section: wave58 and wave59 FIT conversion notes
 observed_at: "2026-05-31T00:00:00Z"
 submitted_by: github:codex
-source_attribution: named_public
+source_attribution: unknown
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: false
 verification_status: migrated_from_frozen_stock_research_snapshot
 risk_flags:
   - compiled_research
   - negative_search
   - not_primary_source
   - revenue_conversion_unproven
+  - unpublished_local_snapshot

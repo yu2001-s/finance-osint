@@ -6,10 +6,11 @@ title: Frozen stock-research FIT CPO and ELSFP conversion notes
 publisher: Local stock-research snapshot
 published_at: "2026-05-31"
 accessed_at: "2026-06-03T00:00:00Z"
-public_status: public
+public_status: unknown
 source_perspective: independent_research
 content_mode: summary
 provenance: Frozen stock-research tag finance-osint-seed-20260603 files knowledge/imports/wave58_elsfp_connector_cage_fit_watch.json and knowledge/imports/wave59_fit_conversion_update.json.
 risk_flags:
   - compiled_research
   - not_primary_source
+  - unpublished_local_snapshot

@@ -16,7 +16,8 @@ source_locator:
   section: FY2025 Form 10-K substrate revenue disclosure
 dimensions:
   segment: substrates
-  product: entity:component:indium-phosphide-substrate
 reported_at: '2026-03-17'
 published_at: '2026-03-17'
+limitations: Reported company substrate-segment revenue; not an InP-only revenue
+  split.
 created_at: '2026-06-03T00:00:00Z'

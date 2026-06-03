@@ -16,7 +16,7 @@ derived_from:
   - evidence:public:xfab:sic-gan-foundry-services
   - evidence:public:nist:xfab-texas-chips-funding
   events:
-  - event:xfab:chips-funded-sic-gan-expansion
+  - event:xfab:preliminary-chips-sic-capacity-terms
 submitted_by: github:codex
 scope:
   geography: United States
@@ -31,3 +31,4 @@ created_at: '2026-06-03T00:00:00Z'
 risk_flags:
 - funding_not_customer_revenue
 - capability_not_customer_revenue
+- proposed_funding_not_final_award

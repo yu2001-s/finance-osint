@@ -19,7 +19,7 @@ depends_on:
     - claim:fit-hon-teng:valuation-rerated-20260529
     - claim:fit-hon-teng:cpo-elsfp-conversion-proof-gap
   relationships:
-    - relationship:fit-hon-teng:broadcom-th5-cpo-interconnect-supplier
+    - relationship:fit-hon-teng:broadcom-th5-cpo-interconnect-partnership
     - relationship:fit-hon-teng:manufactures-broadcom-th5-cpo-interconnect-hardware
   metrics:
     - metric:fit-hon-teng:q1-2026-revenue-and-other-operating-revenue

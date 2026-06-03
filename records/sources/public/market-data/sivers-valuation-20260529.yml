@@ -11,3 +11,7 @@ public_status: public
 source_perspective: aggregator
 content_mode: external_link
 provenance: Migrated from local stock-research source page src_stockanalysis_sive_2026_05_29.
+risk_flags:
+  - market_data_snapshot
+  - dynamic_market_data_url
+  - snapshot_artifact_missing

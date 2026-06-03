@@ -3,7 +3,7 @@ kind: source
 id: source:public:stock-research:chroma-cpo-insertion-sidecar
 source_type: research_report
 title: Chroma CPO insertion test sidecar
-public_status: public
+public_status: unknown
 source_perspective: independent_research
 accessed_at: '2026-06-03T00:00:00Z'
 content_mode: summary
@@ -14,3 +14,4 @@ provenance: Migrated from frozen stock-research claims claim_chroma_no_named_cpo
 created_at: '2026-06-03T00:00:00Z'
 risk_flags:
 - compiled_research
+- unpublished_local_snapshot

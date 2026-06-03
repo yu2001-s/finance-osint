@@ -16,3 +16,5 @@ provenance: Migrated from frozen stock-research source src_stockanalysis_chroma_
 created_at: '2026-06-03T00:00:00Z'
 risk_flags:
 - market_data_snapshot
+- dynamic_market_data_url
+- snapshot_artifact_missing

@@ -31,3 +31,4 @@ created_at: "2026-06-03T00:00:00Z"
 risk_flags:
   - unnamed_customer
   - valuation_conversion_unproven
+  - 1p6t_not_order_backed

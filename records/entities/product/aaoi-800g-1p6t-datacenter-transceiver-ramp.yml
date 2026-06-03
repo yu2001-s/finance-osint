@@ -2,10 +2,11 @@ schema_version: 1
 kind: entity
 id: entity:product:aaoi-800g-1p6t-datacenter-transceiver-ramp
 entity_type: product
-name: AAOI 800G / 1.6T data-center transceiver ramp
+name: AAOI 800G data-center transceiver ramp
 aliases:
   - AAOI 800G transceivers
-  - AAOI 1.6T transceivers
-description: Applied Optoelectronics data-center optical transceiver ramp referenced in 2026 company disclosures.
+description: Applied Optoelectronics 800G data-center optical transceiver ramp
+  referenced in 2026 company disclosures; 1.6T remains an engagement/watch surface,
+  not an order-backed ramp in this record.
 state: active
 created_at: "2026-06-03T00:00:00Z"

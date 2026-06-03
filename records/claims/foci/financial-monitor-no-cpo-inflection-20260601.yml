@@ -2,8 +2,9 @@ schema_version: 1
 kind: claim
 id: claim:foci:financial-monitor-no-cpo-inflection-20260601
 statement: The frozen conversion monitor records that FOCI's Jan-April 2026 monthly
-  revenue and Q1 2026 financial report did not yet show material CPO revenue or
-  profit conversion from the ReLFACon/customer-validation evidence.
+  revenue and Q1 2026 financial report did not disclose or make observable a
+  product-coded material CPO revenue or profit conversion from the ReLFACon/customer-validation
+  evidence.
 subject: entity:company:foci-fiber-optic-communications
 predicate: source_attestation
 support_type: observed
@@ -18,3 +19,4 @@ risk_flags:
 - compiled_research
 - revenue_conversion_unproven
 - financial_monitor_negative_to_neutral
+- unsegmented_revenue_cannot_rule_out

@@ -10,7 +10,7 @@ summary: 'The frozen sidecar records proof gaps: no current primary proof for 40
 content_mode: excerpt
 observed_at: '2026-05-31T00:00:00Z'
 submitted_by: github:codex
-source_attribution: named_public
+source_attribution: unknown
 excerpt: The sidecar says substrate and architecture-layer relevance were verified,
   while named AI/CPO/ELSFP customer proof was not verified; it records no current
   2026 primary proof for 40%, 60-70%, or 75% InP share claims and treats Sumitomo
@@ -20,10 +20,11 @@ locator:
 source_access:
   nda_or_confidentiality: false
   recording_available: false
-  source_identity_public: true
+  source_identity_public: false
 verification_status: compiled_research_negative_search
 created_at: '2026-06-03T00:00:00Z'
 risk_flags:
 - compiled_research
 - negative_search
 - not_primary_source
+- unpublished_local_snapshot

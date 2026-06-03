@@ -11,3 +11,5 @@ public_status: public
 source_perspective: company_self
 content_mode: external_link
 provenance: Migrated from frozen stock-research tag finance-osint-seed-20260603 source src_fit_broadcom_th5_cpo_20250513.
+risk_flags:
+  - company_cms_fragile_url

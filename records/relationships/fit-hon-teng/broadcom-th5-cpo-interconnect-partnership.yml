@@ -1,18 +1,21 @@
 schema_version: 1
 kind: relationship
-id: relationship:fit-hon-teng:broadcom-th5-cpo-interconnect-supplier
-type: supplier_relationship
+id: relationship:fit-hon-teng:broadcom-th5-cpo-interconnect-partnership
+type: development_partnership
 participants:
-  - role: supplier
+  - role: partner
     entity: entity:company:fit-hon-teng
-  - role: buyer
+  - role: partner
     entity: entity:company:broadcom
+  - role: focus
+    entity: entity:product:fit-broadcom-th5-cpo-interconnect-hardware
 scope:
   product: entity:product:fit-broadcom-th5-cpo-interconnect-hardware
   market: entity:market:ai-datacenter-infrastructure
   technology: entity:architecture:co-packaged-optics
 qualifiers:
-  - upstream
+  - high_volume_manufacturing
+  - direct_statement
 materiality:
   level: medium
   basis: observed
@@ -28,3 +31,4 @@ risk_flags:
   - counterparty_originated_support
   - product_revenue_unquantified
   - customer_program_economics_undisclosed
+  - procurement_relationship_unproven

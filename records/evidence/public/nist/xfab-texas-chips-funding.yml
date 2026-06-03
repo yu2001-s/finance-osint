@@ -3,22 +3,25 @@ kind: evidence
 id: evidence:public:nist:xfab-texas-chips-funding
 evidence_class: public_primary
 source: source:public:nist:xfab-texas-chips-funding
-summary: CHIPS for America material supports X-FAB Texas SiC/GaN facility funding
-  and high-volume U.S. SiC foundry framing.
+summary: CHIPS for America material supports preliminary, non-binding proposed
+  direct funding for X-FAB Texas SiC capacity and high-volume U.S. SiC foundry
+  framing.
 content_mode: excerpt
 observed_at: '2026-05-31T00:00:00Z'
 submitted_by: github:codex
 source_attribution: named_public
-excerpt: NIST / CHIPS for America material supports X-FAB Texas SiC/GaN facility
-  funding and high-volume U.S. SiC foundry framing.
+excerpt: NIST / CHIPS for America material supports preliminary, non-binding
+  proposed direct funding for X-FAB Texas SiC capacity and high-volume U.S. SiC
+  foundry framing.
 locator:
   section: X-FAB Texas CHIPS for America funding announcement
 source_access:
   nda_or_confidentiality: false
   recording_available: false
   source_identity_public: true
-verification_status: government_funding_document
+verification_status: government_preliminary_terms_document
 created_at: '2026-06-03T00:00:00Z'
 risk_flags:
 - government_originated
 - funding_not_customer_revenue
+- proposed_funding_not_final_award

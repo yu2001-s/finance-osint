@@ -8,12 +8,12 @@ source_perspective: company_self
 accessed_at: '2026-06-03T00:00:00Z'
 content_mode: external_link
 submitted_by: github:codex
-publisher: X-FAB
-url: https://www.xfab.com/securedl/sdl-eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3Nzc1MjUyNzQsImV4cCI6MTc3NzYxNTI3NCwidXNlciI6MCwiZ3JvdXBzIjpbMCwtMV0sImZpbGUiOiJmaWxlYWRtaW4vWC1GQUIvSW52ZXN0b3JfUmVsYXRpb25zL1ByZXNzX1JlbGVhc2VfWC1GQUJfUTFfMjAyNl9SZXN1bHRzXzMwQXByMjAyNl9FTkcucGRmIiwicGFnZSI6Nn0.rJW0MYfRKtjt4qC3FoghpYL6P_LXdkoBjOBCBd_C1PU/Press_Release_X-FAB_Q1_2026_Results_30Apr2026_ENG.pdf
+publisher: X-FAB / Euronext
+url: https://live.euronext.com/en/products/equities/company-news/2026-04-30-x-fab-first-quarter-2026-results
 published_at: '2026-04-30'
 provenance: Migrated from frozen stock-research source src_xfab_q1_2026_results
   at finance-osint-seed-20260603.
 created_at: '2026-06-03T00:00:00Z'
 risk_flags:
 - company_originated
-- long_signed_url
+- exchange_hosted_company_news

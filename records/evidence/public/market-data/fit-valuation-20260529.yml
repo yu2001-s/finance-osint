@@ -21,3 +21,5 @@ verification_status: verified_from_frozen_stock_research_source_page
 risk_flags:
   - market_data_snapshot
   - valuation_rerated
+  - dynamic_market_data_url
+  - snapshot_artifact_missing
