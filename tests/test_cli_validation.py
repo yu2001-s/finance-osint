@@ -83,6 +83,7 @@ def run_new_json(func, repo: Path, **kwargs) -> tuple[int, dict]:
     kwargs.setdefault("created_at", None)
     kwargs.setdefault("risk_flag", [])
     kwargs.setdefault("overwrite", False)
+    kwargs.setdefault("dry_run", False)
     kwargs["json"] = True
     args = argparse.Namespace(**kwargs)
     with contextlib.redirect_stderr(stderr), contextlib.redirect_stdout(stdout):
@@ -1490,6 +1491,65 @@ class CliValidationTests(unittest.TestCase):
         self.assertEqual(source["record"]["source_perspective"], "independent_research")
         self.assertEqual(claim["record"]["evidence"], [{"id": evidence["id"]}])
         self.assertTrue(claim["path"].startswith("records/claims/generated/"))
+
+    def test_new_source_dry_run_validates_without_writing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+
+            status, source = run_new_json(
+                cli.run_new_source,
+                repo,
+                source_type="other",
+                title="Dry Run Helper Source",
+                public_status="public",
+                source_perspective="independent_research",
+                accessed_at="2026-06-03T00:00:00Z",
+                content_mode="small_fixture",
+                submitted_by="github:tester",
+                publisher="Finance OSINT tests",
+                url=None,
+                archive_url=None,
+                published_at=None,
+                provenance="Synthetic dry-run helper test.",
+                dry_run=True,
+            )
+            created_path_exists = (repo / source["path"]).exists()
+
+        self.assertEqual(status, 0, source)
+        self.assertFalse(source["created"])
+        self.assertTrue(source["dry_run"])
+        self.assertFalse(created_path_exists)
+        self.assertEqual(source["record"]["title"], "Dry Run Helper Source")
+
+    def test_new_metric_helper_validates_metric_definition_rules(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+
+            status, payload = run_new_json(
+                cli.run_new_metric,
+                repo,
+                entity="entity:company:exdev",
+                metric_definition="metric_definition:revenue",
+                value=123.0,
+                unit="shares",
+                period=["start=2025-01-01", "end=2025-12-31"],
+                value_basis="reported",
+                evidence=["evidence:synthetic:exdev-fy2025-supplier-note"],
+                source_locator=[],
+                dimension=[],
+                as_of=None,
+                reported_at=None,
+                published_at=None,
+                restated_from=None,
+                methodology=None,
+                limitations=None,
+                submitted_by="github:tester",
+                dry_run=True,
+            )
+
+        self.assertEqual(status, 1, payload)
+        self.assertFalse(payload["ok"])
+        self.assertIn("unit `shares` is not allowed by metric definition", payload["errors"][0]["message"])
 
     def test_new_source_helper_records_source_artifact(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

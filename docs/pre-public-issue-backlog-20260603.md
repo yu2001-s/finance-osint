@@ -230,9 +230,13 @@ Acceptance criteria:
 
 Rationale: The first contribution path is still tool-heavy.
 
+Status: first preview slice addressed locally. `fo new` helpers now support
+`--dry-run` to validate and preview records without writing files. ID recovery
+hints and template coverage remain open.
+
 Acceptance criteria:
 
 - Test `docs/first-pr-quickstart.md` from a clean clone.
-- Add `fo new --dry-run` or equivalent preview mode.
+- [x] Add `fo new --dry-run` or equivalent preview mode.
 - Improve not-found ID hints with search suggestions.
 - Ensure every public record type has a template or helper.

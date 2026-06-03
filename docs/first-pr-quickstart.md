@@ -48,8 +48,11 @@ uv run fo new source \
   --accessed-at "2026-06-03T00:00:00Z" \
   --content-mode external_link \
   --submitted-by github:YOUR_USERNAME \
+  --dry-run \
   --json
 ```
+
+Remove `--dry-run` to write the record after the preview looks correct.
 
 For mutable web-like sources, prefer `archive_url`. If no archive exists, add a
 bounded evidence excerpt, `content_hash`, or a small referenced artifact.
@@ -126,4 +129,3 @@ In the PR, summarize:
 
 Do not add canonical `status`, `confidence`, `agent_run`, `generated_by`, or
 hidden source knowledge.
-
