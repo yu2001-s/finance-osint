@@ -1,8 +1,11 @@
 # First PR Quickstart
 
 This guide is for a first small Finance OSINT contribution. Keep the first PR
-small: one source/evidence pair plus one claim, question, challenge, or
-validation is enough.
+small. One useful record is enough when it fits the existing graph: a source,
+evidence item, claim, question, challenge, validation, entity, metric, or event
+can each be a valid contribution. A source/evidence pair plus one claim,
+question, challenge, or validation is a good first chain, but it is not
+required.
 
 ## 1. Set Up
 
@@ -45,7 +48,25 @@ uv run fo review thesis:synthetic:exdev-margin-risk-from-foundry-concentration -
 Do not add a duplicate record when an existing one can be updated, validated, or
 challenged.
 
-## 3. Add A Source
+## 3. Choose The Smallest Useful Unit
+
+Add the smallest record or record set that makes the database better:
+
+- Add a `source` when you found a useful filing, transcript, article, dataset,
+  or page that future evidence can cite.
+- Add `evidence` when an existing source contains a bounded excerpt,
+  observation, or locator worth preserving.
+- Add a `claim` only when it points to evidence and says no more than the
+  evidence supports.
+- Add a `question` for a proof gap, next investigation target, or missing
+  underwriting bridge.
+- Add a `challenge` or `validation` to review an existing record without
+  overwriting it.
+
+Full chains are optional. If your PR adds only one point, state what it adds and
+what remains missing.
+
+## 4. Add A Source
 
 Use explicit source material only. Do not rely on hidden memory or hidden agent
 state. The examples use `github:quickstart` so they can be pasted as smoke
@@ -82,7 +103,7 @@ For a real chained PR:
 For mutable web-like sources, prefer `archive_url`. If no archive exists, add a
 bounded evidence excerpt, `content_hash`, or a small referenced artifact.
 
-## 4. Add Evidence
+## 5. Add Evidence
 
 Evidence is the strict layer. Quote or summarize only the bounded item needed
 for review. This command uses an existing fixture source so the dry-run is
@@ -106,7 +127,7 @@ uv run fo new evidence \
 Remove `--dry-run` only after the preview is valid. Copy the returned `id` into
 claims, validations, questions, or challenges that depend on this evidence.
 
-## 5. Add One Reviewable Object
+## 6. Add One Reviewable Object
 
 For a narrow sourced assertion, first choose an existing entity from search or
 add a new entity record. This command uses an existing fixture entity and
@@ -131,7 +152,7 @@ evidence IDs for your contribution.
 If the evidence does not prove the stronger business conclusion, add a question
 or challenge instead of stretching the claim.
 
-## 6. Review Locally
+## 7. Review Locally
 
 For a meaningful database PR, run:
 
@@ -161,7 +182,7 @@ uv run fo view build "$BASE" --output .local/ci/github-view --json
 Review every warning. Warnings are review pressure. Explain them in the PR. The
 `.local/` outputs are generated review artifacts and should stay uncommitted.
 
-## 7. Open The PR
+## 8. Open The PR
 
 In the PR, summarize:
 
