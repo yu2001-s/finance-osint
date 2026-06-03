@@ -91,6 +91,9 @@ uv run fo diff-review HEAD --json
   not create fake company entities for them.
 - Pipeline, backlog, bookings, order value, revenue, guidance, and valuation
   are distinct structured metrics/events.
+- Product existence and market relevance are separate. Add `scope.market` to a
+  product or manufacture relationship only when explicit dependencies support
+  that market context.
 - Do not imply provider, transcript, filing, or estimate access unless the
   source material is explicit in the repo or supplied by the contributor.
 - Use `source_perspective` whenever possible to expose whether support is
