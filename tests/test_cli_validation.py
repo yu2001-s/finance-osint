@@ -1166,6 +1166,83 @@ class CliValidationTests(unittest.TestCase):
             ["validation:test:stale-claim"],
         )
 
+    def test_review_derives_stale_from_open_outdated_challenge(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            write_yaml(
+                repo / "records" / "challenges" / "outdated-claim.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "challenge",
+                    "id": "challenge:test:outdated-claim",
+                    "target": "claim:synthetic:exdev-uses-fndwy-for-x1",
+                    "submitted_by": "github:tester",
+                    "challenge_type": "outdated",
+                    "summary": "Synthetic outdated marker.",
+                    "depends_on": {
+                        "evidence": ["evidence:synthetic:exdev-fy2025-supplier-note"],
+                        "claims": ["claim:synthetic:exdev-uses-fndwy-for-x1"],
+                    },
+                },
+            )
+
+            status, build_payload = run_json_command(cli.run_index_build, repo)
+            self.assertEqual(status, 0, build_payload)
+            status, review = run_json_command(
+                cli.run_review,
+                repo,
+                "claim:synthetic:exdev-uses-fndwy-for-x1",
+            )
+
+        self.assertEqual(status, 0, review)
+        self.assertEqual(review["review_state"]["primary_label"], "stale")
+        self.assertIn("has_staleness_risk", review["review_state"]["flags"])
+        self.assertEqual(
+            review["staleness_summary"]["stale_challenge_ids"],
+            ["challenge:test:outdated-claim"],
+        )
+
+    def test_review_ignores_closed_outdated_challenge_for_staleness(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            write_yaml(
+                repo / "records" / "challenges" / "addressed-outdated-claim.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "challenge",
+                    "id": "challenge:test:addressed-outdated-claim",
+                    "target": "claim:synthetic:exdev-uses-fndwy-for-x1",
+                    "submitted_by": "github:tester",
+                    "challenge_type": "outdated",
+                    "summary": "Synthetic addressed outdated marker.",
+                    "depends_on": {
+                        "evidence": ["evidence:synthetic:exdev-fy2025-supplier-note"],
+                        "claims": ["claim:synthetic:exdev-uses-fndwy-for-x1"],
+                    },
+                    "risk_flags": ["staleness_risk"],
+                    "addressed_by": "validation:synthetic:exdev-uses-fndwy-for-x1",
+                },
+            )
+
+            status, build_payload = run_json_command(cli.run_index_build, repo)
+            self.assertEqual(status, 0, build_payload)
+            status, review = run_json_command(
+                cli.run_review,
+                repo,
+                "claim:synthetic:exdev-uses-fndwy-for-x1",
+            )
+
+        self.assertEqual(status, 0, review)
+        self.assertNotEqual(review["review_state"]["primary_label"], "stale")
+        self.assertNotIn("has_staleness_risk", review["review_state"]["flags"])
+        self.assertEqual(review["challenge_summary"]["closed_count"], 1)
+        self.assertEqual(
+            review["challenge_summary"]["closed_challenge_ids"],
+            ["challenge:test:addressed-outdated-claim"],
+        )
+        self.assertEqual(review["staleness_summary"]["stale_challenge_ids"], [])
+        self.assertEqual(review["staleness_summary"]["stale_risk_flags"], [])
+
     def test_review_derives_low_trust_only_for_rumor_supported_claim(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))

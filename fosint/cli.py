@@ -2531,6 +2531,7 @@ def summarize_challenges(
     paths = [challenge_path_summary(challenge, id_map) for challenge in challenges]
     open_paths = [path for path in paths if path["open"]]
     closed_paths = [path for path in paths if not path["open"]]
+    open_risk_flags = sorted({flag for path in open_paths for flag in path["risk_flags"]})
     return {
         "total_count": len(paths),
         "open_count": len(open_paths),
@@ -2543,7 +2544,7 @@ def summarize_challenges(
             path["id"] for path in paths if path["challenge_type"] == "contradiction"
         ],
         "stale_challenge_ids": [
-            path["id"] for path in paths if path["challenge_type"] in STALE_CHALLENGE_TYPES
+            path["id"] for path in open_paths if path["challenge_type"] in STALE_CHALLENGE_TYPES
         ],
         "scope_challenge_ids": [
             path["id"] for path in paths if path["challenge_type"] in SCOPE_CHALLENGE_TYPES
@@ -2552,6 +2553,7 @@ def summarize_challenges(
             {evidence_id for path in paths for evidence_id in path["evidence_ids"]}
         ),
         "risk_flags": sorted({flag for path in paths for flag in path["risk_flags"]}),
+        "open_risk_flags": open_risk_flags,
         "items": paths,
     }
 
@@ -2629,7 +2631,7 @@ def staleness_summary(
     all_flags = set(risk_flags_for(target.data))
     all_flags.update(support_summary["risk_flags"])
     all_flags.update(validation_summary["risk_flags"])
-    all_flags.update(challenge_summary["risk_flags"])
+    all_flags.update(challenge_summary["open_risk_flags"])
     stale_risk_flags = sorted(flag for flag in all_flags if flag.lower() in STALE_RISK_FLAGS)
     return {
         "has_staleness_risk": bool(

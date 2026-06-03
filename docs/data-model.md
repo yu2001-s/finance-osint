@@ -210,8 +210,8 @@ fo graph neighbors ID --json
 canonical records. The JSON includes `review_state` plus summaries for support
 evidence, source independence, validation dependency paths, challenges,
 contradictions, supersession, staleness, and scope limitations. Staleness is v1
-explicit-signal only: a `marks_stale` validation, `outdated` challenge, or
-matching risk flag.
+explicit-signal only: a `marks_stale` validation, open `outdated` challenge, or
+matching risk flag on current support/review pressure.
 
 `fo review RECORD --chain --json` keeps the same review surface and adds
 `chain_summary`. This is the deterministic source-to-claim review layer for
