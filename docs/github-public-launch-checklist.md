@@ -20,6 +20,8 @@ Observed on 2026-06-04:
 - Repository visibility is public.
 - Branch protection is enabled for `main`.
 - Required status check: fresh `Validate`.
+- Repository-owner PRs use an explicit fast-pass for the PR check; `main` push
+  still runs full validation after merge.
 - Force pushes and branch deletion are disabled for `main`.
 - Conversation resolution is required before merge.
 - Admin enforcement is enabled.
@@ -36,6 +38,7 @@ Observed on 2026-06-04:
 - [x] Force pushes and branch deletion are blocked on the default branch.
 - [x] The `Validate` workflow is required before merge.
 - [x] Required checks use fresh results from the PR head commit.
+- [x] Repository-owner PR fast-pass is explicit in the workflow and documented.
 - [x] Conversations must be resolved before merge.
 - [x] Maintainer admin bypass is disabled through admin enforcement.
 - [ ] Owner decides whether public-alpha PRs should require at least one
@@ -87,7 +90,7 @@ starts at `docs/README.md`.
 
 ## Required PR Gates
 
-Every support-affecting PR should include:
+Every non-owner support-affecting PR should include:
 
 - Source and evidence IDs.
 - Evidence class, source attribution, source perspective, and content mode.
@@ -97,6 +100,10 @@ Every support-affecting PR should include:
 - `fo review ID --chain --json` summary for changed thesis or relationship
   records.
 - `fo diff-review BASE --json` warning acknowledgement.
+
+Owner PRs may merge on the fast-pass, but owner changes should still use local
+validation before merge and rely on the full post-merge `main` workflow as the
+final public signal.
 
 Warnings are not automatic failures, but public maintainers should treat these
 warning classes as review blockers until explicitly acknowledged:

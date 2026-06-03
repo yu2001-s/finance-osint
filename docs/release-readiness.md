@@ -38,6 +38,8 @@ Observed on 2026-06-04:
 - Default branch is `main`.
 - Branch protection is enabled for `main`.
 - `Validate` is a required fresh status check.
+- Repository-owner PRs use an explicit fast-pass for the required PR check; the
+  full workflow still runs on every push to `main`.
 - Force pushes and branch deletion are disabled on `main`.
 - Conversation resolution is required before merge.
 - Admin enforcement is enabled.
@@ -74,6 +76,8 @@ Required before tagging `v0.1.0-alpha`:
   and question/challenge contribution shapes.
 - [x] Branch protection is enabled with required fresh `Validate`, no force
   pushes/deletions, conversation resolution, and admin enforcement.
+- [x] Owner PR fast-pass is explicit and documented; full `Validate` still runs
+  on `main` pushes.
 - [x] Owner chose public repo visibility.
 - [ ] Owner decides whether to require approving reviews and/or CODEOWNERS
   review for public alpha.

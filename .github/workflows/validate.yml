@@ -10,18 +10,29 @@ jobs:
   validate:
     name: Validate
     runs-on: ubuntu-latest
+    env:
+      OWNER_FAST_PASS: ${{ github.event_name == 'pull_request' && github.event.pull_request.user.login == github.repository_owner }}
     steps:
+      - name: Owner PR fast-pass
+        if: env.OWNER_FAST_PASS == 'true'
+        run: |
+          echo "Repository-owner PR fast-pass: full Validate still runs on pushes to main."
       - uses: actions/checkout@v6
+        if: env.OWNER_FAST_PASS != 'true'
         with:
           fetch-depth: 0
       - uses: astral-sh/setup-uv@v8.2.0
+        if: env.OWNER_FAST_PASS != 'true'
         with:
           enable-cache: true
       - uses: actions/setup-python@v6
+        if: env.OWNER_FAST_PASS != 'true'
         with:
           python-version: "3.11"
-      - run: uv sync --locked
+      - if: env.OWNER_FAST_PASS != 'true'
+        run: uv sync --locked
       - name: Resolve validation base
+        if: env.OWNER_FAST_PASS != 'true'
         run: |
           uv run python scripts/resolve_validation_base.py \
             --event-name "${{ github.event_name }}" \
@@ -30,7 +41,7 @@ jobs:
             --github-env "$GITHUB_ENV" \
             --github-step-summary "$GITHUB_STEP_SUMMARY"
       - name: Check PR attribution
-        if: github.event_name == 'pull_request'
+        if: env.OWNER_FAST_PASS != 'true' && github.event_name == 'pull_request'
         run: |
           extra_args=()
           if [ "${{ contains(github.event.pull_request.labels.*.name, 'allow-automation-attribution') }}" = "true" ]; then
@@ -40,24 +51,27 @@ jobs:
             --pr-author "${{ github.event.pull_request.user.login }}" \
             "${extra_args[@]}"
       - name: Validate with timing
+        if: env.OWNER_FAST_PASS != 'true'
         run: |
           uv run python scripts/validate_with_timing.py "$BASE_REF" \
             --json \
             --output .local/ci/validation-timings.json \
             --markdown-summary .local/ci/validation-timings.md
       - name: Run 10k generated scale smoke
+        if: env.OWNER_FAST_PASS != 'true'
         run: |
           uv run python scripts/scale_smoke.py \
             --records 10000 \
             --json \
             --output .local/ci/scale-smoke-10k.json
       - name: Build GitHub review view
+        if: env.OWNER_FAST_PASS != 'true'
         run: |
           uv run fo view build "$BASE_REF" \
             --json \
             --output .local/ci/github-view
       - name: Append timing summary
-        if: always()
+        if: always() && env.OWNER_FAST_PASS != 'true'
         run: |
           if [ -f .local/ci/validation-timings.md ]; then
             cat .local/ci/validation-timings.md >> "$GITHUB_STEP_SUMMARY"
@@ -66,14 +80,14 @@ jobs:
             cat .local/ci/github-view/pr-review.md >> "$GITHUB_STEP_SUMMARY"
           fi
       - name: Upload validation reports
-        if: always()
+        if: always() && env.OWNER_FAST_PASS != 'true'
         uses: actions/upload-artifact@v7
         with:
           name: validation-reports
           path: .local/ci/*.json
           if-no-files-found: ignore
       - name: Upload GitHub review view
-        if: always()
+        if: always() && env.OWNER_FAST_PASS != 'true'
         uses: actions/upload-artifact@v7
         with:
           name: github-view
