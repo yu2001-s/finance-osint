@@ -1,0 +1,23 @@
+schema_version: 1
+kind: challenge
+id: challenge:staging:nebius-capacity-scope-smoke
+target: claim:nebius:q1-2026-revenue-ai-factory-signal
+submitted_by: github:codex
+challenge_type: scope_error
+summary: 'Staging smoke challenge: the existing NBIS claim is intentionally narrow,
+  and PR review should preserve an objection if a reader tries to overread planned
+  capacity as proven durable revenue.'
+depends_on:
+  evidence:
+  - evidence:public:nebius:q1-2026-revenue-ai-factory
+  claims:
+  - claim:nebius:q1-2026-revenue-ai-factory-signal
+  relationships: []
+  theses: []
+  metrics: []
+  events: []
+  datasets: []
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- overpromotion_watch
+- staging_smoke
