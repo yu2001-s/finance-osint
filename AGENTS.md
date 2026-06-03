@@ -1,53 +1,42 @@
-# Agent Router
+# Internal Session Handoff
 
-Finance OSINT is a local-first, git-native evidence graph. The repo is the
-canonical database. Agents and humans use the same records; the PR submitter is
-responsible for all output.
+We are preparing Finance OSINT for a private `v0.1.0-alpha` checkpoint. Do not
+publish the repo or create a release tag unless the user explicitly asks.
 
-Use the smallest relevant skill under `agent-skills/`:
+Current state:
 
-```text
-agent-skills/operate-repo/SKILL.md
-  Use for repo orientation, validation, index/search/context/review, and final checks.
+- Repo is a local-first, git-native finance OSINT evidence graph.
+- Apache-2.0 license is committed.
+- Public alpha is functionally close; publication/tagging are intentionally
+  deferred.
+- Seed graph contains representative public-equity research batches and full
+  chain review docs.
+- Clean-clone smoke has passed.
 
-agent-skills/add-evidence/SKILL.md
-  Use when adding source or evidence records from explicit user-provided material.
+Main remaining work:
 
-agent-skills/add-entity/SKILL.md
-  Use when adding companies, products, components, markets, architectures, or other graph entities.
+1. Decide when to tag `v0.1.0-alpha`.
+2. Optionally run one fake PR simulation before tagging.
+3. Improve public README only if it blocks first-time contributor clarity.
+4. Continue seed migration only batch-by-batch with mini review.
 
-agent-skills/add-metric-event-dataset/SKILL.md
-  Use when adding structured numeric facts, events, guidance, datasets, orders, or time-based observations.
+Do not:
 
-agent-skills/add-claim/SKILL.md
-  Use when creating a narrow sourced claim from existing evidence.
+- Add hidden source knowledge, hidden agent state, `agent_run`, or `generated_by`.
+- Add canonical truth `status` or `confidence`.
+- Bulk-port old stock-research verdict fields.
+- Create unsupported supplier/customer/design-win/revenue/valuation claims.
+- Publish, push, or tag without explicit user approval.
 
-agent-skills/add-relationship/SKILL.md
-  Use when creating typed graph relationships from claims or evidence.
+Useful docs:
 
-agent-skills/propose-ontology/SKILL.md
-  Use when a needed predicate, relationship type, metric definition, entity type, or proof vocabulary is missing.
+- `docs/release-readiness.md`
+- `docs/governance.md`
+- `docs/research-batch-contribution.md`
+- `docs/seed-full-chain-review-20260603.md`
+- `docs/seed-migration.md`
 
-agent-skills/migrate-stock-research/SKILL.md
-  Use when porting seed material from the frozen stock research snapshot.
-
-agent-skills/validate-or-challenge/SKILL.md
-  Use when reviewing, supporting, disputing, or pressuring an existing object.
-
-agent-skills/add-question/SKILL.md
-  Use when recording an open proof gap or next investigation target.
-
-agent-skills/write-thesis/SKILL.md
-  Use when writing interpretation or forecast records from explicit dependencies.
-```
-
-Rules for all agents:
-
-- Do not add hidden source knowledge, hidden agent state, `agent_run`, or `generated_by`.
-- Do not commit truth `status` or `confidence` into canonical records.
-- Do not infer evidence, claims, relationships, or theses without explicit dependencies.
-- Prefer deterministic `fo` commands over hand-written YAML when they fit.
-- Before finishing data work, run:
+Before committing meaningful changes, run:
 
 ```bash
 uv run fo lint --json
