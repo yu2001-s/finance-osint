@@ -36,13 +36,15 @@ List the main source/evidence records this PR depends on:
 ## Source-To-Claim Chain Review
 
 For every changed thesis or relationship, run `uv run fo review ID --chain --json`
-after `uv run fo index build --json` and summarize:
+after `uv run fo index build --json`, or review the generated
+`github-view` artifact / `.local/ci/github-view/pr-review.md`, and summarize:
 
 - Reviewed IDs:
 - Source/evidence mix:
 - Claim / metric / event / relationship chain:
 - Relationship-promotion pressure:
 - What remains unproven:
+- Generated GitHub-view artifact:
 
 ## Diff-Review Warnings
 
@@ -76,6 +78,7 @@ reports:
 - [ ] I ran `uv run fo review ID --chain --json` for changed records/theses/relationships.
 - [ ] I ran `uv run fo graph build --json`.
 - [ ] I ran `uv run fo diff-review BASE --json`.
+- [ ] For changed theses/relationships, I reviewed `uv run fo view build BASE --json` output or the CI `github-view` artifact.
 - [ ] For tooling/schema/index/graph changes, I reviewed the timing and scale-smoke reports.
 - [ ] I reviewed and explained every `fo diff-review` warning.
 - [ ] All support-affecting information is visible in the repo.

@@ -36,11 +36,23 @@ jobs:
             --records 10000 \
             --json \
             --output .local/ci/scale-smoke-10k.json
+      - name: Build GitHub review view
+        run: |
+          BASE_REF="HEAD"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_REF="origin/${{ github.base_ref }}"
+          fi
+          uv run fo view build "$BASE_REF" \
+            --json \
+            --output .local/ci/github-view
       - name: Append timing summary
         if: always()
         run: |
           if [ -f .local/ci/validation-timings.md ]; then
             cat .local/ci/validation-timings.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f .local/ci/github-view/pr-review.md ]; then
+            cat .local/ci/github-view/pr-review.md >> "$GITHUB_STEP_SUMMARY"
           fi
       - name: Upload validation reports
         if: always()
@@ -48,4 +60,11 @@ jobs:
         with:
           name: validation-reports
           path: .local/ci/*.json
+          if-no-files-found: ignore
+      - name: Upload GitHub review view
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: github-view
+          path: .local/ci/github-view/**/*.md
           if-no-files-found: ignore

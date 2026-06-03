@@ -58,6 +58,7 @@ GitHub Actions runs the deterministic local checks on every pull request:
 uv sync --locked
 uv run python scripts/validate_with_timing.py "origin/${{ github.base_ref }}" --json
 uv run python scripts/scale_smoke.py --records 10000 --json
+uv run fo view build "origin/${{ github.base_ref }}" --output .local/ci/github-view --json
 ```
 
 CI validates structure, references, ontology usage, tests, and derived local
@@ -68,6 +69,11 @@ build, and diff-review once and writes a generated JSON report under `.local/`.
 The 10k scale smoke uses a temporary generated repository and does not commit
 generated YAML. Timing budgets are advisory before public launch; see
 `docs/performance-budgets.md`.
+
+`fo view build BASE` writes generated Markdown under `.local/github-view/` for
+GitHub-only review. CI uploads `.local/ci/github-view/` as the `github-view`
+artifact and appends `pr-review.md` to the workflow summary. These files are
+derived review aids, not canonical data.
 
 `fo diff-review` is useful before CI because it summarizes what a PR changes as
 OSINT records: evidence edits, review-state movement, graph impact, reference
