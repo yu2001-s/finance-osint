@@ -6,6 +6,24 @@ source: source:public:provider:slug
 summary: Short summary of the exact evidence.
 content_mode: excerpt
 excerpt: "Short exact excerpt or observation."
+# Optional for translated or OCR-derived evidence.
+original_excerpt: "Bounded excerpt in the source language."
+translated_excerpt: "Reviewer-language translation of the bounded excerpt."
+translation:
+  source_language: zh-Hant
+  translated_language: en
+  translator: github:username
+  machine_translation: true
+  translation_date: "YYYY-MM-DD"
+  translation_version: tool-or-review-version
+  method: machine_translation_with_reviewer_check
+ocr:
+  used: false
+  engine: ""
+  engine_version: ""
+  language: zh-Hant
+  quality_notes: ""
+encoding_notes: ""
 locator:
   section: Section name
 observed_at: "YYYY-MM-DDTHH:MM:SSZ"

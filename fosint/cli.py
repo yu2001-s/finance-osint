@@ -173,6 +173,11 @@ EVIDENCE_INTEGRITY_FIELDS = {
     "summary",
     "content_mode",
     "excerpt",
+    "original_excerpt",
+    "translated_excerpt",
+    "translation",
+    "ocr",
+    "encoding_notes",
     "locator",
     "observed_at",
     "source_attribution",
@@ -1209,6 +1214,72 @@ def source_policy_warnings(root: Path, records: list[Record]) -> list[dict[str, 
                     "Use a specific perspective when possible. Keep `unknown` only when the source-side viewpoint cannot be determined after review.",
                 )
             )
+        source_type = record.data.get("source_type")
+        if source_type in {"exchange_filing", "company_report"}:
+            language = record.data.get("source_language")
+            if not isinstance(language, str) or not language.strip():
+                warnings.append(
+                    lint_warning(
+                        root,
+                        record,
+                        "missing_source_language_for_global_source",
+                        "Global filing/report source does not declare source_language.",
+                        "Add a BCP-47-like language tag such as en, zh-Hant, ja, de, mul, or und.",
+                    )
+                )
+    return warnings
+
+
+def source_language_is_english(value: Any) -> bool:
+    if not isinstance(value, str):
+        return True
+    return value.lower().split("-", 1)[0] == "en"
+
+
+def translation_policy_warnings(root: Path, records: list[Record]) -> list[dict[str, Any]]:
+    id_map, _ = build_id_map(root, records)
+    warnings: list[dict[str, Any]] = []
+    for record in records:
+        if record.kind != "evidence":
+            continue
+        if not record.data.get("excerpt"):
+            continue
+        source_id = record.data.get("source")
+        source = id_map.get(source_id) if isinstance(source_id, str) else None
+        if not source or source.kind != "source":
+            continue
+        source_language = source.data.get("source_language")
+        if source_language_is_english(source_language):
+            continue
+        translation = record.data.get("translation")
+        ocr = record.data.get("ocr")
+        ocr_needs_notes = (
+            isinstance(ocr, dict)
+            and ocr.get("used") is True
+            and not ocr.get("quality_notes")
+        )
+        if (
+            record.data.get("original_excerpt")
+            and record.data.get("translated_excerpt")
+            and isinstance(translation, dict)
+            and translation.get("translator")
+            and translation.get("translation_date")
+            and translation.get("translation_version")
+            and translation.get("translated_language")
+            and "machine_translation" in translation
+            and not ocr_needs_notes
+        ):
+            continue
+        warnings.append(
+            lint_warning(
+                root,
+                record,
+                "non_english_excerpt_without_translation_provenance",
+                "Evidence excerpt cites a non-English source without original excerpt, translated excerpt, and translation metadata.",
+                "Add bounded original_excerpt, translated_excerpt, translation.translator, translation.translation_date, translation.translation_version, translation.translated_language, translation.machine_translation, and OCR/encoding notes when relevant.",
+                [source.id] if source.id else [],
+            )
+        )
     return warnings
 
 
@@ -4285,6 +4356,18 @@ def run_new_evidence(root: Path, args: argparse.Namespace) -> int:
     }
     if args.excerpt:
         data["excerpt"] = args.excerpt
+    if getattr(args, "original_excerpt", None):
+        data["original_excerpt"] = args.original_excerpt
+    if getattr(args, "translated_excerpt", None):
+        data["translated_excerpt"] = args.translated_excerpt
+    translation = parse_json_object(getattr(args, "translation_json", None), "--translation-json")
+    if translation is not None:
+        data["translation"] = translation
+    ocr = parse_json_object(getattr(args, "ocr_json", None), "--ocr-json")
+    if ocr is not None:
+        data["ocr"] = ocr
+    if getattr(args, "encoding_notes", None):
+        data["encoding_notes"] = args.encoding_notes
     locator = parse_key_values(args.locator)
     if locator:
         data["locator"] = locator
@@ -4598,6 +4681,7 @@ def run_lint(root: Path, json_output: bool = False, current_only: bool = False) 
     records, errors = validate_repo(root, current_only=current_only)
     warnings = [
         *source_policy_warnings(root, records),
+        *translation_policy_warnings(root, records),
         *preservation_policy_warnings(root, records),
         *duplicate_detection_warnings(root, records),
     ]
@@ -5316,6 +5400,11 @@ def build_parser() -> argparse.ArgumentParser:
         choices=["named_public", "anonymous_to_public", "unknown"],
     )
     evidence_parser.add_argument("--excerpt")
+    evidence_parser.add_argument("--original-excerpt")
+    evidence_parser.add_argument("--translated-excerpt")
+    evidence_parser.add_argument("--translation-json", help="JSON object for translation metadata")
+    evidence_parser.add_argument("--ocr-json", help="JSON object for OCR metadata")
+    evidence_parser.add_argument("--encoding-notes")
     evidence_parser.add_argument("--locator", action="append", default=[], help="repeatable key=value")
     evidence_parser.add_argument("--source-access-json", help="JSON object for source_access")
     evidence_parser.add_argument("--verification-status")

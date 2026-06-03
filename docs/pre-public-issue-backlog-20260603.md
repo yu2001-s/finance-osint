@@ -101,13 +101,22 @@ Acceptance criteria:
 Rationale: Global research will use non-English sources. Reviewers need original
 text, translation path, and OCR provenance to judge fidelity.
 
+Status: first translation/OCR provenance slice addressed locally. Source records
+support explicit `source_language`; translated evidence now supports bounded
+`original_excerpt`, `translated_excerpt`, `translation`, `ocr`, and
+`encoding_notes` fields while preserving reviewer-facing `excerpt` output. Lint
+warns on non-English excerpt evidence missing translation provenance, global
+filing/report sources missing `source_language`, and OCR-derived translated
+evidence without quality notes. The FOCI MOPS evidence record provides a
+bounded Chinese-to-English example.
+
 Acceptance criteria:
 
-- Define source language and translation metadata fields.
-- Decide how to store original excerpt and translated excerpt.
-- Include translator, machine-translation flag, translation date/version, OCR,
+- [x] Define source language and translation metadata fields.
+- [x] Decide how to store original excerpt and translated excerpt.
+- [x] Include translator, machine-translation flag, translation date/version, OCR,
   and encoding notes where relevant.
-- Add one non-English evidence example.
+- [x] Add one non-English evidence example.
 
 ### Define Accounting And Metric Comparability Rules
 
