@@ -14,6 +14,15 @@
 
 Briefly describe what changed and why.
 
+## Contribution Shape
+
+Atomic contributions are welcome. A PR does not need to add a complete
+source-to-thesis chain when it adds a useful, correctly labeled point.
+
+- Atomic record, partial chain, or full chain:
+- What this PR adds:
+- What remains missing or intentionally out of scope:
+
 ## Evidence And Provenance
 
 List the main source/evidence records this PR depends on:

@@ -66,6 +66,14 @@ requires honest labels: provenance, evidence class, source perspective, source
 attribution, support type, risk flags, and open objections must be visible so
 readers can decide for themselves.
 
+Atomic contributions are welcome. A PR may add one useful point, such as one
+source, one evidence record, one claim tied to existing evidence, one question,
+one challenge, one validation, one entity, one metric, or one event. Full
+source-to-thesis chains are useful, but they are not required. Each record only
+needs to satisfy the dependencies required by its own type, and any missing
+downstream proof should be visible as a question, challenge, risk flag, or PR
+note.
+
 For a concrete sourced-research batch workflow, see
 `docs/research-batch-contribution.md`.
 

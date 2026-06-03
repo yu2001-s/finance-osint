@@ -51,6 +51,8 @@ A PR is mergeable when:
 - Required CI passes.
 - `fo diff-review` warnings are reviewed and explained.
 - Support-affecting information is visible in the repo.
+- Atomic contributions satisfy the dependencies required by their own record
+  type; full source-to-thesis chains are not mandatory.
 - New claims point to evidence.
 - New relationships are supported by claims, evidence, metrics, or events.
 - Strong relationships such as `supplier_relationship`, `customer_relationship`,
