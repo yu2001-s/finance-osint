@@ -162,11 +162,15 @@ Acceptance criteria:
 Rationale: Current sources mostly include `source_perspective`, but schemas do
 not require it. Review output depends on it.
 
+Status: source perspective requirement addressed locally. `submitted_by`
+hard-requirement for legacy source/entity records remains deferred until a
+reviewed attribution backfill is done.
+
 Acceptance criteria:
 
-- Decide whether missing `source_perspective` is a lint error or warning.
-- Add guidance for `unknown`.
-- Add tests for missing and unknown source perspective.
+- [x] Missing `source_perspective` is a schema error for source records.
+- [x] Add guidance for `unknown`.
+- [x] Add tests for missing and unknown source perspective.
 
 ## P3: Scale And UX
 
@@ -206,4 +210,3 @@ Acceptance criteria:
 - Add `fo new --dry-run` or equivalent preview mode.
 - Improve not-found ID hints with search suggestions.
 - Ensure every public record type has a template or helper.
-

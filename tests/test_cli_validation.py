@@ -114,6 +114,7 @@ class CliValidationTests(unittest.TestCase):
                     "source_type": "anonymous_report",
                     "title": "Anonymous rumor fixture",
                     "public_status": "unknown",
+                    "source_perspective": "anonymous_source",
                     "accessed_at": "2026-06-02T00:00:00Z",
                     "content_mode": "summary",
                     "risk_flags": ["anonymous_source"],
@@ -173,6 +174,7 @@ class CliValidationTests(unittest.TestCase):
                     "source_type": "anonymous_report",
                     "title": "Anonymous internal fixture",
                     "public_status": "unknown",
+                    "source_perspective": "anonymous_source",
                     "accessed_at": "2026-06-02T00:00:00Z",
                     "content_mode": "summary",
                     "risk_flags": ["anonymous_source"],
@@ -347,6 +349,113 @@ class CliValidationTests(unittest.TestCase):
         self.assertEqual(payload["command"], "lint")
         self.assertEqual(payload["errors"], [])
 
+    def test_source_requires_source_perspective(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            write_yaml(
+                repo / "records" / "sources" / "public" / "missing-perspective.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "source",
+                    "id": "source:test:missing-perspective",
+                    "source_type": "web_page",
+                    "title": "Missing source perspective",
+                    "url": "https://example.test/missing-perspective",
+                    "archive_url": "https://web.archive.org/example-missing-perspective",
+                    "public_status": "public",
+                    "accessed_at": "2026-06-03T00:00:00Z",
+                    "content_mode": "external_link",
+                },
+            )
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 1, payload)
+        self.assertFalse(payload["ok"])
+        self.assertIn("source_perspective", payload["errors"][0]["message"])
+
+    def test_lint_warns_for_unknown_source_perspective(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            write_yaml(
+                repo / "records" / "sources" / "public" / "unknown-perspective.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "source",
+                    "id": "source:test:unknown-perspective",
+                    "source_type": "web_page",
+                    "title": "Unknown source perspective",
+                    "url": "https://example.test/unknown-perspective",
+                    "archive_url": "https://web.archive.org/example-unknown-perspective",
+                    "public_status": "public",
+                    "source_perspective": "unknown",
+                    "accessed_at": "2026-06-03T00:00:00Z",
+                    "content_mode": "external_link",
+                },
+            )
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        self.assertEqual(
+            [warning["code"] for warning in payload["warnings"]],
+            ["unknown_source_perspective"],
+        )
+
+    def test_submitted_by_shape_is_validated_when_present_on_foundational_records(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            write_yaml(
+                repo / "records" / "sources" / "public" / "bad-submitter-source.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "source",
+                    "id": "source:test:bad-submitter-source",
+                    "source_type": "web_page",
+                    "title": "Bad submitter source",
+                    "url": "https://example.test/bad-submitter-source",
+                    "archive_url": "https://web.archive.org/example-bad-submitter-source",
+                    "public_status": "public",
+                    "source_perspective": "independent_media",
+                    "accessed_at": "2026-06-03T00:00:00Z",
+                    "content_mode": "external_link",
+                    "submitted_by": "tester",
+                },
+            )
+            write_yaml(
+                repo / "records" / "entities" / "company" / "bad-submitter-entity.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "entity",
+                    "id": "entity:company:bad-submitter-entity",
+                    "entity_type": "company",
+                    "name": "Bad Submitter Entity",
+                    "submitted_by": "tester",
+                },
+            )
+            write_yaml(
+                repo / "records" / "datasets" / "bad-submitter-dataset.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "dataset",
+                    "id": "dataset:test:bad-submitter-dataset",
+                    "title": "Bad submitter dataset",
+                    "dataset_type": "official_dataset",
+                    "publisher": "Finance OSINT tests",
+                    "coverage": {"period": "fixture"},
+                    "access": {"public_status": "public"},
+                    "sources": ["source:public:synthetic-exdev-fy2025-report"],
+                    "content_mode": "small_fixture",
+                    "submitted_by": "tester",
+                },
+            )
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 1, payload)
+        messages = "\n".join(error["message"] for error in payload["errors"])
+        self.assertEqual(messages.count("does not match '^github:[A-Za-z0-9_.-]+$'"), 3)
+
     def test_lint_warns_for_mutable_source_without_preservation(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
@@ -360,6 +469,7 @@ class CliValidationTests(unittest.TestCase):
                     "title": "Mutable web source",
                     "url": "https://example.test/mutable",
                     "public_status": "public",
+                    "source_perspective": "independent_media",
                     "accessed_at": "2026-06-03T00:00:00Z",
                     "content_mode": "external_link",
                 },
@@ -389,6 +499,7 @@ class CliValidationTests(unittest.TestCase):
                     "title": "Mutable web source",
                     "url": "https://example.test/mutable",
                     "public_status": "public",
+                    "source_perspective": "independent_media",
                     "accessed_at": "2026-06-03T00:00:00Z",
                     "content_mode": "external_link",
                     "source_artifacts": [
@@ -426,6 +537,7 @@ class CliValidationTests(unittest.TestCase):
                     "source_type": "web_page",
                     "title": "Bad artifact path",
                     "public_status": "public",
+                    "source_perspective": "independent_media",
                     "accessed_at": "2026-06-03T00:00:00Z",
                     "content_mode": "external_link",
                     "source_artifacts": ["screenshots/bad.png"],
@@ -938,6 +1050,7 @@ class CliValidationTests(unittest.TestCase):
                     "source_type": "anonymous_report",
                     "title": "Review rumor source",
                     "public_status": "unknown",
+                    "source_perspective": "anonymous_source",
                     "accessed_at": "2026-06-02T00:00:00Z",
                     "content_mode": "summary",
                     "risk_flags": ["anonymous_source"],

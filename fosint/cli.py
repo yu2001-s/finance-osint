@@ -1095,6 +1095,24 @@ def preservation_policy_warnings(root: Path, records: list[Record]) -> list[dict
     return warnings
 
 
+def source_policy_warnings(root: Path, records: list[Record]) -> list[dict[str, Any]]:
+    warnings: list[dict[str, Any]] = []
+    for record in records:
+        if record.kind != "source":
+            continue
+        if record.data.get("source_perspective") == "unknown":
+            warnings.append(
+                lint_warning(
+                    root,
+                    record,
+                    "unknown_source_perspective",
+                    "Source uses `source_perspective: unknown`, which weakens review-source buckets.",
+                    "Use a specific perspective when possible. Keep `unknown` only when the source-side viewpoint cannot be determined after review.",
+                )
+            )
+    return warnings
+
+
 def normalize_duplicate_text(value: Any) -> str:
     if value is None:
         return ""
@@ -4331,6 +4349,7 @@ def run_new_question(root: Path, args: argparse.Namespace) -> int:
 def run_lint(root: Path, json_output: bool = False, current_only: bool = False) -> int:
     records, errors = validate_repo(root, current_only=current_only)
     warnings = [
+        *source_policy_warnings(root, records),
         *preservation_policy_warnings(root, records),
         *duplicate_detection_warnings(root, records),
     ]
@@ -4924,8 +4943,8 @@ def build_parser() -> argparse.ArgumentParser:
     source_parser.add_argument("--public-status", required=True, choices=["public", "nonpublic", "unknown"])
     source_parser.add_argument(
         "--source-perspective",
+        required=True,
         choices=SOURCE_PERSPECTIVES,
-        default="unknown",
     )
     source_parser.add_argument("--accessed-at", required=True)
     source_parser.add_argument(

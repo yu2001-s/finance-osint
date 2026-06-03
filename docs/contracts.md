@@ -137,6 +137,7 @@ title
 public_status
 accessed_at
 content_mode
+source_perspective
 ```
 
 SEC filing source fields:
@@ -159,7 +160,7 @@ Use `source_type: social_media_post` for public posts. The post directly
 supports attribution claims about what the account said; underlying company
 facts need separate source-backed evidence.
 
-`source_perspective` is recommended for new sources:
+`source_perspective` is required for source records:
 
 ```text
 company_self
@@ -179,6 +180,8 @@ unknown
 
 This is provenance metadata only. It lets deterministic review output separate
 company-originated support from independent support without storing truth status.
+Use `unknown` only when the source-side viewpoint cannot be determined after
+review; lint reports it as advisory review pressure.
 
 Mutable web-like source types:
 
