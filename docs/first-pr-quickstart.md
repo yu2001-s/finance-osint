@@ -146,8 +146,9 @@ uv run fo new claim \
   --json
 ```
 
-Remove `--dry-run` only after replacing the example IDs with the source and
-evidence IDs for your contribution.
+Remove `--dry-run` only after replacing the example IDs, statement, subject,
+predicate, object, support type, and evidence IDs with the actual content for
+your contribution.
 
 If the evidence does not prove the stronger business conclusion, add a question
 or challenge instead of stretching the claim.
