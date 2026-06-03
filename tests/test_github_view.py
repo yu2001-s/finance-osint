@@ -75,20 +75,21 @@ def run_view_build(repo: Path, output_dir: Path, check: bool = False) -> int:
 
 
 class GitHubViewTests(unittest.TestCase):
-    def test_github_view_builds_deterministic_pr_chain_markdown(self) -> None:
+    def test_github_view_builds_deterministic_pr_chain_markdown_for_impacted_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
             init_git_repo(repo)
             base_sha = git_sha(repo)
-            thesis_path = (
+            evidence_path = (
                 repo
                 / "records"
-                / "theses"
-                / "synthetic-exdev-margin-risk-from-foundry-concentration.yml"
+                / "evidence"
+                / "public"
+                / "synthetic-exdev-fy2025-supplier-note.yml"
             )
-            thesis = load_yaml(thesis_path)
-            thesis["summary"] = thesis["summary"] + " GitHub view test change."
-            write_yaml(thesis_path, thesis)
+            evidence = load_yaml(evidence_path)
+            evidence["excerpt"] = "Updated evidence excerpt for impacted GitHub view test."
+            write_yaml(evidence_path, evidence)
 
             output_dir = repo / ".local" / "github-view"
             status = run_view_build(repo, output_dir)
@@ -129,6 +130,8 @@ class GitHubViewTests(unittest.TestCase):
         pr_review = first_render[Path("pr-review.md")]
         self.assertIn("Base ref: `HEAD`", pr_review)
         self.assertIn(f"Base SHA: `{base_sha}`", pr_review)
+        self.assertIn("## Changed Or Impacted Thesis/Relationship Chains", pr_review)
+        self.assertIn("evidence:synthetic:exdev-fy2025-supplier-note", pr_review)
 
     def test_github_view_build_cleans_stale_chain_pages(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

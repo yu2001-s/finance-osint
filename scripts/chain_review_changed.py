@@ -7,15 +7,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-import yaml
-
-
-REVIEW_PATH_PREFIXES = (
-    "records/relationships/",
-    "records/theses/",
-    "relationships/",
-    "theses/",
-)
+from fosint import cli as fosint_cli
 
 
 def run(args: list[str]) -> subprocess.CompletedProcess[str]:
@@ -26,68 +18,6 @@ def run(args: list[str]) -> subprocess.CompletedProcess[str]:
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
-
-
-def git_commit_sha(ref: str) -> tuple[str | None, str | None]:
-    result = run(["git", "rev-parse", "--verify", f"{ref}^{{commit}}"])
-    if result.returncode != 0:
-        message = result.stderr.strip() or result.stdout.strip() or "git rev-parse failed"
-        return None, message
-    return result.stdout.strip(), None
-
-
-def git_changed_paths(base_ref: str) -> list[tuple[str, str]]:
-    result = run(["git", "diff", "--name-status", base_ref, "--"])
-    if result.returncode != 0:
-        message = result.stderr.strip() or result.stdout.strip() or "git diff failed"
-        raise RuntimeError(message)
-
-    paths: list[tuple[str, str]] = []
-    for line in result.stdout.splitlines():
-        parts = line.split("\t")
-        if not parts:
-            continue
-        status = parts[0]
-        if status.startswith("R") and len(parts) >= 3:
-            paths.append(("R", parts[2]))
-        elif len(parts) >= 2:
-            paths.append((status[:1], parts[1]))
-    untracked = run(["git", "ls-files", "--others", "--exclude-standard"])
-    if untracked.returncode != 0:
-        message = untracked.stderr.strip() or untracked.stdout.strip() or "git ls-files failed"
-        raise RuntimeError(message)
-    tracked_paths = {path for _, path in paths}
-    for path_text in sorted(path for path in untracked.stdout.splitlines() if path):
-        if path_text not in tracked_paths:
-            paths.append(("A", path_text))
-    return paths
-
-
-def current_review_paths(base_ref: str) -> list[Path]:
-    paths: list[Path] = []
-    for status, path_text in git_changed_paths(base_ref):
-        if status == "D":
-            continue
-        if not path_text.endswith((".yml", ".yaml")):
-            continue
-        if not path_text.startswith(REVIEW_PATH_PREFIXES):
-            continue
-        path = Path(path_text)
-        if path.exists():
-            paths.append(path)
-    return sorted(set(paths), key=lambda path: str(path))
-
-
-def record_id_for_path(path: Path) -> str | None:
-    with path.open("r", encoding="utf-8") as handle:
-        loaded: Any = yaml.safe_load(handle)
-    if not isinstance(loaded, dict):
-        return None
-    record_id = loaded.get("id")
-    kind = loaded.get("kind")
-    if not isinstance(record_id, str) or kind not in {"relationship", "thesis"}:
-        return None
-    return record_id
 
 
 def review_record(record_id: str) -> dict[str, Any]:
@@ -125,27 +55,40 @@ def compact_review(payload: dict[str, Any]) -> dict[str, Any]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Run fo review --chain for changed current thesis/relationship records."
+        description="Run fo review --chain for changed or impacted current thesis/relationship records."
     )
     parser.add_argument("base", help="Git base commit ref to compare against")
     args = parser.parse_args()
 
     try:
-        base_sha, base_error = git_commit_sha(args.base)
-        if base_error:
-            raise RuntimeError(f"failed to resolve `{args.base}`: {base_error}")
-        record_ids = sorted(
-            {
-                record_id
-                for path in current_review_paths(str(base_sha))
-                if (record_id := record_id_for_path(path))
-            }
+        root = Path.cwd()
+        diff_payload, diff_status = fosint_cli.build_diff_review(root, args.base)
+        if diff_status:
+            messages = [error["message"] for error in diff_payload.get("errors", [])] or [
+                f"diff-review failed for `{args.base}`"
+            ]
+            raise RuntimeError("; ".join(messages))
+        records, load_errors = fosint_cli.load_records(Path.cwd(), include_archive=False)
+        if load_errors:
+            raise RuntimeError("; ".join(load_errors))
+        target_map = fosint_cli.impacted_chain_target_map(
+            root,
+            records,
+            fosint_cli.chain_seed_map_from_payload(diff_payload),
         )
+        record_ids = sorted(target_map)
+        chain_impact = diff_payload.get("chain_impact", {})
         payload = {
             "command": "chain-review-changed",
             "base": args.base,
-            "base_sha": base_sha,
+            "base_sha": diff_payload.get("base_sha"),
+            "chain_impact": chain_impact,
+            "changed_seed_ids": chain_impact.get("seed_ids", []),
+            "expanded_seed_ids": chain_impact.get("expanded_seed_ids", []),
             "reviewed_ids": record_ids,
+            "reviewed_targets": [
+                {"id": record_id, "seed_ids": target_map[record_id]} for record_id in record_ids
+            ],
             "reviewed_count": len(record_ids),
             "reviews": [compact_review(review_record(record_id)) for record_id in record_ids],
         }
