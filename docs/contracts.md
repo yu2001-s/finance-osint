@@ -363,7 +363,9 @@ superseded
   Record has superseded_by, duplicate_of, or lives under archive with a replacement.
 
 stale
-  Record has a stale validation/challenge or time-sensitive evidence past a configured freshness window.
+  Record has a stale validation, open outdated challenge, or explicit stale risk
+  flag on the record, supporting path, validation, or open challenge. Automated
+  freshness windows are deferred from v1 review state.
 
 contested
   Record has at least one open challenge, contradiction, or dispute/falsify validation.
@@ -445,6 +447,9 @@ other
 Challenge anti-suppression rules:
 
 - Open challenges must show in `fo review` and `fo context`.
+- Open `outdated` challenges move the target toward stale review state.
+- Addressed, withdrawn, or superseded `outdated` challenges remain visible as
+  history but do not by themselves keep the target stale.
 - Closing or addressing a challenge should be append-only through a follow-up record or explicit `addressed_by`.
 - A challenge should not be removed from current views merely because maintainers disagree with it.
 - Archive PRs must not bury open challenges without `superseded_by`, `duplicate_of`, or `archive_reason`.
