@@ -24,6 +24,12 @@ def copy_fixture_repo(target: Path) -> Path:
     for dirname in FIXTURE_DIRS:
         shutil.copytree(ROOT / dirname, repo / dirname)
     if SYNTHETIC_RECORDS.exists():
+        for fixture_path in SYNTHETIC_RECORDS.rglob("*"):
+            if not fixture_path.is_file():
+                continue
+            relative_path = fixture_path.relative_to(SYNTHETIC_RECORDS)
+            if (repo / "records" / relative_path).exists():
+                raise AssertionError(f"Synthetic fixture would overwrite canonical record: {relative_path}")
         shutil.copytree(SYNTHETIC_RECORDS, repo / "records", dirs_exist_ok=True)
     return repo
 

@@ -1,0 +1,19 @@
+kind: argument
+id: arg:example:alpd-supplier-risk-material
+debate: debate:example:alpd-supplier-risk
+author: github:example
+position: supplier concentration is material
+stance: supports
+target: thesis:example:alpd-margin-risk-from-nfab-concentration
+summary: A single named manufacturing support provider for a key component can be a useful starting point for investigating concentration risk.
+depends_on:
+  evidence:
+    - evidence:example:alpd-fy2025-nfab-supplier
+  claims:
+    - claim:example:alpd-uses-nfab-for-a1
+  relationships:
+    - relationship:example:alpd-nfab-a1-supplier
+  theses:
+    - thesis:example:alpd-margin-risk-from-nfab-concentration
+confidence: low
+created_at: "2026-06-02T00:00:00Z"
