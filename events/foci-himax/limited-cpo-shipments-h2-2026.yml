@@ -1,0 +1,29 @@
+schema_version: 1
+kind: event
+id: event:foci-himax:limited-cpo-shipments-h2-2026
+event_type: limited_shipments
+event_state: expected
+title: Himax expected small-quantity shipments for Himax-FOCI CPO solution in H2
+  2026
+entities:
+- entity:company:himax-technologies
+- entity:company:foci-fiber-optic-communications
+- entity:product:foci-relfacon
+- entity:product:himax-wafer-level-optics
+- entity:architecture:co-packaged-optics
+evidence:
+- evidence:public:himax:q1-2026-foci-limited-shipments
+submitted_by: github:codex
+period:
+  type: half_year
+  value: 2026H2
+properties:
+  date_type: window
+  timing_basis: company_guided_prepared_remarks
+  timing_confidence: guided
+  volume_language: small_quantity
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- company_originated
+- expected_shipments
+- revenue_split_missing

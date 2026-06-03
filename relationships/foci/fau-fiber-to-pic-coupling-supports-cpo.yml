@@ -1,0 +1,30 @@
+schema_version: 1
+kind: relationship
+id: relationship:fau-fiber-to-pic-coupling-interface:supports-cpo
+type: supports_architecture
+participants:
+- role: supporter
+  entity: entity:component:fau-fiber-to-pic-coupling-interface
+- role: architecture
+  entity: entity:architecture:co-packaged-optics
+derived_from:
+  claims:
+  - claim:foci:relfacon-cpo-product-fit
+  - claim:himax:q1-2026-foci-limited-shipments
+  - claim:wiwynn:computex-cpo-demo-names-foci
+  evidence:
+  - evidence:public:foci:relfacon-cpo-product-fit
+  - evidence:public:himax:q1-2026-foci-limited-shipments
+  - evidence:public:wiwynn:computex-cpo-demo-foci
+submitted_by: github:codex
+scope:
+  technology: entity:architecture:silicon-photonics
+qualifiers:
+- product_fit
+- direct_statement
+materiality:
+  level: medium
+  basis: observed
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- architecture_layer_not_supplier_allocation

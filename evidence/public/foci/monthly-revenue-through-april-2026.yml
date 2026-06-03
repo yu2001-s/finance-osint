@@ -1,0 +1,24 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:foci:monthly-revenue-through-april-2026
+evidence_class: public_primary
+source: source:public:foci:monthly-revenue-202604
+summary: The MOPS monthly revenue endpoint for FOCI showed Jan-April 2026 cumulative
+  revenue of NT$509.912M, down 17.15% year over year.
+content_mode: excerpt
+observed_at: '2026-04-30T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: FOCI Jan-April 2026 MOPS revenue was NT$509.912M, with cumulative revenue
+  down 17.15% year over year through April 2026.
+locator:
+  section: MOPS monthly revenue endpoint for company code 3363
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: official_dataset_snapshot
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- company_originated
+- monthly_revenue_snapshot

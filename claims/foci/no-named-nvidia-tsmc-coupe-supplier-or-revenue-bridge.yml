@@ -1,0 +1,20 @@
+schema_version: 1
+kind: claim
+id: claim:foci:no-named-nvidia-tsmc-coupe-supplier-or-revenue-bridge
+statement: The frozen FOCI conversion sprint found product fit, validation, planned-delivery,
+  and customer-adjacent demo evidence, but no BOM, AVL, procurement, production
+  order, named NVIDIA/TSMC/COUPE supplier role, revenue split, or margin bridge
+  for FOCI/ReLFACon.
+subject: entity:company:foci-fiber-optic-communications
+predicate: source_attestation
+support_type: observed
+evidence:
+- id: evidence:public:stock-research:foci-hidden-allocation-proof-gaps
+submitted_by: github:codex
+object: supplier_allocation_and_revenue_bridge_not_found
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- compiled_research
+- negative_search
+- not_primary_source
+- supplier_allocation_unproven

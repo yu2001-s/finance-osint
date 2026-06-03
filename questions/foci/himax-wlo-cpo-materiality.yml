@@ -1,0 +1,29 @@
+schema_version: 1
+kind: question
+id: question:himax:wlo-cpo-materiality
+question: Can Himax isolate WLO/CPO revenue, customer programs, production volume,
+  margin, or balance-sheet effects from its FOCI collaboration enough to separate
+  operating CPO materiality from broad-parent exposure?
+entities:
+- entity:company:himax-technologies
+- entity:product:himax-wafer-level-optics
+- entity:company:foci-fiber-optic-communications
+proof_type: cpo_revenue_materiality
+priority: medium
+submitted_by: github:codex
+related_evidence:
+- evidence:public:himax:foci-cpo-collaboration
+- evidence:public:himax:q1-2026-foci-limited-shipments
+related_claims:
+- claim:himax:foci-cpo-collaboration
+- claim:himax:q1-2026-foci-limited-shipments
+related_relationships:
+- relationship:foci-himax:cpo-development-partnership
+next_actions:
+- Review Himax Q2/Q3/Q4 2026 call scripts, investor presentations, and financial
+  notes for WLO/CPO revenue, named customer, shipment volume, margin, or accounting
+  separation.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- proof_gap
+- broad_parent_materiality_unproven

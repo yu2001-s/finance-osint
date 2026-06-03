@@ -1,0 +1,27 @@
+schema_version: 1
+kind: event
+id: event:foci:planned-cpo-fau-deliveries-2026
+event_type: customer_delivery_plan
+event_state: expected
+title: FOCI planned specified-quantity CPO FAU customer deliveries in 2026
+entities:
+- entity:company:foci-fiber-optic-communications
+- entity:product:foci-relfacon
+- entity:component:fau-fiber-to-pic-coupling-interface
+- entity:architecture:co-packaged-optics
+evidence:
+- evidence:public:foci:q1-2026-unnamed-customer-delivery-plan
+submitted_by: github:codex
+period:
+  type: year
+  value: '2026'
+properties:
+  date_type: window
+  timing_basis: company_guided_deck
+  timing_confidence: guided
+  customer_naming: unnamed
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- company_originated
+- unnamed_customer
+- revenue_bridge_missing

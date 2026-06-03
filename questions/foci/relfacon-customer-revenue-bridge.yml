@@ -1,0 +1,36 @@
+schema_version: 1
+kind: question
+id: question:foci:relfacon-customer-revenue-bridge
+question: Can FOCI tie ReLFACon/CPO FAU evidence to named customers, BOM/AVL/procurement
+  status, production orders, revenue split, margin, or customer concentration
+  enough to support the May 29, 2026 valuation snapshot?
+entities:
+- entity:company:foci-fiber-optic-communications
+- entity:product:foci-relfacon
+- entity:component:fau-fiber-to-pic-coupling-interface
+proof_type: supplier_allocation_revenue_conversion
+priority: high
+submitted_by: github:codex
+related_evidence:
+- evidence:public:foci:relfacon-cpo-product-fit
+- evidence:public:foci:q1-2026-unnamed-customer-delivery-plan
+- evidence:public:market-data:foci-valuation-20260529
+- evidence:public:stock-research:foci-hidden-allocation-proof-gaps
+related_claims:
+- claim:foci:relfacon-cpo-product-fit
+- claim:foci:q1-2026-unnamed-customer-delivery-plan
+- claim:foci:valuation-rerated-20260529
+- claim:foci:no-named-nvidia-tsmc-coupe-supplier-or-revenue-bridge
+related_relationships:
+- relationship:foci:manufactures-relfacon
+- relationship:foci-relfacon:supports-cpo
+next_actions:
+- Monitor FOCI Q2/Q3/Q4 2026 MOPS decks, monthly revenue, financial reports,
+  customer concentration notes, and capex disclosures for CPO FAU delivery conversion.
+- Search Wiwynn, NVIDIA, TSMC, SPIL, Himax, and FOCI materials for named ReLFACon,
+  FAU, BOM, AVL, procurement, order value, or revenue-split language.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- proof_gap
+- supplier_allocation_unproven
+- valuation_conversion_unproven

@@ -1,0 +1,15 @@
+schema_version: 1
+kind: entity
+id: entity:company:himax-technologies
+entity_type: company
+name: Himax Technologies
+submitted_by: github:codex
+aliases:
+- Himax
+identifiers:
+  ticker: HIMX
+description: Taiwan fabless semiconductor company whose wafer-level optics
+  technology is tied in company sources to an ongoing CPO collaboration with FOCI,
+  while CPO/WLO revenue materiality remains unisolated in the migrated evidence.
+state: active
+created_at: '2026-06-03T00:00:00Z'

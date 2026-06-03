@@ -1,0 +1,20 @@
+schema_version: 1
+kind: metric
+id: metric:foci:q1-2026-revenue
+entity: entity:company:foci-fiber-optic-communications
+metric_definition: metric_definition:revenue
+value: 381969000.0
+unit: TWD
+period:
+  type: quarter
+  value: 2026Q1
+value_basis: reported
+evidence:
+- evidence:public:foci:q1-2026-financial-report
+submitted_by: github:codex
+source_locator:
+  section: Q1 2026 MOPS financial report
+reported_at: '2026-05-15'
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- financial_report_snapshot

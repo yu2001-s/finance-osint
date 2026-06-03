@@ -1,0 +1,14 @@
+schema_version: 1
+kind: entity
+id: entity:component:fau-fiber-to-pic-coupling-interface
+entity_type: component
+name: FAU / fiber-to-PIC coupling interface
+submitted_by: github:codex
+aliases:
+- FAU
+- Fiber array unit
+- Fiber-to-PIC coupling
+description: Fiber-array-unit and fiber-to-PIC interface layer for coupling
+  optical fibers to silicon-photonics PICs and CPO optical engines.
+state: active
+created_at: '2026-06-03T00:00:00Z'

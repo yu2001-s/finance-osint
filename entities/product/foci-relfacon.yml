@@ -1,0 +1,12 @@
+schema_version: 1
+kind: entity
+id: entity:product:foci-relfacon
+entity_type: product
+name: FOCI ReLFACon
+submitted_by: github:codex
+aliases:
+- ReLFACon
+description: FOCI reflowable lensed fiber-array connector product described by
+  company material for silicon-photonics co-packaged-optics components.
+state: active
+created_at: '2026-06-03T00:00:00Z'

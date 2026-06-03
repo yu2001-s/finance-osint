@@ -1,0 +1,36 @@
+schema_version: 1
+kind: question
+id: question:foci:wiwynn-himax-delivery-conversion
+question: Do Wiwynn demo materials, Himax call scripts, or FOCI follow-up disclosures
+  convert CPO ecosystem/demo and H2 2026 limited-shipment language into named
+  production supplier allocation, customer orders, or product-coded revenue?
+entities:
+- entity:company:foci-fiber-optic-communications
+- entity:company:himax-technologies
+- entity:company:wiwynn
+- entity:architecture:co-packaged-optics
+proof_type: customer_side_conversion
+priority: high
+submitted_by: github:codex
+related_evidence:
+- evidence:public:himax:foci-cpo-collaboration
+- evidence:public:himax:q1-2026-foci-limited-shipments
+- evidence:public:wiwynn:computex-cpo-demo-foci
+- evidence:public:stock-research:foci-hidden-allocation-proof-gaps
+related_claims:
+- claim:himax:foci-cpo-collaboration
+- claim:himax:q1-2026-foci-limited-shipments
+- claim:wiwynn:computex-cpo-demo-names-foci
+- claim:foci:no-named-nvidia-tsmc-coupe-supplier-or-revenue-bridge
+related_relationships:
+- relationship:foci-himax:cpo-development-partnership
+next_actions:
+- Recheck Wiwynn Computex follow-up materials, booth decks, BOM references, and
+  procurement surfaces for FAU/ReLFACon supplier naming.
+- Recheck Himax Q2/Q3 2026 call scripts for WLO/CPO revenue split, named customers,
+  and limited-shipment conversion.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- proof_gap
+- demo_not_order_or_revenue
+- expected_shipments

@@ -1,0 +1,19 @@
+schema_version: 1
+kind: source
+id: source:public:foci:monthly-revenue-202604
+source_type: official_dataset
+title: FOCI MOPS monthly revenue through April 2026
+public_status: public
+source_perspective: company_self
+accessed_at: '2026-06-03T00:00:00Z'
+content_mode: external_link
+submitted_by: github:codex
+publisher: MOPS / FOCI Fiber Optic Communications
+url: https://mopsov.twse.com.tw/mops/web/t05st10_ifrs
+published_at: '2026-05-10'
+provenance: Migrated from frozen stock-research source src_foci_mops_monthly_revenue_202604
+  at finance-osint-seed-20260603.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- company_originated
+- mops_hosted
