@@ -28,6 +28,9 @@ agent-skills/add-relationship/SKILL.md
 agent-skills/propose-ontology/SKILL.md
   Use when a needed predicate, relationship type, metric definition, entity type, or proof vocabulary is missing.
 
+agent-skills/migrate-stock-research/SKILL.md
+  Use when porting seed material from the frozen stock research snapshot.
+
 agent-skills/validate-or-challenge/SKILL.md
   Use when reviewing, supporting, disputing, or pressuring an existing object.
 

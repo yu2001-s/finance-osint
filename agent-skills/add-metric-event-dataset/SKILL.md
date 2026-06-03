@@ -32,6 +32,16 @@ uv run fo new metric \
   --json
 ```
 
+Use `value_basis` narrowly:
+
+```text
+reported  source reports the number
+observed  contributor/source observed the value directly
+derived   calculated from explicit source-backed inputs
+estimated explicit estimate/consensus/model source, not contributor forecast
+restated  source-backed restatement of an earlier value
+```
+
 ## Event Workflow
 
 Use events for order announcements, shipments, product launches, guidance
@@ -48,6 +58,18 @@ uv run fo new event \
   --evidence evidence:... \
   --submitted-by github:USERNAME \
   --json
+```
+
+For expected catalysts, use exact dates only when the source gives exact dates.
+If the source gives a window or an inferred timing range, put that under
+`period` or `properties` instead of inventing an exact `expected_at`.
+
+Suggested `properties` keys when useful:
+
+```yaml
+date_type: window
+timing_basis: company_guided
+timing_confidence: guided
 ```
 
 ## Dataset Workflow
