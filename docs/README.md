@@ -1,79 +1,81 @@
-# Documentation Home
+# Documentation
 
-Finance OSINT keeps its public documentation in this `docs/` directory so
-documentation changes use the same pull-request review, CI, and Git history as
-the database. The GitHub Wiki feature is currently disabled for the repository;
-this page is the canonical wiki-style entry point.
+This directory is the stable user and contributor documentation for Finance
+OSINT. It explains how to use the repository, how the ontology works, and how to
+make reviewable contributions.
 
 ## Start Here
 
-- First contribution: `docs/first-pr-quickstart.md`
-- Contributor guide: `CONTRIBUTING.md`
-- Data model overview: `docs/data-model.md`
-- CLI and schema contracts: `docs/contracts.md`
-- Research batch workflow: `docs/research-batch-contribution.md`
-- Example corpora: `examples/corpus/README.md`
+- `../README.md`: project overview and quick commands.
+- `../CONTRIBUTING.md`: pull-request rules and validation checks.
+- `first-pr-quickstart.md`: a small first contribution workflow.
+- `data-model.md`: record kinds, dependency layers, and canonical paths.
+- `ontology.md`: claim predicates, metric definitions, relationship types, and
+  proposal rules.
+- `research-batch-contribution.md`: source-backed research batch workflow.
+- `contracts.md`: CLI, schema, ID, archive, and generated-artifact contracts.
+- `governance.md`: review, disputes, abuse boundaries, and merge criteria.
+- `maintenance.md`: maintainer commands and generated review artifacts.
 
-## How Review Works
+## Canonical Data
 
-- Governance: `docs/governance.md`
-- Review policy: `docs/review-policy.md`
-- Review rubric: `docs/review-rubric.md`
-- GitHub public launch controls: `docs/github-public-launch-checklist.md`
-- Performance and scale budgets: `docs/performance-budgets.md`
+Canonical current data lives in:
 
-Finance OSINT does not hide disagreement. Rumor, anonymous reports,
-unverifiable reports, speculative theses, and aggressive claims are allowed
-when they are labeled honestly and fit the record format. Review should make
-the evidence chain, uncertainty, and objections visible so readers can decide
-for themselves.
+```text
+records/
+ontology/
+schemas/
+templates/
+```
 
-## Public Alpha Status
+Archived canonical data, when present, lives under:
 
-- Repository: `https://github.com/yu2001-s/finance-osint`
-- Visibility: public
-- Default branch: `main`
-- Required GitHub check: `Validate`
-- Current target tag: `v0.1.0-alpha`, not tagged yet
+```text
+archive/records/
+archive/ontology/
+```
 
-Launch and tag state lives in `docs/release-readiness.md`. GitHub issues with
-the `launch-gate` or `pre-tag` labels are the live operational backlog.
+Generated local state lives under `.local/` and must not be committed.
+Examples, deferred prototypes, and test fixtures are not loaded by normal
+`fo` commands.
 
-## Canonical Data Boundaries
+## Reading The Repo
 
-Canonical records live under `records/`. Examples and fixtures are not loaded by
-normal `fo` commands:
-
-- Copyable examples: `examples/corpus/`
-- Deferred prototype examples: `examples/deferred/`
-- Test-only synthetic records: `tests/fixtures/synthetic-records/`
-
-Do not cite example or fixture IDs as real-world research support.
-
-## Maintainer Operations
-
-Before a meaningful database or tooling merge, run the same local gate used by
-CI:
+Use the same flow for human reading and agent work:
 
 ```bash
 uv run fo lint --json
-uv run python -m unittest discover -s tests
 uv run fo index build --json
-uv run python scripts/chain_review_changed.py HEAD
-uv run fo graph build --json
-uv run fo diff-review HEAD --json
+uv run fo search QUERY --json
+uv run fo context RECORD_ID --json
+uv run fo review RECORD_ID --chain --json
+uv run fo graph neighbors RECORD_ID --json
 ```
 
-Before tagging, use the fuller pre-tag checklist in
-`docs/github-public-launch-checklist.md`.
+`fo review` and `fo diff-review` derive local review state. They do not write
+truth labels back to canonical records.
 
-## Historical Review Artifacts
+## Writing The Repo
 
-These dated files document how the public alpha was reviewed and should not be
-treated as the current operating surface when they conflict with the files
-above:
+Add records in dependency order:
 
-- `docs/pre-public-review-20260603.md`
-- `docs/pre-public-issue-backlog-20260603.md`
-- `docs/seed-full-chain-review-20260603.md`
-- `docs/schema-migration-v1.md`
+```text
+entity
+source
+evidence
+metric / event / dataset
+claim
+relationship
+question / challenge / validation
+thesis
+```
+
+If support is incomplete, keep the record narrow and add a question or
+challenge. Do not encode investment truth as canonical `status`, `confidence`,
+or hidden reviewer notes.
+
+## Example Corpora
+
+`examples/corpus/` contains fictional copyable examples. They demonstrate record
+shape and contribution patterns, but they are not canonical market data and
+should not be cited by real research records.

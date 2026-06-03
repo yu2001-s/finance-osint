@@ -6,7 +6,7 @@ description: Use when porting seed material from the frozen local stock research
 # Migrate Stock Research
 
 Stock research is seed input, not canonical truth. Migrate only from the frozen
-snapshot recorded in `docs/stock-research-seed-snapshot.yml`.
+snapshot recorded in `agent-skills/migrate-stock-research/stock-research-seed-snapshot.yml`.
 
 ## Snapshot
 

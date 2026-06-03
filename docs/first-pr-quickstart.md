@@ -1,206 +1,139 @@
 # First PR Quickstart
 
-This guide is for a first small Finance OSINT contribution. Keep the first PR
-small. One useful record is enough when it fits the existing graph: a source,
-evidence item, claim, question, challenge, validation, entity, metric, or event
-can each be a valid contribution. A source/evidence pair plus one claim,
-question, challenge, or validation is a good first chain, but it is not
-required.
+This guide walks through a small source-backed contribution. Use it for a first
+source, evidence, metric, claim, question, challenge, or validation PR.
 
 ## 1. Set Up
 
 ```bash
-uv sync --locked
+uv sync
 uv run fo lint --json
 uv run fo index build --json
 ```
 
-Set the review base before running diff-oriented commands. In a local clone with
-no GitHub remote yet, use `HEAD`. On a GitHub PR branch, use the PR base branch.
+Search before adding records:
 
 ```bash
-BASE=HEAD
-
-# On a branch with a GitHub remote:
-# git fetch origin main
-# BASE=origin/main
+uv run fo search "company or topic" --json
+uv run fo search "source title or ticker" --json
 ```
 
-If setup fails, run the fallback from `README.md` to verify the local Python
-environment before editing records.
+If the target entity already exists, reuse it. If not, add an entity first.
 
-## 2. Search Before Adding
+## 2. Choose A Small Contribution
 
-Search for the company, source, or evidence terms first. This query is
-copy-runnable in a clean clone:
+Good first PRs are narrow:
 
-```bash
-uv run fo search "axt" --json
-```
+- add one missing company, product, security, listing, market, or regulation
+- add one public source and one bounded evidence record
+- add one reported metric from an existing evidence record
+- add one claim with `support_type: direct`
+- add one question for a missing proof point
+- add one challenge against an overstated relationship or thesis
 
-Inspect nearby records:
+Avoid starting with a broad thesis. A thesis is easier to review after its
+source, evidence, claim, metric, event, and relationship dependencies exist.
 
-```bash
-uv run fo context entity:company:axt-inc --json
-uv run fo review thesis:axt-sumitomo:inp-substrate-bottleneck-watch --chain --json
-```
+## 3. Use Deterministic Constructors
 
-Do not add a duplicate record when an existing one can be updated, validated, or
-challenged.
+The `fo new` commands write YAML from explicit inputs only. They do not fetch
+sources, summarize documents, infer claims, or decide truth.
 
-## 3. Choose The Smallest Useful Unit
-
-Add the smallest record or record set that makes the database better:
-
-- Add a `source` when you found a useful filing, transcript, article, dataset,
-  or page that future evidence can cite.
-- Add `evidence` when an existing source contains a bounded excerpt,
-  observation, or locator worth preserving.
-- Add a `claim` only when it points to evidence and says no more than the
-  evidence supports.
-- Add a `question` for a proof gap, next investigation target, or missing
-  underwriting bridge.
-- Add a `challenge` or `validation` to review an existing record without
-  overwriting it.
-
-Full chains are optional. If your PR adds only one point, state what it adds and
-what remains missing.
-
-## 4. Add A Source
-
-Use explicit source material only. Do not rely on hidden memory or hidden agent
-state. The examples use `github:quickstart` so they can be pasted as smoke
-tests; replace it with your GitHub username before writing a real contribution.
+Preview an entity:
 
 ```bash
-uv run fo new source \
-  --source-type web_page \
-  --title "Quickstart dry-run source" \
-  --url "https://example.com/source" \
-  --archive-url "https://web.archive.org/web/20260603000000/https://example.com/source" \
-  --public-status public \
-  --source-perspective independent_media \
-  --accessed-at "2026-06-03T00:00:00Z" \
-  --content-mode external_link \
-  --submitted-by github:quickstart \
+uv run fo new entity \
+  --id entity:company:example-corp \
+  --entity-type company \
+  --name "Example Corp" \
+  --submitted-by github:your-login \
   --dry-run \
   --json
 ```
 
-Remove `--dry-run` to write the record after the preview looks correct. Copy the
-returned `id` into evidence that depends on this source. The existing canonical
-IDs in the next two sections are for copy-paste smoke tests only; do not write
-duplicate versions of those examples for a real PR.
+Preview a source:
 
-For a real chained PR:
+```bash
+uv run fo new source \
+  --id source:public:example:fy2025-annual-report \
+  --source-type company_report \
+  --title "Example Corp FY2025 Annual Report" \
+  --public-status public \
+  --source-perspective company_self \
+  --accessed-at 2026-06-04 \
+  --content-mode external_link \
+  --url "https://example.com/report.pdf" \
+  --submitted-by github:your-login \
+  --dry-run \
+  --json
+```
 
-- Write the source, then copy the returned source `id`.
-- Replace the example `--source` below with that source `id`, write the
-  evidence, then copy the returned evidence `id`.
-- Replace the example `--evidence` in the claim command with that evidence
-  `id`.
-
-For mutable web-like sources, prefer `archive_url`. If no archive exists, add a
-bounded evidence excerpt, `content_hash`, or a small referenced artifact.
-
-## 5. Add Evidence
-
-Evidence is the strict layer. Quote or summarize only the bounded item needed
-for review. This command uses an existing canonical source so the dry-run is
-copy-runnable. For a real PR, replace `--source` with the source `id` you just
-wrote.
+After the source record exists, preview evidence:
 
 ```bash
 uv run fo new evidence \
   --evidence-class public_primary \
-  --source source:public:axt:fy2025-form-10-k \
-  --summary "Quickstart dry-run evidence preview." \
+  --source source:public:example:fy2025-annual-report \
+  --summary "The report discloses Example Corp's FY2025 revenue." \
   --content-mode excerpt \
-  --excerpt "Short exact excerpt." \
-  --observed-at "2026-06-03T00:00:00Z" \
+  --observed-at 2026-06-04 \
   --source-attribution named_public \
-  --submitted-by github:quickstart \
+  --excerpt "Keep the excerpt short and bounded." \
+  --submitted-by github:your-login \
   --dry-run \
   --json
 ```
 
-Remove `--dry-run` only after the preview is valid. Copy the returned `id` into
-claims, validations, questions, or challenges that depend on this evidence.
+Remove `--dry-run` when the preview is correct, or pass `--path` when you want a
+specific file path.
 
-## 6. Add One Reviewable Object
+## 4. Keep The Chain Honest
 
-For a narrow sourced assertion, first choose an existing entity from search or
-add a new entity record. This command uses an existing canonical entity and
-evidence so the dry-run is copy-runnable.
+Use these boundaries:
 
-```bash
-uv run fo new claim \
-  --statement "AXT discloses indium phosphide substrate products." \
-  --subject entity:company:axt-inc \
-  --predicate product_signal \
-  --object entity:component:indium-phosphide-substrate \
-  --support-type direct \
-  --evidence evidence:public:axt:fy2025-inp-products \
-  --submitted-by github:quickstart \
-  --dry-run \
-  --json
-```
+- `source`: where the information came from
+- `evidence`: a bounded excerpt, table, row, locator, or observation
+- `metric`: a numeric observation
+- `event`: something that occurred or is expected to occur
+- `claim`: a narrow assertion backed by evidence
+- `relationship`: a typed graph connection supported by claims or evidence
+- `question`: an open proof gap
+- `challenge`: unresolved pressure on support, scope, ontology, or freshness
+- `validation`: append-only review of support
+- `thesis`: interpretation or forecast built from dependencies
 
-Remove `--dry-run` only after replacing the example IDs, statement, subject,
-predicate, object, support type, and evidence IDs with the actual content for
-your contribution.
+If you cannot prove customer allocation, revenue conversion, qualified-supplier
+status, design-in, or materiality, say that with a question or challenge.
 
-If the evidence does not prove the stronger business conclusion, add a question
-or challenge instead of stretching the claim.
+## 5. Validate Locally
 
-## 7. Review Locally
-
-For a meaningful database PR, run:
+Use your branch point or PR base for `BASE`:
 
 ```bash
 uv run fo lint --json
 uv run python -m unittest discover -s tests
 uv run fo index build --json
-uv run fo review RECORD_ID --chain --json
-uv run python scripts/chain_review_changed.py "$BASE"
 uv run fo graph build --json
-uv run fo diff-review "$BASE" --json
-uv run fo view build "$BASE" --json
+uv run fo diff-review BASE --json
+uv run fo view build BASE --json
 ```
 
-Replace `RECORD_ID` with the ID returned by `fo new`, or with the main changed
-thesis or relationship ID when the PR changes a chain.
-
-`BASE` means the Git commit to compare the current working tree against. The
-local diff-review commands resolve symbolic refs such as `HEAD` or `main` to a
-commit SHA and include that SHA in JSON output.
-
-For tooling, schema, graph/index, or large data PRs, also run the heavier CI
-parity checks:
+For changed or impacted thesis and relationship records:
 
 ```bash
-uv run python scripts/validate_with_timing.py "$BASE" --json
-uv run python scripts/scale_smoke.py --records 10000 --json
-uv run fo view build "$BASE" --output .local/ci/github-view --json
+uv run fo review RECORD_ID --chain --json
+uv run python scripts/chain_review_changed.py BASE
 ```
 
-Review every warning. Warnings are review pressure. Explain them in the PR. The
-`.local/` outputs are generated review artifacts and should stay uncommitted.
+## 6. Open The PR
 
-## 8. Open The PR
+Summarize:
 
-In the PR, summarize:
+- records added or changed by kind
+- main source and evidence IDs
+- evidence classes and source perspectives
+- ontology terms used or proposed
+- open questions, challenges, and limitations
+- local command results and every `fo diff-review` warning
 
-- Records added or changed.
-- Main source and evidence IDs.
-- Evidence class, source perspective, attribution, content mode, and support
-  type.
-- What the evidence proves.
-- What remains unproven.
-- Open questions or challenges.
-- `fo diff-review` warnings, even when they are expected.
-- `fo view build` output or the CI `github-view` artifact when a thesis or
-  relationship changed or was impacted by lower-level record changes.
-
-Do not add canonical `status`, `confidence`, `agent_run`, `generated_by`, or
-hidden source knowledge.
+The PR submitter owns the result, including agent-assisted output.

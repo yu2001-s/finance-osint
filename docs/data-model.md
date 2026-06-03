@@ -1,159 +1,142 @@
 # Data Model
 
-The repo separates observed evidence, structured facts, review pressure, and
-interpretation.
+Finance OSINT is a YAML evidence graph. The record model separates provenance,
+observations, assertions, graph edges, review pressure, and interpretation so
+readers can inspect the support chain.
 
-## Public V1 Object Types
+## Public Record Kinds
+
+Current v1 record kinds are:
 
 ```text
 entity
 source
 evidence
-claim_predicate
-metric_definition
+dataset
 metric
 event
-dataset
 claim
 validation
 challenge
 question
-relationship_type
 relationship
 thesis
+claim_predicate
+metric_definition
+relationship_type
 ```
 
-Debate, argument, and resolution records are deferred from public v1. Prototype
-examples live under `examples/deferred/`.
+Deferred debate prototypes under `examples/deferred/` are not part of the
+current public data model.
 
-## Layers
+## Dependency Layers
 
 ```text
-Source -> Dataset -> Evidence -> Metric/Event/Claim -> Relationship -> Thesis
-                              -> Validation/Challenge/Question
+Source -> Dataset -> Evidence -> Metric / Event / Claim -> Relationship -> Thesis
+                                -> Validation / Challenge / Question
 ```
 
-Source
-  Provenance metadata for a filing, transcript, page, dataset, meeting,
-  observation, or report. Filing-like sources carry normalized jurisdiction,
-  authority, regime, issuer reference/code, local form or report type, report
-  period, filing date, source language, and preservation locator fields so
-  non-US reports can be compared without SEC-specific assumptions.
+Use the lower layer when possible. A source-backed number belongs in a metric,
+not only in prose. A purchase order or expected ramp belongs in an event. A
+supplier, customer, design-win, qualification, or manufacturing edge belongs in
+a relationship only when the support chain justifies that exact edge.
 
-  `social_media_post` is a source type. It can directly support an attribution
-  claim such as "account X said Y"; underlying company facts still need their
-  own evidence chain.
+## Canonical Paths
 
-Evidence
-  A locator, excerpt, observation, row, table, or source-backed report. When
-  evidence is translated or OCR-derived, keep the original excerpt, translated
-  excerpt, translation metadata, OCR metadata, and encoding notes on the
-  evidence record that uses the source.
+Current records live under:
 
-Metric
-  A structured numeric value with provenance. Global financial metrics should
-  make comparability explicit through period shape, reporting/trading currency,
-  accounting standard, consolidation scope, fiscal year-end, value basis, and
-  FX methodology where applicable.
-
-  Metrics reference registered `metric_definition` records. Lint enforces the
-  definition's allowed units, allowed value basis, and required `period` or
-  `as_of` context, with other required context represented in `dimensions`.
-
-Event
-  A time-bound occurrence or expected occurrence.
-
-Entity
-  For global public-market identity, separate the legal issuer (`company`), the
-  tradable instrument or share class (`security`), and the venue quote
-  (`listing`). ADR/ADS records should link to their underlying security and
-  depositary ratio rather than reusing the ordinary-share listing as the ADR.
-
-Claim
-  A narrow, checkable assertion backed by evidence.
-
-Validation
-  An append-only review record that evaluates support.
-
-Challenge
-  An append-only unresolved objection or counter-pressure.
-
-Question
-  An open proof gap or next investigation target. Questions do not assert truth
-  and do not carry truth status; they are resolved by linking follow-up records.
-
-Relationship
-  A typed graph object connecting entities through participants, scope, time,
-  materiality, and provenance.
-
-Thesis
-  A broader interpretation or forecast built from evidence, claims, metrics,
-  events, datasets, and relationships.
-
-## Relationship Ontology
-
-Registered relationship types live in `ontology/relationship-types/`.
-
-For supply-chain research, prefer precise relationship types when evidence
-supports them:
-
-- `supplier_relationship` / `customer_relationship`: broad buyer-seller edges.
-- `qualified_supplier`: supplier approval or qualification.
-- `design_win`: designed-in product, component, technology, or service.
-- `capacity_expansion_for`: capacity tied to output, market, customer, or time window.
-- `uses_component`: composition or product/architecture dependency.
-- `substitutes_for`: functional or economic substitution.
-- `manufacturing_partner`: foundry, contract manufacturing, assembly, packaging, or test.
-
-Use broad relationship types when the source only supports a broad edge. Do not
-turn a broad supplier mention into qualification, design-in, or capacity linkage
-without evidence for that narrower relationship.
-
-Supply-chain depth uses existing object kinds rather than special-purpose record
-kinds:
-
-- BOM or product composition: `uses_component` with qualifiers such as
-  `bill_of_material`, `required`, `optional`, or `teardown_observed`.
-- AVL or approved-vendor status: `qualified_supplier` with a named qualifier,
-  qualified item, approval stage, direct evidence, and explicit limitations for
-  allocation, shipments, and revenue.
-- Purchase order: an `event` such as `event_type: purchase_order` with buyer,
-  seller, item, date, order identifier, and evidence.
-- Allocation share: `metric_definition:allocation_share_percent` with period
-  plus customer, supplier, product, component, program, purchase order, and
-  allocation-basis dimensions when known.
-- Shipment bridge: `metric_definition:unit_shipments` with customer, product,
-  component, supplier, program, and purchase-order dimensions when known.
-- Revenue bridge: `metric_definition:revenue` with customer, product, program,
-  or purchase-order dimensions. A revenue bridge is a metric chain, not a
-  relationship by itself.
-
-Do not use broad segment or consolidated revenue as named-customer allocation
-proof. If the source does not name the customer, program, order, allocation, or
-revenue bridge, keep the gap as a question, challenge, or scoped thesis rather
-than promoting it to a named `customer_relationship`, `design_win`, or supplier
-allocation edge.
-
-If the graph needs a new type, contributors may use a provisional type:
-
-```yaml
-type: provisional:critical_tooling_dependency
-proposed_type_definition: ontology/relationship-types/proposals/critical_tooling_dependency.yml
+```text
+records/entities/
+records/sources/
+records/evidence/
+records/datasets/
+records/metrics/
+records/events/
+records/claims/
+records/validations/
+records/challenges/
+records/questions/
+records/relationships/
+records/theses/
 ```
 
-Relationship instances are checked against their type definition:
+Ontology records live under:
 
-- participant roles must be allowed by the type
-- participant role cardinality must fit the type
-- participant entity types must match the role
-- scope keys must be allowed by the type
-- qualifiers must be allowed by the type
-- materiality values must be allowed by the type
-- evidence-required types need evidence or claims
+```text
+ontology/claim-predicates/
+ontology/metric-definitions/
+ontology/relationship-types/
+```
 
-## Evidence Policy
+Archived records keep their canonical ID and move under `archive/records/` or
+`archive/ontology/`.
 
-Use plain evidence classes:
+## Record Boundaries
+
+`entity`
+  A company, person, product, component, security, listing, market, geography,
+  architecture, facility, manufacturing process, commodity, technology,
+  regulation, fund, or service.
+
+`source`
+  Provenance metadata for a filing, report, transcript, product page, dataset,
+  article, public post, meeting, field observation, anonymous report, internal
+  report, or other source.
+
+`evidence`
+  A bounded excerpt, table, row, locator, observation, translated passage,
+  OCR-derived passage, or source-backed report. Evidence is the strict support
+  layer.
+
+`dataset`
+  Metadata about a collection of source-backed data records.
+
+`metric`
+  A structured numeric value with unit, period, value basis, evidence, and
+  metric definition.
+
+`event`
+  A time-bound occurrence or expected occurrence such as an order, shipment,
+  filing, approval, capacity expansion, product launch, or missed milestone.
+
+`claim`
+  A narrow checkable assertion backed by evidence. Claims use `support_type` to
+  describe reasoning distance from evidence.
+
+`relationship`
+  A typed graph connection among entities. Relationship instances are checked
+  against registered or proposed relationship-type ontology records.
+
+`question`
+  An open proof gap or next investigation target. Questions are not truth
+  labels.
+
+`challenge`
+  An unresolved objection about contradiction, missing evidence, source quality,
+  scope, freshness, ontology fit, materiality, or another issue.
+
+`validation`
+  An append-only review record with a verdict such as `supports`, `disputes`,
+  `marks_stale`, or `withdraws`.
+
+`thesis`
+  A broader interpretation, causal argument, watch item, or forecast built from
+  explicit dependencies.
+
+## Identity Model
+
+Do not collapse public-market identity into one company record.
+
+- `company`: the legal issuer or operating company.
+- `security`: a share class, ADR/ADS, bond, option, or other instrument.
+- `listing`: the venue quote for a security.
+
+Use security and listing records when ticker, exchange, depositary ratio, ISIN,
+FIGI, CUSIP, SEDOL, RIC, or local issuer identifiers matter.
+
+## Evidence Classes
+
+Supported evidence classes are:
 
 ```text
 public_primary
@@ -164,146 +147,52 @@ anonymous_internal
 rumor
 ```
 
-`anonymous_internal` and `rumor` are low-trust classes. They may be recorded, but
-they cannot silently become strong factual support. Claims use `support_type` to
-describe reasoning distance from the evidence.
+Low-trust classes are allowed, but they must stay visibly labeled. They should
+not be the only path to strong derived review state for claims, relationships,
+or theses.
 
-First-hand, private, anonymous, and rumor evidence should declare
-`source_attribution`, `source_access`, and `risk_flags` so readers and agents can
-filter or discount it locally.
+## Source Perspective
 
-Sources must declare `source_perspective`. This is provenance metadata, not
-truth status. Review output uses it to expose whether support is company-originated,
-independent, first-hand/social, anonymous/internal, synthetic, or unknown. Use
-`unknown` only when the source-side viewpoint cannot be determined after review.
+Every source declares `source_perspective`. This is provenance metadata, not
+truth status. Review output uses it to distinguish company-originated,
+counterparty, independent, regulator, legal, social, first-hand, anonymous,
+internal, aggregator, synthetic fixture, and unknown support.
 
-## Source Preservation
+Use `unknown` only when the source-side perspective cannot be determined after
+review.
 
-For mutable source types such as `web_page`, `news_article`, and
-`research_report`, `url` alone is not enough. Prefer `archive_url`. If no archive
-exists, preserve the source through source `content_hash`, a bounded
-`evidence.excerpt`, or local `source_artifacts`.
+## Structured Promotion Rules
 
-`source_artifacts` may appear on source and evidence records:
+Use structured records instead of prose-only claims when the shape is known:
 
-```yaml
-source_artifacts:
-  - artifacts/sources/source-slug/screenshot-2026-06-03.png
-```
+- reported or calculated number: `metric`
+- expected or occurred timing: `event`
+- source-backed narrow assertion: `claim`
+- buyer, seller, supplier, customer, design-in, qualification, component use,
+  manufacturing, competitor, ownership, regulatory, technology, or product edge:
+  `relationship`
+- missing revenue bridge, allocation proof, order value, named customer, timing,
+  or materiality support: `question` or `challenge`
+- broader investment view: `thesis`
 
-Artifact rules:
-
-- files must live under `artifacts/sources/`
-- files must be referenced by a source or evidence record
-- allowed file types are `png`, `jpg`, `jpeg`, and `pdf`
-- each file must be 2 MB or smaller
-
-`fo lint` warns when a mutable web-like source has no archive, hash, artifact,
-or linked evidence excerpt. Invalid, missing, unreferenced, or oversized
-artifacts are hard validation errors.
-
-## Archive Policy
-
-Archive is a path-level lifecycle state, not a truth status field. Current
-records live under `records/`, and ontology registries live under `ontology/`.
-Archived records live under `archive/records/` or `archive/ontology/` and keep
-their canonical ID.
-
-Archived records must include at least one of:
-
-```text
-superseded_by
-duplicate_of
-archive_reason
-```
-
-Current records must not depend on archived records by default. When a record is
-archived, current dependents should either point to a current replacement or be
-archived/updated in the same PR. Lifecycle links such as `supersedes`,
-`corrects`, `restates`, `narrows`, `broadens`, and `contradicts` may point to
-archived records.
-
-`fo diff-review` warns when a PR adds, updates, or moves records under
-`archive/`.
+Broad segment revenue is not named-customer allocation proof. Product fit is not
+customer revenue proof. Ecosystem adjacency is not a supplier relationship.
+Keep those gaps visible.
 
 ## Local Derived State
 
-Canonical records do not store truth `status` or `confidence`. Tools derive
-review state locally from evidence, validations, challenges, contradictions, and
-supersession links.
+Canonical records do not store truth `status` or `confidence`.
 
-`fo graph build` writes `.local/graph.json`. This file is derived from repo data
-and ignored by git.
+Local tools derive review state from support evidence, source independence,
+validation dependency paths, open challenges, contradictions, supersession,
+staleness markers, scope limitations, and risk flags.
 
-`fo index build` writes `.local/index.sqlite`. This file is also derived from
-repo data and ignored by git. Agent-facing read commands use the index:
+Generated files:
 
-```bash
-fo search QUERY --json
-fo context ID --json
-fo review ID --json
-fo diff-review BASE --json
-fo graph neighbors ID --json
+```text
+.local/index.sqlite
+.local/graph.json
+.local/github-view/
 ```
 
-`fo view build BASE` writes GitHub-readable Markdown under `.local/github-view/`
-or `.local/ci/github-view/`. The generated view summarizes diff-review output
-and changed or impacted thesis/relationship source-to-claim chains for PR
-readers. It is a derived review aid, not canonical data.
-
-`fo review` reports deterministic review state without writing truth back into
-canonical records. The JSON includes `review_state` plus summaries for support
-evidence, source independence, validation dependency paths, challenges,
-contradictions, supersession, staleness, and scope limitations. Automatic
-freshness windows are v1 warning-only; stale review state still requires a
-`marks_stale` validation, open `outdated` challenge, or matching risk flag on
-current support/review pressure.
-
-Freshness-sensitive records include market-data-page and news-article evidence,
-observed market-cap metrics, observed valuation-ratio metrics, and market-data
-TTM metrics flagged as snapshots. These records should include:
-
-```yaml
-freshness:
-  freshness_class: valuation_snapshot
-  as_of: "2026-05-29"
-  review_after: "2026-06-28"
-  automatic_window_days: 30
-  policy: warning_only
-```
-
-Use `marks_stale` validations or open `outdated` challenges when a dated market
-observation should actually move a record to stale. Use refreshed market-data
-metrics to preserve newer observations instead of mutating old snapshots.
-
-`fo review RECORD --chain --json` keeps the same review surface and adds
-`chain_summary`. This is the deterministic source-to-claim review layer for
-agents and PR authors. It reports dependency IDs/counts, source/evidence chain
-items, claim predicates, metric/event coverage, relationship types, open
-questions, open challenges, relationship-promotion pressure, and risk-flag
-categories. The command still does not write truth status or confidence back
-into canonical records.
-
-`fo diff-review BASE` is the deterministic PR review layer. It resolves `BASE`
-to a Git commit SHA, compares records by canonical ID, validates the current
-tree, flags canonical evidence edits, shows reference and graph impact, reports
-before/after derived review-state movement, and highlights ontology changes. It
-uses Git only as the versioned transport; the interpretation is based on OSINT
-records and graph structure.
-
-`fo lint` emits advisory duplicate warnings for current records. It checks stable
-deterministic signatures: entity names and key identifiers, source URLs and
-hashes, evidence source plus locator/excerpt, claim subject/predicate/object
-plus scope/evidence, and relationship type/participants/scope/time. Archived
-records are ignored for duplicate warnings. Duplicate warnings do not fail lint;
-contributors should clarify distinct records or archive/merge duplicates with
-`duplicate_of` or `superseded_by`.
-
-`fo new` helpers are deterministic record constructors. They create schema-valid
-YAML from explicit arguments and then rely on the same validators used by CI.
-They should not perform ingestion, summarization, or semantic inference.
-
-The common v1 contribution path is covered by helpers for entity, source,
-evidence, claim, metric, event, dataset, validation, challenge, question,
-relationship, and thesis records. Every public v1 kind has a YAML template;
-ontology-definition helpers remain deferred.
+These files are rebuildable and ignored by git.
