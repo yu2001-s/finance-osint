@@ -26,6 +26,7 @@ allowed_scope:
   - geography
   - market
   - technology
+  - program
 allowed_qualifiers:
   - downstream
   - strategic_customer

@@ -147,18 +147,22 @@ Acceptance criteria:
 Rationale: Current records treat these mostly as proof gaps. Public supply-chain
 research may need first-class patterns or stricter claim/relationship rules.
 
-Status: first AVL example addressed locally with a synthetic `qualified_supplier`
-approved-vendor fixture. Purchase order, allocation share, shipment, and
-revenue-bridge examples remain open.
+Status: supply-chain modeling slice addressed locally with documented patterns
+for BOM, AVL, purchase order, allocation share, shipment, and revenue bridge.
+Synthetic fixtures now cover an AVL `qualified_supplier`, a named purchase
+order event, allocation share, shipment volume, a customer-scoped revenue
+bridge, a `customer_relationship`, and a `design_win`. Lint now warns when a
+strong named relationship cites broad revenue without customer, program, or
+purchase-order dimensions.
 
 Acceptance criteria:
 
-- [ ] Decide whether each concept needs a new record kind, relationship type, claim
+- [x] Decide whether each concept needs a new record kind, relationship type, claim
   predicate, metric dimension, or documented pattern.
-- [ ] Add examples for a named purchase order, allocation share, and
+- [x] Add examples for a named purchase order, allocation share, and
   shipment/revenue bridge.
 - [x] Add an AVL approval example using `qualified_supplier`.
-- [ ] Add review checks to prevent broad segment revenue from becoming named
+- [x] Add review checks to prevent broad segment revenue from becoming named
   customer allocation.
 
 ### Exercise Strong Relationship Types
@@ -166,15 +170,17 @@ Acceptance criteria:
 Rationale: `design_win`, `qualified_supplier`, and `customer_relationship` are
 registered but not well exercised in current canonical records.
 
-Status: synthetic `qualified_supplier` fixture addressed locally. `design_win`
-and `customer_relationship` examples remain open.
+Status: synthetic strong relationship fixtures now exercise `qualified_supplier`,
+`design_win`, and `customer_relationship`. Review-chain tests cover the
+sufficient scoped examples, and lint tests cover an insufficient broad-revenue
+promotion.
 
 Acceptance criteria:
 
-- [ ] Add fixture or real examples for each strong type.
+- [x] Add fixture or real examples for each strong type.
 - [x] Add a `qualified_supplier` fixture with direct evidence.
 - [x] Add tests or review examples showing the `qualified_supplier` chain.
-- [ ] Add tests or review examples showing what evidence is sufficient and
+- [x] Add tests or review examples showing what evidence is sufficient and
   insufficient.
 - [x] Verify `fo review --chain` surfaces `qualified_supplier` promotion
   pressure clearly.

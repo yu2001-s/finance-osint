@@ -1479,6 +1479,150 @@ class CliValidationTests(unittest.TestCase):
             chain["relationship_promotion_pressure"]["promotion_risk_flags"],
         )
 
+    def test_supply_chain_fixture_surfaces_named_conversion_chain(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            status, build_payload = run_json_command(cli.run_index_build, repo)
+            self.assertEqual(status, 0, build_payload)
+
+            status, review = run_json_command(
+                cli.run_review,
+                repo,
+                "relationship:synthetic:exdev-cloud-titan-customer-relationship",
+                chain=True,
+            )
+
+        self.assertEqual(status, 0, review)
+        chain = review["chain_summary"]
+        self.assertIn(
+            "relationship:synthetic:exdev-cloud-titan-customer-relationship",
+            chain["relationship_chain"]["strong_relationship_type_ids"],
+        )
+        self.assertEqual(chain["relationship_chain"]["type_counts"]["customer_relationship"], 1)
+        self.assertEqual(chain["dependency_counts"]["metrics"], 3)
+        self.assertEqual(chain["dependency_counts"]["events"], 1)
+        self.assertIn(
+            "evidence:synthetic:exdev-fy2026-supply-chain-note",
+            chain["source_evidence_chain"]["evidence_ids"],
+        )
+        self.assertEqual(
+            chain["metric_event_chain"]["metrics"]["metric_definition_counts"],
+            {
+                "metric_definition:allocation_share_percent": 1,
+                "metric_definition:revenue": 1,
+                "metric_definition:unit_shipments": 1,
+            },
+        )
+        self.assertIn(
+            "event:synthetic-exdev:cloud-titan-x1-purchase-order-2026",
+            chain["dependency_ids"]["events"],
+        )
+
+    def test_design_win_fixture_surfaces_strong_relationship_review(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            status, build_payload = run_json_command(cli.run_index_build, repo)
+            self.assertEqual(status, 0, build_payload)
+
+            status, review = run_json_command(
+                cli.run_review,
+                repo,
+                "relationship:synthetic:fndwy-x1-cloud-titan-design-win",
+                chain=True,
+            )
+
+        self.assertEqual(status, 0, review)
+        chain = review["chain_summary"]
+        self.assertIn(
+            "relationship:synthetic:fndwy-x1-cloud-titan-design-win",
+            chain["relationship_chain"]["strong_relationship_type_ids"],
+        )
+        self.assertEqual(chain["relationship_chain"]["type_counts"]["design_win"], 1)
+        self.assertIn(
+            "evidence:synthetic:exdev-fy2026-supply-chain-note",
+            chain["source_evidence_chain"]["evidence_ids"],
+        )
+        self.assertIn(
+            "event:synthetic-exdev:cloud-titan-x1-purchase-order-2026",
+            chain["dependency_ids"]["events"],
+        )
+
+    def test_lint_warns_when_broad_revenue_metric_promotes_named_relationship(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            write_yaml(
+                repo / "records" / "relationships" / "test" / "bad-customer-revenue.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "relationship",
+                    "id": "relationship:test:broad-revenue-customer-promotion",
+                    "type": "customer_relationship",
+                    "participants": [
+                        {"role": "seller", "entity": "entity:company:exdev"},
+                        {"role": "customer", "entity": "entity:company:cloud-titan"},
+                    ],
+                    "scope": {"product": "entity:product:example-phone"},
+                    "derived_from": {
+                        "evidence": ["evidence:synthetic:exdev-fy2025-metric-note"],
+                        "metrics": ["metric:synthetic-exdev:fy2025-revenue-reported"],
+                    },
+                    "submitted_by": "github:tester",
+                },
+            )
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        warning_codes = {warning["code"] for warning in payload["warnings"]}
+        self.assertIn("broad_revenue_metric_used_for_named_relationship", warning_codes)
+        warning = next(
+            warning
+            for warning in payload["warnings"]
+            if warning["code"] == "broad_revenue_metric_used_for_named_relationship"
+        )
+        self.assertEqual(
+            warning["related_ids"],
+            ["metric:synthetic-exdev:fy2025-revenue-reported"],
+        )
+
+    def test_diff_review_warns_when_broad_revenue_metric_promotes_named_relationship(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            init_git_repo(repo)
+            write_yaml(
+                repo / "records" / "relationships" / "test" / "bad-customer-revenue.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "relationship",
+                    "id": "relationship:test:broad-revenue-customer-promotion",
+                    "type": "customer_relationship",
+                    "participants": [
+                        {"role": "seller", "entity": "entity:company:exdev"},
+                        {"role": "customer", "entity": "entity:company:cloud-titan"},
+                    ],
+                    "scope": {"product": "entity:product:example-phone"},
+                    "derived_from": {
+                        "evidence": ["evidence:synthetic:exdev-fy2025-metric-note"],
+                        "metrics": ["metric:synthetic-exdev:fy2025-revenue-reported"],
+                    },
+                    "submitted_by": "github:tester",
+                },
+            )
+
+            status, payload = run_json_command(cli.run_diff_review, repo, "HEAD")
+
+        self.assertEqual(status, 0, payload)
+        warning = next(
+            warning
+            for warning in payload["warnings"]
+            if warning["code"] == "broad_revenue_metric_used_for_named_relationship"
+        )
+        self.assertEqual(warning["record_id"], "relationship:test:broad-revenue-customer-promotion")
+        self.assertEqual(
+            warning["related_ids"],
+            ["metric:synthetic-exdev:fy2025-revenue-reported"],
+        )
+
     def test_review_surfaces_company_originated_only_support(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))

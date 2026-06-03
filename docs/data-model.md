@@ -109,6 +109,31 @@ Use broad relationship types when the source only supports a broad edge. Do not
 turn a broad supplier mention into qualification, design-in, or capacity linkage
 without evidence for that narrower relationship.
 
+Supply-chain depth uses existing object kinds rather than special-purpose record
+kinds:
+
+- BOM or product composition: `uses_component` with qualifiers such as
+  `bill_of_material`, `required`, `optional`, or `teardown_observed`.
+- AVL or approved-vendor status: `qualified_supplier` with a named qualifier,
+  qualified item, approval stage, direct evidence, and explicit limitations for
+  allocation, shipments, and revenue.
+- Purchase order: an `event` such as `event_type: purchase_order` with buyer,
+  seller, item, date, order identifier, and evidence.
+- Allocation share: `metric_definition:allocation_share_percent` with period
+  plus customer, supplier, product, component, program, purchase order, and
+  allocation-basis dimensions when known.
+- Shipment bridge: `metric_definition:unit_shipments` with customer, product,
+  component, supplier, program, and purchase-order dimensions when known.
+- Revenue bridge: `metric_definition:revenue` with customer, product, program,
+  or purchase-order dimensions. A revenue bridge is a metric chain, not a
+  relationship by itself.
+
+Do not use broad segment or consolidated revenue as named-customer allocation
+proof. If the source does not name the customer, program, order, allocation, or
+revenue bridge, keep the gap as a question, challenge, or scoped thesis rather
+than promoting it to a named `customer_relationship`, `design_win`, or supplier
+allocation edge.
+
 If the graph needs a new type, contributors may use a provisional type:
 
 ```yaml

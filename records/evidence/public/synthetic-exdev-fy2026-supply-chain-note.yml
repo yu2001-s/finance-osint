@@ -1,0 +1,21 @@
+schema_version: 1
+kind: evidence
+id: evidence:synthetic:exdev-fy2026-supply-chain-note
+evidence_class: public_primary
+source: source:public:synthetic:exdev-fy2025-report
+summary: Synthetic fixture text links a named customer purchase order, allocation share, shipments, and revenue bridge for Example Devices, Cloud Titan, and Foundry Works.
+content_mode: small_fixture
+excerpt: "On 2026-01-15, Cloud Titan issued purchase order PO-2026-X1-004 to Example Devices for X1 processors used in the Example Phone program. Foundry Works was the qualified manufacturing supplier for the X1 processor under the program, the purchase order allocated 60% of FY2026 Example Phone X1 processor demand to the Foundry Works-backed supply path, Example Devices shipped 300,000 X1 processors for the program in Q2 2026, and Example Devices recognized USD 30.0 million of Q2 2026 product revenue from the Cloud Titan Example Phone X1 program."
+locator:
+  section: Synthetic FY2026 named purchase order and revenue bridge note
+observed_at: "2026-06-03T00:00:00Z"
+submitted_by: github:scaffold
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: synthetic_fixture
+limitations: Synthetic supply-chain fixture proves only the bounded purchase order, allocation share, shipment volume, and revenue bridge stated for the named program and period; it does not prove margin, sole-source status, customer economics outside Q2 2026, or ongoing allocation after FY2026.
+risk_flags:
+  - synthetic_fixture

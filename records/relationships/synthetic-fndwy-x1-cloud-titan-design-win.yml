@@ -1,0 +1,45 @@
+schema_version: 1
+kind: relationship
+id: relationship:synthetic:fndwy-x1-cloud-titan-design-win
+type: design_win
+participants:
+  - role: provider
+    entity: entity:company:fndwy
+  - role: designed_item
+    entity: entity:component:x1-processor
+  - role: customer
+    entity: entity:company:cloud-titan
+  - role: target
+    entity: entity:product:example-phone
+scope:
+  product: entity:product:example-phone
+  component: entity:component:x1-processor
+  program: Cloud Titan Example Phone X1 program
+  market: entity:market:consumer-devices
+  geography: entity:geography:global
+direction:
+  supply_chain: upstream_to_downstream_program
+time_scope:
+  start: "2026-01-15"
+  end: "2026-06-30"
+materiality:
+  level: medium
+  basis: observed
+qualifiers:
+  - awarded
+  - in_production
+  - named_customer
+  - direct_statement
+derived_from:
+  evidence:
+    - evidence:synthetic:exdev-fy2026-supply-chain-note
+  metrics:
+    - metric:synthetic-exdev:cloud-titan-x1-allocation-share-2026
+    - metric:synthetic-exdev:cloud-titan-x1-shipments-q2-2026
+  events:
+    - event:synthetic-exdev:cloud-titan-x1-purchase-order-2026
+submitted_by: github:scaffold
+created_at: "2026-06-03T00:00:00Z"
+limitations: Synthetic design-win fixture is limited to the stated named program and period; it does not prove sole-source status or allocation after FY2026.
+risk_flags:
+  - synthetic_fixture
