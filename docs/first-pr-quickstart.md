@@ -170,6 +170,10 @@ uv run fo view build "$BASE" --json
 Replace `RECORD_ID` with the ID returned by `fo new`, or with the main changed
 thesis or relationship ID when the PR changes a chain.
 
+`BASE` means the Git commit to compare the current working tree against. The
+local diff-review commands resolve symbolic refs such as `HEAD` or `main` to a
+commit SHA and include that SHA in JSON output.
+
 For tooling, schema, graph/index, or large data PRs, also run the heavier CI
 parity checks:
 

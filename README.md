@@ -127,11 +127,12 @@ dependency counts, source/evidence mix, relationship types, open questions,
 open challenges, and risk-flag categories such as social/media, market data,
 compiled research, and relationship-promotion pressure.
 
-`fo diff-review BASE` compares the current working tree against a Git base ref
-and summarizes repo-native PR impact: record deltas, validation errors, evidence
-mutations, reference impact, derived review-state movement, graph edge changes,
-ontology changes, and deterministic warnings. Warnings are review pressure;
-schema/reference failures are hard errors.
+`fo diff-review BASE` resolves `BASE` to a Git commit SHA, compares the current
+working tree against that commit, and summarizes repo-native PR impact: record
+deltas, validation errors, evidence mutations, reference impact, derived
+review-state movement, graph edge changes, ontology changes, and deterministic
+warnings. Warnings are review pressure; schema/reference failures are hard
+errors.
 
 `fo lint` also emits advisory `possible_duplicate_*` warnings for current
 records that share deterministic signatures such as entity identifiers, source
