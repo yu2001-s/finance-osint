@@ -966,7 +966,78 @@ def validate_metrics(root: Path, records: list[Record], id_map: dict[str, Record
                     f"`{required_dimension}` context"
                 )
 
+        required_comparability = [
+            str(field)
+            for field in metric_definition.data.get("required_comparability", [])
+            if isinstance(field, str)
+        ]
+        comparability = record.data.get("comparability")
+        if not isinstance(comparability, dict):
+            comparability = {}
+        for field in required_comparability:
+            value = comparability.get(field)
+            if value is None or (isinstance(value, str) and not value.strip()):
+                errors.append(
+                    f"{relative}: metric definition `{metric_definition_id}` requires "
+                    f"`comparability.{field}`"
+                )
+
+        if value_basis in {"derived", "estimated", "restated"} and not record.data.get("methodology"):
+            errors.append(f"{relative}: {value_basis} metric requires methodology")
+        if value_basis == "restated" and not record.data.get("restated_from"):
+            errors.append(f"{relative}: restated metric requires restated_from")
+
     return errors
+
+
+def metric_comparability_warnings(root: Path, records: list[Record]) -> list[dict[str, Any]]:
+    id_map, _ = build_id_map(root, records)
+    warnings: list[dict[str, Any]] = []
+    for record in records:
+        if record.kind != "metric":
+            continue
+        metric_definition_id = record.data.get("metric_definition")
+        metric_definition = (
+            id_map.get(metric_definition_id) if isinstance(metric_definition_id, str) else None
+        )
+        recommended_comparability = []
+        if metric_definition and metric_definition.kind == "metric_definition":
+            recommended_comparability = [
+                str(field)
+                for field in metric_definition.data.get("recommended_comparability", [])
+                if isinstance(field, str)
+            ]
+        comparability = record.data.get("comparability")
+        if not isinstance(comparability, dict):
+            comparability = {}
+        missing_recommended = [
+            field
+            for field in recommended_comparability
+            if not comparability.get(field)
+        ]
+        if missing_recommended:
+            warnings.append(
+                lint_warning(
+                    root,
+                    record,
+                    "metric_missing_recommended_comparability",
+                    "Metric is missing recommended comparability fields.",
+                    "Add comparability fields such as reporting_currency, trading_currency, accounting_standard, consolidation_scope, fiscal_year_end, or fx_methodology where applicable.",
+                )
+            )
+
+        value_basis = record.data.get("value_basis")
+        if value_basis == "estimated" and not record.data.get("limitations"):
+            warnings.append(
+                lint_warning(
+                    root,
+                    record,
+                    "estimated_metric_missing_limitations",
+                    "Estimated metric does not describe limitations.",
+                    "Add limitations describing uncertainty, inputs, and what the estimate does not prove.",
+                )
+            )
+    return warnings
 
 
 def validate_evidence_policy(
@@ -2997,7 +3068,14 @@ def chain_dependency_ids(target: Record, id_map: dict[str, Record]) -> dict[str,
             dependencies = dependency_ids(derived_from)
     elif target.kind == "claim":
         dependencies["evidence"] = evidence_ids_for_claim(target)
-    elif target.kind in {"metric", "event"}:
+    elif target.kind == "metric":
+        dependencies["evidence"] = as_reference_list(target.data.get("evidence"))
+        derived_from = target.data.get("derived_from", {})
+        if isinstance(derived_from, dict):
+            derived_dependencies = dependency_ids(derived_from)
+            for key in DEPENDENCY_KEYS:
+                dependencies[key].extend(derived_dependencies.get(key, []))
+    elif target.kind == "event":
         dependencies["evidence"] = as_reference_list(target.data.get("evidence"))
     elif target.kind == "dataset":
         dependencies["evidence"] = as_reference_list(target.data.get("evidence"))
@@ -4547,6 +4625,20 @@ def run_new_metric(root: Path, args: argparse.Namespace) -> int:
     dimensions = parse_key_values(args.dimension)
     if dimensions:
         data["dimensions"] = dimensions
+    comparability = parse_key_values(getattr(args, "comparability", None))
+    if comparability:
+        data["comparability"] = comparability
+    derived_from: dict[str, Any] = {}
+    derived_from_metrics = sorted(set(getattr(args, "derived_from_metric", None) or []))
+    if derived_from_metrics:
+        derived_from["metrics"] = derived_from_metrics
+    derived_from_evidence = sorted(set(getattr(args, "derived_from_evidence", None) or []))
+    if derived_from_evidence:
+        derived_from["evidence"] = derived_from_evidence
+    if getattr(args, "derived_from_notes", None):
+        derived_from["notes"] = args.derived_from_notes
+    if derived_from:
+        data["derived_from"] = derived_from
     for field in (
         "as_of",
         "reported_at",
@@ -4555,7 +4647,7 @@ def run_new_metric(root: Path, args: argparse.Namespace) -> int:
         "methodology",
         "limitations",
     ):
-        value = getattr(args, field)
+        value = getattr(args, field, None)
         if value:
             data[field] = value
     add_optional_common_fields(data, args)
@@ -4682,6 +4774,7 @@ def run_lint(root: Path, json_output: bool = False, current_only: bool = False) 
     warnings = [
         *source_policy_warnings(root, records),
         *translation_policy_warnings(root, records),
+        *metric_comparability_warnings(root, records),
         *preservation_policy_warnings(root, records),
         *duplicate_detection_warnings(root, records),
     ]
@@ -5517,6 +5610,10 @@ def build_parser() -> argparse.ArgumentParser:
     metric_parser.add_argument("--evidence", action="append", required=True)
     metric_parser.add_argument("--source-locator", action="append", default=[], help="repeatable key=value")
     metric_parser.add_argument("--dimension", action="append", default=[], help="repeatable key=value")
+    metric_parser.add_argument("--comparability", action="append", default=[], help="repeatable key=value")
+    metric_parser.add_argument("--derived-from-metric", action="append", default=[])
+    metric_parser.add_argument("--derived-from-evidence", action="append", default=[])
+    metric_parser.add_argument("--derived-from-notes")
     metric_parser.add_argument("--as-of")
     metric_parser.add_argument("--reported-at")
     metric_parser.add_argument("--published-at")

@@ -971,6 +971,8 @@ allowed_units
 allowed_value_basis
 required_dimensions
 optional_dimensions
+required_comparability
+recommended_comparability
 source_requirements
 ```
 
@@ -989,11 +991,13 @@ period
 as_of
 reported_at
 published_at
+comparability
 dimensions
 source_locator
 methodology
 limitations
 restated_from
+derived_from
 evidence
 submitted_by
 created_at
@@ -1005,6 +1009,67 @@ Registered metric definitions must declare non-empty `allowed_units` and
 use an allowed `unit`, use an allowed `value_basis`, and include required
 definition context. In v1, definition context is enforced for `period`,
 `as_of`, and any named key under `dimensions`.
+
+Metric comparability block:
+
+```yaml
+comparability:
+  reporting_currency: USD
+  trading_currency: USD
+  accounting_standard: US_GAAP
+  consolidation_scope: consolidated
+  fiscal_year_end: "12-31"
+  fx_methodology: not_applicable
+```
+
+The `period` field identifies the fiscal, calendar, trailing, or point-in-time
+period being measured. Use `period.type`, `period.fiscal_year`,
+`period.fiscal_quarter`, `period.value`, `period.period_start`,
+`period.period_end`, or `period.as_of` as needed. `reporting_currency` is the
+currency used in reported financial statements or company disclosures.
+`trading_currency` is the currency used for market-observed values such as
+market cap, share price, or valuation ratios. `accounting_standard` names the
+accounting basis, such as US_GAAP, IFRS, TIFRS, Swedish_GAAP, or
+not_applicable. `consolidation_scope` names the reporting scope, such as
+consolidated, parent_only, segment, product_line, market_observed, or
+not_applicable. `fiscal_year_end` is the issuer fiscal year-end as MM-DD, or
+unknown/not_applicable. `fx_methodology` describes currency conversion method,
+rate source, date, and direction, or not_applicable when no FX conversion was
+applied.
+
+When FX conversion is applied, use a structured value:
+
+```yaml
+comparability:
+  fx_methodology:
+    method: period_end_spot_rate
+    from_currency: TWD
+    to_currency: USD
+    rate: "0.0312"
+    rate_date: "2026-03-31"
+    rate_source: evidence:provider:fx-rate
+```
+
+Use `reported` for values directly reported by a source, `observed` for market
+or externally observed point-in-time values, `derived` for calculations from
+other values, `estimated` for contributor or source estimates, and `restated`
+for values that update a prior metric. Derived, estimated, and restated metrics
+must include `methodology`; estimated metrics should include `limitations`;
+restated metrics must include `restated_from`. Metric definitions may declare
+`required_comparability` or `recommended_comparability`. Required comparability
+is a validation error when absent; recommended comparability is advisory review
+pressure.
+
+Use `derived_from` for calculation inputs that should be traversable:
+
+```yaml
+derived_from:
+  metrics:
+    - metric:company:revenue-restated
+  evidence:
+    - evidence:provider:calculation-source
+  notes: Numerator and denominator used for the calculation.
+```
 
 Company guidance is source-backed public information, not a thesis forecast. It
 should be represented as an event, metric, claim, or management statement derived

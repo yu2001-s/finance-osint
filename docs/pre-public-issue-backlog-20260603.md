@@ -122,20 +122,23 @@ Acceptance criteria:
 
 Rationale: Metric records need stronger comparability for global research.
 
-Status: first registry-enforcement slice addressed locally. `fo lint` now checks
+Status: accounting comparability slice addressed locally. `fo lint` checks
 metrics against registered metric definitions for allowed unit, allowed value
-basis, and required `period`/`as_of` context. Broader global accounting fields
-remain open.
+basis, required `period`/`as_of` context, and definition-required comparability
+fields. Metrics now support a `comparability` block for reporting/trading
+currency, accounting standard, consolidation scope, fiscal year-end, and FX
+methodology. Derived, estimated, and restated metrics have stricter methodology
+or restatement requirements, and fixture examples cover every value basis.
 
 Acceptance criteria:
 
-- [ ] Decide required fields for reporting currency, trading currency, fiscal
+- [x] Decide required fields for reporting currency, trading currency, fiscal
   period, fiscal year-end, accounting standard, consolidation scope, value
   basis, and FX methodology.
 - [x] Enforce metric units and basis against metric definitions.
 - [x] Enforce metric-definition required context for current `period` and
   `as_of` patterns.
-- [ ] Add examples for reported, observed, derived, estimated, and restated metrics.
+- [x] Add examples for reported, observed, derived, estimated, and restated metrics.
 
 ## P2: Supply-Chain Depth
 

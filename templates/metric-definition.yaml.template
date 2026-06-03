@@ -22,5 +22,9 @@ optional_dimensions:
   - segment
   - geography
   - product
+required_comparability: []
+recommended_comparability:
+  - reporting_currency
+  - accounting_standard
 source_requirements:
   - evidence

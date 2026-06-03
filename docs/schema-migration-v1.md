@@ -338,6 +338,8 @@ allowed_units
 allowed_value_basis
 required_dimensions
 optional_dimensions
+required_comparability
+recommended_comparability
 source_requirements
 ```
 
@@ -373,9 +375,11 @@ as_of
 reported_at
 published_at
 restated_from
+comparability
 dimensions
 methodology
 limitations
+derived_from
 ```
 
 Metrics are evidence-backed numeric records. They may be reported, observed,

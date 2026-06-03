@@ -1,0 +1,24 @@
+schema_version: 1
+kind: evidence
+id: evidence:synthetic:exdev-fy2025-metric-note
+evidence_class: public_primary
+source: source:public:synthetic:exdev-fy2025-report
+summary: Synthetic fixture text states Example Devices reported, restated,
+  estimated, and derived financial metrics for comparability testing.
+content_mode: small_fixture
+excerpt: Example Devices reported FY2025 revenue of USD 100.0M under consolidated
+  US GAAP statements, later restated FY2025 revenue to USD 95.0M for shipment
+  cutoff, estimated FY2026 revenue at USD 120.0M, and derived a 2.0x price-to-sales
+  ratio from USD 190.0M market cap divided by USD 95.0M restated revenue.
+locator:
+  section: Synthetic metric comparability note
+observed_at: "2026-06-02T00:00:00Z"
+submitted_by: github:scaffold
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: synthetic_fixture
+risk_flags:
+  - synthetic_fixture
