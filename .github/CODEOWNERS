@@ -1,0 +1,20 @@
+# GitHub-native review ownership for Finance OSINT.
+#
+# This file documents who should review high-risk surfaces. Actual enforcement
+# still depends on GitHub branch protection and required review settings.
+
+* @user
+
+.github/ @user
+docs/governance.md @user
+docs/review-policy.md @user
+docs/contracts.md @user
+docs/review-rubric.md @user
+schemas/ @user
+ontology/ @user
+fosint/ @user
+scripts/ @user
+records/evidence/ @user
+records/sources/ @user
+records/relationships/ @user
+records/theses/ @user

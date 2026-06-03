@@ -1,0 +1,44 @@
+name: Source Preservation Or Takedown
+description: Report source preservation, copyright, artifact, archive, or takedown concerns.
+title: "[source-review]: "
+labels: ["source-review", "needs-triage"]
+body:
+  - type: textarea
+    id: affected_items
+    attributes:
+      label: Affected Source, Evidence, Or Artifact
+      description: Link record IDs, file paths, artifacts, PRs, or commits.
+      placeholder: |
+        source:...
+        evidence:...
+        artifacts/sources/...
+    validations:
+      required: true
+  - type: dropdown
+    id: concern_type
+    attributes:
+      label: Concern Type
+      options:
+        - Copyright or licensing concern
+        - Oversized or inappropriate artifact
+        - Broken link or link rot
+        - Missing archive/hash/excerpt
+        - Private or sensitive source material
+        - Incorrect source metadata
+        - Other source-preservation concern
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: Explain the problem and any safer preservation path.
+    validations:
+      required: true
+  - type: textarea
+    id: requested_action
+    attributes:
+      label: Requested Action
+      placeholder: "Archive URL, remove artifact, replace with excerpt, add content_hash, move to archive, etc."
+    validations:
+      required: false

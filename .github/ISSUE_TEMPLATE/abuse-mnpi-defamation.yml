@@ -1,0 +1,56 @@
+name: Abuse, MNPI, Defamation, Or Spam Concern
+description: Report market-integrity, safety, legal, or abuse concerns.
+title: "[abuse-review]: "
+labels: ["abuse-review", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for concerns about pump-and-dump behavior, rumor laundering, possible MNPI, defamation, harassment, spam, doxxing, secrets, credentials, malware, or unsafe private material.
+  - type: textarea
+    id: concern
+    attributes:
+      label: Concern
+      description: Describe the concern without repeating sensitive private information.
+    validations:
+      required: true
+  - type: textarea
+    id: affected_items
+    attributes:
+      label: Affected Records, PRs, Issues, Or Comments
+      description: Link record IDs, file paths, PRs, issues, comments, or commits.
+      placeholder: |
+        records/evidence/...
+        PR #...
+        issue #...
+    validations:
+      required: true
+  - type: dropdown
+    id: concern_type
+    attributes:
+      label: Concern Type
+      options:
+        - Possible MNPI or private-source misuse
+        - Defamation or unsupported harmful claim
+        - Pump-and-dump or coordinated promotion
+        - Rumor laundering
+        - Spam or low-quality mass submission
+        - Doxxing, secrets, credentials, or malware
+        - Copyright or large-artifact concern
+        - Other market-integrity concern
+    validations:
+      required: true
+  - type: textarea
+    id: requested_action
+    attributes:
+      label: Requested Action
+      description: State whether you think maintainers should lock, close, revert, archive, redact, request changes, or add a challenge.
+    validations:
+      required: false
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety Check
+      options:
+        - label: I did not paste secrets, credentials, doxxing material, or nonpublic source identity into this issue.
+          required: true

@@ -1,0 +1,52 @@
+name: Ontology Proposal
+description: Propose a relationship type, claim predicate, metric definition, or ontology change.
+title: "[ontology]: "
+labels: ["ontology", "needs-triage"]
+body:
+  - type: dropdown
+    id: ontology_kind
+    attributes:
+      label: Ontology Kind
+      options:
+        - relationship_type
+        - claim_predicate
+        - metric_definition
+        - entity modeling
+        - other
+    validations:
+      required: true
+  - type: input
+    id: proposed_id
+    attributes:
+      label: Proposed ID
+      placeholder: "critical_tooling_dependency"
+    validations:
+      required: true
+  - type: textarea
+    id: definition
+    attributes:
+      label: Definition
+      description: Define the term narrowly enough for validation and review.
+    validations:
+      required: true
+  - type: textarea
+    id: roles_or_fields
+    attributes:
+      label: Roles, Fields, Units, Or Dimensions
+      description: Include allowed roles, source requirements, units, dimensions, qualifiers, or materiality values as applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Concrete Example
+      description: Link or describe at least one record that needs this ontology.
+    validations:
+      required: true
+  - type: textarea
+    id: overlap
+    attributes:
+      label: Existing-Type Overlap
+      description: Explain why existing registered types or predicates are insufficient.
+    validations:
+      required: true

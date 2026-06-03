@@ -62,8 +62,14 @@ Evidence is the strict layer. Claims, relationships, theses, validations, and ch
 For a concrete sourced-research batch workflow, see
 `docs/research-batch-contribution.md`.
 
-For release status and lightweight governance, see `docs/release-readiness.md`
-and `docs/governance.md`.
+For release status, lightweight governance, review rubrics, and GitHub launch
+guardrails, see:
+
+- `docs/release-readiness.md`
+- `docs/governance.md`
+- `docs/review-rubric.md`
+- `docs/github-public-launch-checklist.md`
+- `docs/first-pr-quickstart.md`
 
 - Public evidence should be source-backed and reviewable.
 - New sources should declare `source_perspective` so review output can separate
@@ -196,12 +202,16 @@ live under `agent-skills/`:
 
 ```text
 operate-repo
+add-entity
 add-evidence
 add-claim
+add-metric-event-dataset
 add-relationship
 validate-or-challenge
 add-question
 write-thesis
+propose-ontology
+migrate-stock-research
 ```
 
 These skills teach agents how to use deterministic `fo` commands. They are not
