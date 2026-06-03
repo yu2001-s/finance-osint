@@ -3,16 +3,16 @@
 Created: 2026-06-03
 
 Purpose: local backlog for work that should become or has become GitHub Issues
-as the repository moves through private staging toward public launch.
+as the repository moves from staging toward public alpha tagging.
 
 ## P0: Launch Blockers
 
-Status: private GitHub staging is active at
+Status: public GitHub staging is active at
 `https://github.com/yu2001-s/finance-osint`. Branch protection and required
-checks are tracked in GitHub issue #1; abuse/takedown operations in #2; public
-visibility and tag decision in #3; GitHub Actions Node.js 20 deprecation in #4.
-Branch protection enforcement is currently blocked by GitHub plan/visibility
-for the private staging repo and remains required before public launch or tag.
+checks are enabled and tracked as resolved in GitHub issue #1. Abuse/takedown
+operations remain tracked in #2; the alpha tag decision in #3; GitHub Actions
+Node.js 20 deprecation in #4. Public visibility is chosen; `v0.1.0-alpha`
+remains untagged.
 
 ### Verify GitHub Branch Protection And CODEOWNERS
 
@@ -22,12 +22,12 @@ and cannot be enforced from local files alone.
 
 Acceptance criteria:
 
-- [x] Default branch is chosen for private staging: `main`.
-- `Validate` workflow is required before merge.
-- CODEOWNERS review is required for owned paths.
-- Direct pushes and force pushes to the default branch are blocked.
-- Conversation resolution is required before merge.
-- Maintainer bypass policy is documented.
+- [x] Default branch is chosen for public staging: `main`.
+- [x] `Validate` workflow is required before merge through the `lint` check.
+- [x] CODEOWNERS review is required for owned paths.
+- [x] Direct pushes and force pushes to the default branch are blocked.
+- [x] Conversation resolution is required before merge.
+- [x] Maintainer admin bypass is disabled by enforced admin protection.
 
 ### Define Abuse, MNPI, Defamation, Spam, And Takedown Operations
 
@@ -51,10 +51,10 @@ tagged until owner decisions and GitHub protections are complete.
 
 Acceptance criteria:
 
-- Default branch chosen.
-- Visibility chosen.
-- `v0.1.0-alpha` tag decision made.
-- `docs/release-readiness.md` updated with the decision.
+- [x] Default branch chosen.
+- [x] Visibility chosen: public.
+- [ ] `v0.1.0-alpha` tag decision made.
+- [x] `docs/release-readiness.md` updated with the visibility decision.
 
 ## P1: Global Investor Readiness
 
