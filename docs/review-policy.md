@@ -10,6 +10,18 @@ The project should preserve disagreement without weakening provenance.
 - Relationships should use registered or provisional ontology.
 - Metrics and events should preserve point-in-time context.
 - Theses may be speculative, but must declare dependencies.
+- Unusual or low-trust material should be labeled, challenged, or narrowed
+  before it is suppressed. Viewpoint disagreement is not a rejection reason.
+
+Reviewers should distinguish:
+
+- **Allowed but low-trust:** rumor, anonymous, unverifiable, social, private,
+  first-hand, speculative, or aggressive material that is labeled honestly.
+- **Needs relabeling:** material presented with an evidence class, support type,
+  source perspective, or claim strength that overstates the source path.
+- **Hard reject:** hidden provenance, fake provenance, unsafe private material,
+  private-source identity leakage, possible MNPI, doxxing, malware, spam,
+  coordinated promotion, large copyrighted artifacts, or schema-breaking data.
 
 ## First-Hand Information
 

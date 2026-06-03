@@ -59,6 +59,13 @@ fo lint
 
 Evidence is the strict layer. Claims, relationships, theses, validations, and challenges can be contested, but they must preserve their dependency chain.
 
+Finance OSINT treats contributors and readers as adults. The repo does not
+block unusual, speculative, low-trust, promotional, bearish, bullish, or
+disputed research views merely because they are uncertain or unpopular. It
+requires honest labels: provenance, evidence class, source perspective, source
+attribution, support type, risk flags, and open objections must be visible so
+readers can decide for themselves.
+
 For a concrete sourced-research batch workflow, see
 `docs/research-batch-contribution.md`.
 
@@ -78,7 +85,8 @@ guardrails, see:
   company-originated, independent, social, first-hand, anonymous, internal, and
   fixture sources without changing the underlying evidence.
 - First-hand evidence must declare access, attribution, public status, and risk flags.
-- Anonymous or internal-source reports can be recorded, but remain visibly low-trust unless independently supported.
+- Anonymous, internal-source, rumor, social, first-hand, or unverifiable reports
+  can be recorded, but remain visibly low-trust unless independently supported.
 - Claims use `support_type` to describe reasoning distance from evidence.
 - Questions are investigation tasks, not truth status. Resolve them by linking evidence, claims, relationships, or theses.
 - Relationship types must be registered or marked `provisional:` with a proposed type definition.

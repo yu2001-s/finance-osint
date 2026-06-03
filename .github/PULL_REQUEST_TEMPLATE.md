@@ -24,6 +24,19 @@ List the main source/evidence records this PR depends on:
 - `content_mode`:
 - `support_type` for claims:
 
+## Labeling Standard
+
+Finance OSINT allows unusual, speculative, low-trust, promotional, bearish,
+bullish, disputed, anonymous, rumor, social, first-hand, and unverifiable
+material when it is labeled honestly. This PR should make the evidence chain,
+uncertainty, and objections visible rather than asking reviewers to trust hidden
+context.
+
+- Low-trust or unverifiable material included:
+- Labels used to make limits visible:
+- Any claim, relationship, or thesis narrowed because support is weak:
+- Questions or challenges added for unresolved proof gaps:
+
 ## Graph / Review Impact
 
 - New or changed entity IDs:
@@ -83,6 +96,6 @@ reports:
 - [ ] I reviewed and explained every `fo diff-review` warning.
 - [ ] All support-affecting information is visible in the repo.
 - [ ] I did not add hidden source knowledge, hidden agent state, canonical `status`, or canonical `confidence`.
-- [ ] I did not treat social, rumor, anonymous, or private-source material as proof of underlying company facts without separate source-backed evidence.
+- [ ] I labeled social, rumor, anonymous, private-source, first-hand, or unverifiable material honestly and did not present it as stronger support than it is.
 - [ ] Any revenue, valuation, customer-allocation, supplier, qualified-supplier, design-win, BOM, or AVL leap has an explicit question or challenge unless directly supported.
 - [ ] I checked any agent-assisted output and take responsibility for this PR.
