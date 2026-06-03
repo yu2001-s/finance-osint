@@ -1,7 +1,7 @@
 [project]
 name = "finance-osint"
 version = "0.1.0"
-description = "Local-first finance OSINT evidence graph scaffold."
+description = "Community-driven finance OSINT research database."
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.11"
