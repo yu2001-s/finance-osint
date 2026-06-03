@@ -32,6 +32,18 @@ For merge rules and ontology governance, see `docs/governance.md`.
 9. Run `uv run fo lint`, `uv run fo diff-review BASE --json`, and
    `uv run python scripts/chain_review_changed.py BASE` before opening a PR.
 
+New database records must use your GitHub account for attribution:
+
+```yaml
+submitted_by: github:your-github-login
+```
+
+CI rejects new records whose `submitted_by` does not match the pull request
+author. Existing records may keep their previous `submitted_by`; changing an
+existing record to another person's identity is blocked. Maintainer-approved
+automation can use `github:codex` or `github:scaffold` only through the explicit
+`allow-automation-attribution` PR label.
+
 You may use deterministic constructors instead of hand-writing YAML:
 
 ```bash
@@ -56,6 +68,7 @@ GitHub Actions runs the deterministic local checks on every pull request:
 
 ```bash
 uv sync --locked
+uv run python scripts/check_pr_attribution.py "origin/${{ github.base_ref }}" --pr-author "${{ github.event.pull_request.user.login }}"
 uv run python scripts/validate_with_timing.py "origin/${{ github.base_ref }}" --json
 uv run python scripts/scale_smoke.py --records 10000 --json
 uv run fo view build "origin/${{ github.base_ref }}" --output .local/ci/github-view --json

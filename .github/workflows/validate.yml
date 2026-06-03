@@ -29,6 +29,16 @@ jobs:
             --push-before-sha "${{ github.event.before }}" \
             --github-env "$GITHUB_ENV" \
             --github-step-summary "$GITHUB_STEP_SUMMARY"
+      - name: Check PR attribution
+        if: github.event_name == 'pull_request'
+        run: |
+          extra_args=()
+          if [ "${{ contains(github.event.pull_request.labels.*.name, 'allow-automation-attribution') }}" = "true" ]; then
+            extra_args+=(--allow-submitted-by github:codex --allow-submitted-by github:scaffold)
+          fi
+          uv run python scripts/check_pr_attribution.py "$BASE_REF" \
+            --pr-author "${{ github.event.pull_request.user.login }}" \
+            "${extra_args[@]}"
       - name: Validate with timing
         run: |
           uv run python scripts/validate_with_timing.py "$BASE_REF" \
