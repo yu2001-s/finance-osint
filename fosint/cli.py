@@ -3969,7 +3969,8 @@ def render_pr_review_markdown(
         "",
         "Derived review state is deterministic local output, not canonical truth.",
         "",
-        f"Base: `{base_ref}`",
+        f"Base ref: `{base_ref}`",
+        f"Base SHA: `{diff_payload.get('base_sha') or 'unresolved'}`",
         "",
         *render_diff_review_summary(diff_payload),
         "## Changed Thesis/Relationship Chains",
@@ -4020,7 +4021,8 @@ def render_github_view(
     if errors:
         raise ValueError("\n".join(errors))
     id_map = record_map(records)
-    targets = changed_view_targets(root, records, base_ref)
+    resolved_base_ref = str(diff_payload.get("base_sha") or base_ref)
+    targets = changed_view_targets(root, records, resolved_base_ref)
     rendered: dict[Path, str] = {}
     chain_pages: list[dict[str, Any]] = []
 
@@ -4065,6 +4067,7 @@ def render_github_view(
 
     summary = {
         "base": base_ref,
+        "base_sha": diff_payload.get("base_sha"),
         "changed_target_count": len(targets),
         "page_count": len(rendered),
         "generated_paths": [str(path) for path in sorted(rendered)],
@@ -4189,6 +4192,14 @@ def git_lines(root: Path, args: list[str]) -> tuple[list[str], str | None]:
         message = result.stderr.strip() or result.stdout.strip() or "git command failed"
         return [], message
     return [line for line in result.stdout.splitlines() if line], None
+
+
+def git_commit_sha(root: Path, ref: str) -> tuple[str | None, str | None]:
+    result = run_git(root, ["rev-parse", "--verify", f"{ref}^{{commit}}"])
+    if result.returncode != 0:
+        message = result.stderr.strip() or result.stdout.strip() or "git rev-parse failed"
+        return None, message
+    return result.stdout.strip(), None
 
 
 def load_records_from_git(root: Path, base_ref: str) -> tuple[list[Record], list[str]]:
@@ -4827,8 +4838,12 @@ def diff_review_warnings(
 
 
 def build_diff_review(root: Path, base_ref: str) -> tuple[dict[str, Any], int]:
-    base_records, base_errors = load_records_from_git(root, base_ref)
-    path_changes, path_error = changed_git_paths(root, base_ref)
+    base_sha, base_sha_error = git_commit_sha(root, base_ref)
+    resolved_base_ref = base_sha or base_ref
+    base_records, base_errors = load_records_from_git(root, resolved_base_ref)
+    if base_sha_error:
+        base_errors.append(f"failed to resolve `{base_ref}`: {base_sha_error}")
+    path_changes, path_error = changed_git_paths(root, resolved_base_ref)
     if path_error:
         base_errors.append(f"failed to diff `{base_ref}`: {path_error}")
 
@@ -4845,6 +4860,7 @@ def build_diff_review(root: Path, base_ref: str) -> tuple[dict[str, Any], int]:
                 ok=False,
                 errors=errors,
                 base=base_ref,
+                base_sha=base_sha,
                 changed_paths=path_changes,
             ),
             2,
@@ -4869,6 +4885,7 @@ def build_diff_review(root: Path, base_ref: str) -> tuple[dict[str, Any], int]:
             warnings=warnings,
             errors=errors,
             base=base_ref,
+            base_sha=base_sha,
             changed_paths=path_changes,
             record_delta=delta,
             reference_impact=refs,
@@ -6497,7 +6514,12 @@ def build_parser() -> argparse.ArgumentParser:
         "diff-review",
         help="review repo-native record changes against a Git base ref",
     )
-    diff_review_parser.add_argument("base", nargs="?", default="HEAD", help="Git base ref")
+    diff_review_parser.add_argument(
+        "base",
+        nargs="?",
+        default="HEAD",
+        help="Git base commit ref to compare the current workspace against",
+    )
     diff_review_parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
     diff_review_parser.set_defaults(func=cmd_diff_review)
 
@@ -6527,7 +6549,12 @@ def build_parser() -> argparse.ArgumentParser:
         "build",
         help="build GitHub-readable PR review markdown under .local/",
     )
-    view_build_parser.add_argument("base", nargs="?", default="HEAD", help="Git base ref")
+    view_build_parser.add_argument(
+        "base",
+        nargs="?",
+        default="HEAD",
+        help="Git base commit ref to compare the current workspace against",
+    )
     view_build_parser.add_argument(
         "--output",
         default=".local/github-view",

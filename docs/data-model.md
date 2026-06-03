@@ -284,11 +284,12 @@ questions, open challenges, relationship-promotion pressure, and risk-flag
 categories. The command still does not write truth status or confidence back
 into canonical records.
 
-`fo diff-review BASE` is the deterministic PR review layer. It compares records
-by canonical ID, validates the current tree, flags canonical evidence edits,
-shows reference and graph impact, reports before/after derived review-state
-movement, and highlights ontology changes. It uses Git only as the versioned
-transport; the interpretation is based on OSINT records and graph structure.
+`fo diff-review BASE` is the deterministic PR review layer. It resolves `BASE`
+to a Git commit SHA, compares records by canonical ID, validates the current
+tree, flags canonical evidence edits, shows reference and graph impact, reports
+before/after derived review-state movement, and highlights ontology changes. It
+uses Git only as the versioned transport; the interpretation is based on OSINT
+records and graph structure.
 
 `fo lint` emits advisory duplicate warnings for current records. It checks stable
 deterministic signatures: entity names and key identifiers, source URLs and
