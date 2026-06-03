@@ -1,0 +1,21 @@
+schema_version: 1
+kind: claim
+id: claim:fit-hon-teng:broadcom-th5-cpo-interconnect-production
+statement: FIT and Broadcom sources say FIT is delivering key hardware for Broadcom's TH5-Bailly CPO platform, including solderless LGA-to-LGA sockets, Remote PLS I/O cages, and specialized connector assemblies; Broadcom's release names FIT production release of CPO LGA sockets and PLS cages/connectors.
+subject: entity:company:fit-hon-teng
+predicate: disclosed_relationship
+object: entity:company:broadcom
+qualifiers:
+  product: entity:product:fit-broadcom-th5-cpo-interconnect-hardware
+  platform: Broadcom TH5-Bailly CPO
+  counterparty_evidence: evidence:public:broadcom:third-generation-cpo-fit-partner
+support_type: direct
+evidence:
+  - id: evidence:public:fit-hon-teng:broadcom-th5-cpo-interconnects
+  - id: evidence:public:broadcom:third-generation-cpo-fit-partner
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - company_originated_support
+  - counterparty_originated_support
+  - product_revenue_unquantified

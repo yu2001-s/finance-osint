@@ -1,0 +1,19 @@
+schema_version: 1
+kind: claim
+id: claim:fit-hon-teng:q1-2026-financial-update-no-cpo-bridge
+statement: FIT's Q1 2026 HKEX financial update showed revenue and other operating revenue of US$1.198B for Q1 2026, but provided consolidated financials only and did not disclose CPO, ELSFP, PLS cage, LGA socket, or Broadcom program revenue or margin.
+subject: entity:company:fit-hon-teng
+predicate: reported_metric
+object: metric:fit-hon-teng:q1-2026-revenue-and-other-operating-revenue
+qualifiers:
+  cpo_revenue_split_disclosed: false
+  elsfp_revenue_split_disclosed: false
+  broadcom_program_revenue_disclosed: false
+support_type: direct
+evidence:
+  - id: evidence:public:fit-hon-teng:q1-2026-financial-update
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - consolidated_financials_only
+  - cpo_revenue_split_not_disclosed

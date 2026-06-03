@@ -1,0 +1,36 @@
+schema_version: 1
+kind: question
+id: question:fit-hon-teng:cpo-elsfp-revenue-bridge
+question: Do FIT H1/Q2 2026 disclosures convert management's 2027/2028 ELSFP revenue timing into named customer orders, backlog, pilot-production shipment value, product-line revenue, or margin economics?
+entities:
+  - entity:company:fit-hon-teng
+  - entity:product:fit-102p4t-elsfp-platform
+  - entity:product:fit-broadcom-th5-cpo-interconnect-hardware
+  - entity:company:broadcom
+proof_type: revenue_timing_to_underwriting_bridge
+priority: high
+related_evidence:
+  - evidence:public:fit-hon-teng:q1-2026-elsfp-revenue-timing
+  - evidence:public:fit-hon-teng:q1-2026-specific-customer-economics-undisclosed
+  - evidence:public:fit-hon-teng:q1-2026-financial-update
+  - evidence:public:stock-research:fit-cpo-elsfp-conversion-proof-gaps
+related_claims:
+  - claim:fit-hon-teng:elsfp-revenue-expected-2027-2028
+  - claim:fit-hon-teng:specific-customer-component-economics-undisclosed
+  - claim:fit-hon-teng:q1-2026-financial-update-no-cpo-bridge
+  - claim:fit-hon-teng:cpo-elsfp-conversion-proof-gap
+related_relationships:
+  - relationship:fit-hon-teng:manufactures-102p4t-elsfp-platform
+  - relationship:fit-hon-teng:broadcom-th5-cpo-interconnect-supplier
+  - relationship:fit-hon-teng:manufactures-broadcom-th5-cpo-interconnect-hardware
+related_theses:
+  - thesis:fit-hon-teng:cpo-elsfp-conversion-watch
+next_actions:
+  - Read FIT H1 2026 interim report, Q2/H1 transcript, official webcast deck, Broadcom updates, NTT updates, and HKEX announcements for product-line revenue, pilot-production order value, customer allocation, margin, or 2027 backlog language.
+  - Separate any future ELSFP/CPO timing statement from reported revenue, signed backlog, and named customer allocation.
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - proof_gap
+  - revenue_conversion_unproven
+  - customer_program_economics_undisclosed

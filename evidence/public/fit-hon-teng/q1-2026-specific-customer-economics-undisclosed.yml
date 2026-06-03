@@ -1,0 +1,23 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:fit-hon-teng:q1-2026-specific-customer-economics-undisclosed
+evidence_class: public_primary
+source: source:public:fit-hon-teng:q1-2026-transcript
+summary: When asked about high-speed connector ramp and customer/component share, FIT management repeatedly said it does not comment on specific products, individual customers, individual components, or specific customer product details, leaving BOM, AVL, customer allocation, and product-level economics undisclosed.
+content_mode: excerpt
+excerpt: The transcript records FIT management declining to comment on specific products, customers, components, or customer product details, leaving product-level economics undisclosed.
+locator:
+  section: Q1 2026 earnings call Q&A on customers, products, and components
+observed_at: "2026-05-12T00:00:00Z"
+submitted_by: github:codex
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_from_frozen_stock_research_source_page
+risk_flags:
+  - company_originated
+  - transcript_secondary_host
+  - negative_disclosure
+  - customer_component_economics_undisclosed

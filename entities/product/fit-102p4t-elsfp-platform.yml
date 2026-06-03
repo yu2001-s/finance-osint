@@ -1,0 +1,11 @@
+schema_version: 1
+kind: entity
+id: entity:product:fit-102p4t-elsfp-platform
+entity_type: product
+name: FIT 102.4T CPO ELSFP external-laser platform
+aliases:
+  - FIT 102.4T ELSFP
+  - FIT 102.4T CPO External Laser Solution
+description: FIT 102.4T CPO ELSFP external-laser solution described as OIF ELSFP 2.0 and CMIS 5.1 compliant, using a 1310 nm CW DFB laser architecture and entering ecosystem validation with NTT Innovative Devices.
+state: active
+created_at: "2026-06-03T00:00:00Z"

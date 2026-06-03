@@ -1,0 +1,22 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:fit-hon-teng:q1-2026-ai-cloud-growth
+evidence_class: public_primary
+source: source:public:fit-hon-teng:q1-2026-transcript
+summary: FIT management said Q1 2026 cloud data-center revenue grew 58% year over year, cloud data center reached about 22% of company revenue, and AI-server-related revenue grew 109% year over year, but the transcript did not isolate CPO, ELSFP, PLS cage, LGA socket, or Broadcom TH5-Bailly revenue.
+content_mode: excerpt
+excerpt: The Q1 2026 call transcript records FIT management discussing 58% cloud data-center revenue growth, about 22% cloud data-center revenue mix, and 109% AI-server-related growth, without a CPO/ELSFP/PLS/LGA/Broadcom revenue split.
+locator:
+  section: Q1 2026 earnings call management discussion
+observed_at: "2026-05-12T00:00:00Z"
+submitted_by: github:codex
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_from_frozen_stock_research_source_page
+risk_flags:
+  - company_originated
+  - transcript_secondary_host
+  - broad_ai_growth_not_exact_cpo_revenue

@@ -1,0 +1,15 @@
+schema_version: 1
+kind: entity
+id: entity:company:fit-hon-teng
+entity_type: company
+name: FIT Hon Teng
+aliases:
+  - Foxconn Interconnect Technology
+  - FIT
+  - FIT Hon Teng Limited
+identifiers:
+  ticker: 6088.HK
+  exchange: HKEX
+description: Hong Kong-listed Foxconn Interconnect Technology / FIT Hon Teng, a connector and interconnect supplier with public CPO PLS cage/socket production proof and 102.4T ELSFP external-laser platform validation.
+state: active
+created_at: "2026-06-03T00:00:00Z"

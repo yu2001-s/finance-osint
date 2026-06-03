@@ -1,0 +1,15 @@
+schema_version: 1
+kind: source
+id: source:public:fit-hon-teng:q1-2026-transcript
+source_type: transcript
+title: FIT Hon Teng Q1 2026 earnings call transcript
+publisher: StockAnalysis / FIT Hon Teng webcast transcript
+url: https://stockanalysis.com/quote/hkg/6088/transcripts/664131-q1-2026/
+published_at: "2026-05-12"
+accessed_at: "2026-06-03T00:00:00Z"
+public_status: public
+source_perspective: company_self
+content_mode: external_link
+provenance: Migrated from frozen stock-research tag finance-osint-seed-20260603 source src_fit_q1_2026_transcript_stockanalysis.
+risk_flags:
+  - transcript_secondary_host

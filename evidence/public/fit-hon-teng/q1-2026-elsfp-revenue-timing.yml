@@ -1,0 +1,23 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:fit-hon-teng:q1-2026-elsfp-revenue-timing
+evidence_class: public_primary
+source: source:public:fit-hon-teng:q1-2026-transcript
+summary: FIT management said the 102.4T ELSFP solution was in deep co-design and validation with key ecosystem partners, was on track for a significant technical milestone by mid-2026, and was expected to begin initial revenue contribution in 2027 with significant ramp in 2028 as CPO architectures become standard for 1.6T and 3.2T applications.
+content_mode: excerpt
+excerpt: FIT management described 102.4T ELSFP as a validation/co-design effort with expected initial revenue contribution in 2027 and significant ramp in 2028.
+locator:
+  section: Q1 2026 earnings call ELSFP and CPO timing discussion
+observed_at: "2026-05-12T00:00:00Z"
+submitted_by: github:codex
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_from_frozen_stock_research_source_page
+risk_flags:
+  - company_originated
+  - transcript_secondary_host
+  - forward_looking_timing
+  - future_revenue_not_current_bridge

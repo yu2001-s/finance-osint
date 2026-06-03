@@ -1,0 +1,10 @@
+schema_version: 1
+kind: entity
+id: entity:product:fit-broadcom-th5-cpo-interconnect-hardware
+entity_type: product
+name: FIT Broadcom TH5-Bailly CPO interconnect hardware
+aliases:
+  - FIT Broadcom CPO PLS cage and LGA socket hardware
+description: FIT interconnect hardware for Broadcom TH5-Bailly CPO systems, including solderless LGA-to-LGA sockets, Remote PLS I/O cages, and specialized connector assemblies.
+state: active
+created_at: "2026-06-03T00:00:00Z"

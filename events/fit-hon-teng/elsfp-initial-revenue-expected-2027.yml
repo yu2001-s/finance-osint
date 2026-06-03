@@ -1,0 +1,25 @@
+schema_version: 1
+kind: event
+id: event:fit-hon-teng:elsfp-initial-revenue-expected-2027
+event_type: revenue_timing
+event_state: expected
+title: FIT management expected initial 102.4T ELSFP revenue contribution in 2027
+entities:
+  - entity:company:fit-hon-teng
+  - entity:product:fit-102p4t-elsfp-platform
+  - entity:architecture:external-laser-source-els
+expected_at: "2027"
+evidence:
+  - evidence:public:fit-hon-teng:q1-2026-elsfp-revenue-timing
+properties:
+  timing_basis: management_statement
+  date_type: calendar_year
+  ramp_expected: "2028"
+  architecture_context:
+    - 1.6T
+    - 3.2T
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - forward_looking_timing
+  - future_revenue_not_current_bridge

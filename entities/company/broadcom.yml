@@ -1,0 +1,13 @@
+schema_version: 1
+kind: entity
+id: entity:company:broadcom
+entity_type: company
+name: Broadcom Inc.
+aliases:
+  - Broadcom
+identifiers:
+  ticker: AVGO
+  exchange: Nasdaq
+description: Public semiconductor and infrastructure software company; CPO switch-platform owner whose TH5-Bailly ecosystem announcement names FIT production release of CPO LGA sockets and PLS cages/connectors.
+state: active
+created_at: "2026-06-03T00:00:00Z"

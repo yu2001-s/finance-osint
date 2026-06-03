@@ -1,0 +1,53 @@
+schema_version: 1
+kind: thesis
+id: thesis:fit-hon-teng:cpo-elsfp-conversion-watch
+title: FIT CPO and ELSFP conversion watch
+summary: FIT has source-backed evidence that it announced a 102.4T CPO ELSFP external-laser platform validated by NTT Innovative Devices and that FIT/Broadcom sources place FIT hardware in Broadcom's TH5-Bailly CPO interconnect stack. The same source pack shows Q1 2026 AI/cloud growth and management 2027/2028 ELSFP revenue timing, but it does not show current CPO/ELSFP/PLS/LGA product-line revenue, signed backlog, order value, margin, BOM/AVL allocation, or a valuation bridge after the May 29, 2026 rerating snapshot.
+stance: future_revenue_timing_watch
+time_horizon: 2026-2028
+depends_on:
+  evidence:
+    - evidence:public:fit-hon-teng:102p4t-elsfp-validation
+    - evidence:public:fit-hon-teng:broadcom-th5-cpo-interconnects
+    - evidence:public:broadcom:third-generation-cpo-fit-partner
+    - evidence:public:fit-hon-teng:q1-2026-ai-cloud-growth
+    - evidence:public:fit-hon-teng:q1-2026-elsfp-revenue-timing
+    - evidence:public:fit-hon-teng:q1-2026-specific-customer-economics-undisclosed
+    - evidence:public:fit-hon-teng:q1-2026-financial-update
+    - evidence:public:market-data:fit-valuation-20260529
+    - evidence:public:stock-research:fit-cpo-elsfp-conversion-proof-gaps
+  claims:
+    - claim:fit-hon-teng:102p4t-elsfp-platform-validation
+    - claim:fit-hon-teng:broadcom-th5-cpo-interconnect-production
+    - claim:fit-hon-teng:q1-2026-ai-cloud-growth-no-cpo-split
+    - claim:fit-hon-teng:elsfp-revenue-expected-2027-2028
+    - claim:fit-hon-teng:specific-customer-component-economics-undisclosed
+    - claim:fit-hon-teng:q1-2026-financial-update-no-cpo-bridge
+    - claim:fit-hon-teng:valuation-rerated-20260529
+    - claim:fit-hon-teng:cpo-elsfp-conversion-proof-gap
+  relationships:
+    - relationship:fit-hon-teng:manufactures-102p4t-elsfp-platform
+    - relationship:fit-hon-teng:102p4t-elsfp-supports-external-laser-source
+    - relationship:fit-hon-teng:broadcom-th5-cpo-interconnect-supplier
+    - relationship:fit-hon-teng:manufactures-broadcom-th5-cpo-interconnect-hardware
+    - relationship:fit-hon-teng:broadcom-cpo-interconnects-support-cpo
+  metrics:
+    - metric:fit-hon-teng:q1-2026-revenue-and-other-operating-revenue
+    - metric:fit-hon-teng:market-cap-20260529
+    - metric:fit-hon-teng:ttm-revenue-20260529
+  events:
+    - event:fit-hon-teng:elsfp-initial-revenue-expected-2027
+forecast:
+  initial_elsfp_revenue_expected: "2027"
+  significant_ramp_expected: "2028"
+  source_claim: claim:fit-hon-teng:elsfp-revenue-expected-2027-2028
+  limitation: Management timing is not current product-line revenue, backlog, margin, or valuation conversion proof.
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - company_originated_support_heavy
+  - counterparty_originated_support_for_broadcom_edge
+  - future_revenue_not_current_bridge
+  - revenue_conversion_unproven
+  - valuation_rerated
+  - customer_program_economics_undisclosed

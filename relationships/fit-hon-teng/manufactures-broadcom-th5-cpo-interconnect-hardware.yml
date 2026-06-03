@@ -1,0 +1,30 @@
+schema_version: 1
+kind: relationship
+id: relationship:fit-hon-teng:manufactures-broadcom-th5-cpo-interconnect-hardware
+type: manufactures_product
+participants:
+  - role: manufacturer
+    entity: entity:company:fit-hon-teng
+  - role: product
+    entity: entity:product:fit-broadcom-th5-cpo-interconnect-hardware
+scope:
+  customer: entity:company:broadcom
+  market: entity:market:ai-datacenter-infrastructure
+  architecture: entity:architecture:co-packaged-optics
+qualifiers:
+  - announced
+  - product_fit
+materiality:
+  level: high
+  basis: observed
+derived_from:
+  evidence:
+    - evidence:public:fit-hon-teng:broadcom-th5-cpo-interconnects
+    - evidence:public:broadcom:third-generation-cpo-fit-partner
+  claims:
+    - claim:fit-hon-teng:broadcom-th5-cpo-interconnect-production
+submitted_by: github:codex
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - product_revenue_unquantified
+  - customer_program_economics_undisclosed

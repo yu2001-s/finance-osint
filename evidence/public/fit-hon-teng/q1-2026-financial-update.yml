@@ -1,0 +1,22 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:fit-hon-teng:q1-2026-financial-update
+evidence_class: public_primary
+source: source:public:fit-hon-teng:q1-2026-financial-update
+summary: FIT's Q1 2026 HKEX financial update showed revenue and other operating revenue of US$1.198B and net profit from continuing operations of US$10.446M for Q1 2026; the announcement provided consolidated financials only and did not disclose CPO, ELSFP, PLS cage, LGA socket, or Broadcom program revenue or margin.
+content_mode: excerpt
+excerpt: The Q1 2026 HKEX financial update provided consolidated revenue and other operating revenue of US$1.198B and net profit from continuing operations of US$10.446M, without CPO/ELSFP/PLS/LGA/Broadcom program economics.
+locator:
+  section: unaudited consolidated financial information for the three months ended March 31, 2026
+observed_at: "2026-05-11T00:00:00Z"
+submitted_by: github:codex
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: verified_from_frozen_stock_research_source_page
+risk_flags:
+  - company_originated
+  - consolidated_financials_only
+  - cpo_revenue_split_not_disclosed
