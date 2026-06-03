@@ -56,6 +56,9 @@ fo lint
 
 Evidence is the strict layer. Claims, relationships, theses, validations, and challenges can be contested, but they must preserve their dependency chain.
 
+For a concrete sourced-research batch workflow, see
+`docs/research-batch-contribution.md`.
+
 - Public evidence should be source-backed and reviewable.
 - New sources should declare `source_perspective` so review output can separate
   company-originated, independent, social, first-hand, anonymous, internal, and
