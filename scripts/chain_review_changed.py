@@ -28,6 +28,14 @@ def run(args: list[str]) -> subprocess.CompletedProcess[str]:
     )
 
 
+def git_commit_sha(ref: str) -> tuple[str | None, str | None]:
+    result = run(["git", "rev-parse", "--verify", f"{ref}^{{commit}}"])
+    if result.returncode != 0:
+        message = result.stderr.strip() or result.stdout.strip() or "git rev-parse failed"
+        return None, message
+    return result.stdout.strip(), None
+
+
 def git_changed_paths(base_ref: str) -> list[tuple[str, str]]:
     result = run(["git", "diff", "--name-status", base_ref, "--"])
     if result.returncode != 0:
@@ -119,20 +127,24 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Run fo review --chain for changed current thesis/relationship records."
     )
-    parser.add_argument("base", help="Git base ref to compare against")
+    parser.add_argument("base", help="Git base commit ref to compare against")
     args = parser.parse_args()
 
     try:
+        base_sha, base_error = git_commit_sha(args.base)
+        if base_error:
+            raise RuntimeError(f"failed to resolve `{args.base}`: {base_error}")
         record_ids = sorted(
             {
                 record_id
-                for path in current_review_paths(args.base)
+                for path in current_review_paths(str(base_sha))
                 if (record_id := record_id_for_path(path))
             }
         )
         payload = {
             "command": "chain-review-changed",
             "base": args.base,
+            "base_sha": base_sha,
             "reviewed_ids": record_ids,
             "reviewed_count": len(record_ids),
             "reviews": [compact_review(review_record(record_id)) for record_id in record_ids],

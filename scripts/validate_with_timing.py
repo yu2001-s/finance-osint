@@ -68,6 +68,10 @@ def git_count_objects() -> dict[str, str]:
     return values
 
 
+def git_commit_sha(ref: str) -> str | None:
+    return git_output(["rev-parse", "--verify", f"{ref}^{{commit}}"])
+
+
 def load_budget_spec(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {
@@ -177,9 +181,11 @@ def corpus_summary(root: Path, steps: list[dict[str, Any]]) -> dict[str, Any]:
 
 def build_payload(root: Path, base_ref: str, budget_path: Path) -> dict[str, Any]:
     budget_spec = load_budget_spec(budget_path)
+    base_sha = git_commit_sha(base_ref)
+    resolved_base_ref = base_sha or base_ref
     steps = [
         run_timed(name, command, step_budget(budget_spec, name))
-        for name, command in command_specs(base_ref)
+        for name, command in command_specs(resolved_base_ref)
     ]
     return {
         "schema_version": 1,
@@ -192,6 +198,7 @@ def build_payload(root: Path, base_ref: str, budget_path: Path) -> dict[str, Any
         "git": {
             "sha": git_output(["rev-parse", "HEAD"]),
             "base_ref": base_ref,
+            "base_sha": base_sha,
             "event": os.environ.get("GITHUB_EVENT_NAME", "local"),
         },
         "environment": {
@@ -221,7 +228,15 @@ def print_human(payload: dict[str, Any]) -> None:
 
 
 def markdown_summary(payload: dict[str, Any]) -> str:
-    lines = ["### Validation Timing", "", "| Step | Status | Elapsed | Budget |", "| --- | ---: | ---: | ---: |"]
+    lines = [
+        "### Validation Timing",
+        "",
+        f"Base ref: `{payload['base']}`",
+        f"Base SHA: `{payload['git'].get('base_sha') or 'unresolved'}`",
+        "",
+        "| Step | Status | Elapsed | Budget |",
+        "| --- | ---: | ---: | ---: |",
+    ]
     for step in payload["steps"]:
         status = "OK" if step["ok"] else f"FAIL {step['exit_code']}"
         lines.append(
@@ -238,7 +253,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Run the repository validation checklist and record per-command timings."
     )
-    parser.add_argument("base", nargs="?", default="HEAD", help="Git base ref for diff review")
+    parser.add_argument(
+        "base",
+        nargs="?",
+        default="HEAD",
+        help="Git base commit ref for changed chain review and diff review",
+    )
     parser.add_argument(
         "--output",
         default=".local/validation-timings.json",

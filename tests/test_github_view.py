@@ -50,6 +50,18 @@ def init_git_repo(repo: Path) -> None:
         subprocess.run(command, cwd=repo, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
+def git_sha(repo: Path, ref: str = "HEAD") -> str:
+    result = subprocess.run(
+        ["git", "rev-parse", "--verify", f"{ref}^{{commit}}"],
+        cwd=repo,
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    return result.stdout.strip()
+
+
 def commit_all(repo: Path, message: str) -> None:
     for command in (["git", "add", "."], ["git", "commit", "-m", message]):
         subprocess.run(command, cwd=repo, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -67,6 +79,7 @@ class GitHubViewTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
             init_git_repo(repo)
+            base_sha = git_sha(repo)
             thesis_path = (
                 repo
                 / "records"
@@ -113,6 +126,9 @@ class GitHubViewTests(unittest.TestCase):
         self.assertNotIn(str(repo), chain_page)
         self.assertNotIn(".local/index.sqlite", chain_page)
         self.assertNotIn('{"', chain_page)
+        pr_review = first_render[Path("pr-review.md")]
+        self.assertIn("Base ref: `HEAD`", pr_review)
+        self.assertIn(f"Base SHA: `{base_sha}`", pr_review)
 
     def test_github_view_build_cleans_stale_chain_pages(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

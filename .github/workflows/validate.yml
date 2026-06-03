@@ -20,12 +20,16 @@ jobs:
         with:
           python-version: "3.11"
       - run: uv sync --locked
+      - name: Resolve validation base
+        run: |
+          uv run python scripts/resolve_validation_base.py \
+            --event-name "${{ github.event_name }}" \
+            --pull-request-base-sha "${{ github.event.pull_request.base.sha }}" \
+            --push-before-sha "${{ github.event.before }}" \
+            --github-env "$GITHUB_ENV" \
+            --github-step-summary "$GITHUB_STEP_SUMMARY"
       - name: Validate with timing
         run: |
-          BASE_REF="HEAD"
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE_REF="origin/${{ github.base_ref }}"
-          fi
           uv run python scripts/validate_with_timing.py "$BASE_REF" \
             --json \
             --output .local/ci/validation-timings.json \
@@ -38,10 +42,6 @@ jobs:
             --output .local/ci/scale-smoke-10k.json
       - name: Build GitHub review view
         run: |
-          BASE_REF="HEAD"
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE_REF="origin/${{ github.base_ref }}"
-          fi
           uv run fo view build "$BASE_REF" \
             --json \
             --output .local/ci/github-view

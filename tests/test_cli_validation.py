@@ -57,6 +57,18 @@ def init_git_repo(repo: Path) -> None:
         subprocess.run(command, cwd=repo, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
+def git_sha(repo: Path, ref: str = "HEAD") -> str:
+    result = subprocess.run(
+        ["git", "rev-parse", "--verify", f"{ref}^{{commit}}"],
+        cwd=repo,
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    return result.stdout.strip()
+
+
 def run_lint(root: Path) -> tuple[int, str]:
     stderr = io.StringIO()
     stdout = io.StringIO()
@@ -1243,6 +1255,27 @@ class CliValidationTests(unittest.TestCase):
         self.assertEqual(status, 0, payload)
         warning_codes = {warning["code"] for warning in payload["warnings"]}
         self.assertIn("moves_record_to_archive", warning_codes)
+
+    def test_diff_review_reports_resolved_base_sha_for_symbolic_ref(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            init_git_repo(repo)
+            base_sha = git_sha(repo)
+            thesis_path = (
+                repo
+                / "records"
+                / "theses"
+                / "synthetic-exdev-margin-risk-from-foundry-concentration.yml"
+            )
+            thesis = load_yaml(thesis_path)
+            thesis["summary"] = thesis["summary"] + " Base SHA test change."
+            write_yaml(thesis_path, thesis)
+
+            status, payload = run_json_command(cli.run_diff_review, repo, "HEAD")
+
+        self.assertEqual(status, 0, payload)
+        self.assertEqual(payload["base"], "HEAD")
+        self.assertEqual(payload["base_sha"], base_sha)
 
     def test_index_build_and_search_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
