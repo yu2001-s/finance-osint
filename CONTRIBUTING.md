@@ -56,16 +56,18 @@ GitHub Actions runs the deterministic local checks on every pull request:
 
 ```bash
 uv sync --locked
-uv run fo lint --json
-uv run fo diff-review "origin/${{ github.base_ref }}" --json  # pull_request only
-uv run python -m unittest discover -s tests
-uv run fo index build --json
-uv run python scripts/chain_review_changed.py "origin/${{ github.base_ref }}"  # pull_request only
-uv run fo graph build --json
+uv run python scripts/validate_with_timing.py "origin/${{ github.base_ref }}" --json
+uv run python scripts/scale_smoke.py --records 10000 --json
 ```
 
 CI validates structure, references, ontology usage, tests, and derived local
 read artifacts. It does not decide investment truth.
+
+The timing wrapper runs lint, tests, index build, changed chain review, graph
+build, and diff-review once and writes a generated JSON report under `.local/`.
+The 10k scale smoke uses a temporary generated repository and does not commit
+generated YAML. Timing budgets are advisory before public launch; see
+`docs/performance-budgets.md`.
 
 `fo diff-review` is useful before CI because it summarizes what a PR changes as
 OSINT records: evidence edits, review-state movement, graph impact, reference

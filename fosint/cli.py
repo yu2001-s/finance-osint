@@ -2149,6 +2149,15 @@ create index refs_target_idx on refs(target_id);
 create index edges_source_idx on edges(source_id);
 create index edges_target_idx on edges(target_id);
 create index records_kind_idx on records(kind, archived);
+create index identifiers_record_idx on identifiers(record_id);
+create index identifiers_type_value_idx on identifiers(id_type, id_value);
+create index evidence_source_idx on evidence(source_id);
+create index claims_subject_idx on claims(subject);
+create index claims_predicate_idx on claims(predicate);
+create index relationships_primary_subject_idx on relationships(primary_subject);
+create index relationship_participants_entity_idx on relationship_participants(entity_id);
+create index relationship_scope_scope_idx on relationship_scope(scope_type, scope_id);
+create index metrics_entity_idx on metrics(entity_id);
 create index validations_target_idx on validations(target_id);
 create index challenges_target_idx on challenges(target_id);
 """
