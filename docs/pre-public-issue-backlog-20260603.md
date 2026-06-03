@@ -2,15 +2,17 @@
 
 Created: 2026-06-03
 
-Purpose: local backlog for work that should become GitHub Issues after the
-repository has a remote and public contribution workflow. Until then, this file
-is the tracked issue queue.
+Purpose: local backlog for work that should become or has become GitHub Issues
+as the repository moves through private staging toward public launch.
 
 ## P0: Launch Blockers
 
-Status: remote-dependent enforcement is deferred until the repository has a
-GitHub remote. Branch protection, CODEOWNERS enforcement, abuse operations,
-visibility, and tag decisions remain required before any public launch or tag.
+Status: private GitHub staging is active at
+`https://github.com/yu2001-s/finance-osint`. Branch protection and required
+checks are tracked in GitHub issue #1; abuse/takedown operations in #2; public
+visibility and tag decision in #3; GitHub Actions Node.js 20 deprecation in #4.
+Branch protection enforcement is currently blocked by GitHub plan/visibility
+for the private staging repo and remains required before public launch or tag.
 
 ### Verify GitHub Branch Protection And CODEOWNERS
 
@@ -20,7 +22,7 @@ and cannot be enforced from local files alone.
 
 Acceptance criteria:
 
-- Default branch is chosen.
+- [x] Default branch is chosen for private staging: `main`.
 - `Validate` workflow is required before merge.
 - CODEOWNERS review is required for owned paths.
 - Direct pushes and force pushes to the default branch are blocked.

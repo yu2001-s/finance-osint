@@ -5,6 +5,30 @@ surface, contribution queue, and public audit trail. This checklist captures the
 GitHub-side controls that must be verified before a public launch or public
 alpha tag.
 
+## Private Staging Status
+
+Private staging repo:
+
+```text
+https://github.com/yu2001-s/finance-osint
+visibility: private
+default branch: main
+```
+
+Observed on 2026-06-03:
+
+- Initial `main` push ran `Validate` successfully.
+- Draft PR #5 tested a source-only contribution and passed `Validate`.
+- Draft PR #6 tested a source/evidence/claim contribution and passed
+  `Validate`.
+- Draft PR #7 tested a question/challenge contribution and passed `Validate`.
+- Each PR run uploaded `validation-reports` and `github-view` artifacts.
+- Branch protection configuration failed with GitHub HTTP 403 because the
+  current private repo cannot enable that feature without GitHub Pro or public
+  visibility. Track in GitHub issue #1 before any public launch or tag.
+- GitHub Actions emitted a Node.js 20 action deprecation annotation. Track in
+  GitHub issue #4 before public launch.
+
 ## Required Repository Settings
 
 - Default branch is chosen and documented.

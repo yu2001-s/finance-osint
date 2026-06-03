@@ -12,13 +12,45 @@ Current release posture:
 
 ```text
 private/dev release: ready
-public alpha: ready after publication/tag owner decisions
+private GitHub staging: active
+public alpha: blocked on GitHub launch gates and publication/tag owner decisions
 public v1: not ready
 ```
 
 The repo has a coherent local-first data model, deterministic validation, a PR
-review workflow, agent-operable skills, real seeded examples, and a clean-clone
-smoke test pass.
+review workflow, agent-operable skills, real seeded examples, a clean-clone
+smoke test pass, and a private GitHub staging repo.
+
+## Private GitHub Staging
+
+Staging repo:
+
+```text
+https://github.com/yu2001-s/finance-osint
+visibility: private
+default branch: main
+```
+
+Observed on 2026-06-03:
+
+- Initial `main` push ran `Validate` successfully in GitHub Actions.
+- Draft staging PR #5 tested a source-only contribution.
+- Draft staging PR #6 tested a source/evidence/claim contribution.
+- Draft staging PR #7 tested a question/challenge contribution.
+- All three draft PRs passed the `Validate` workflow.
+- Each PR run uploaded `validation-reports` and `github-view` artifacts.
+- GitHub emitted a Node.js 20 action deprecation annotation; this is tracked in
+  GitHub issue #4.
+- Attempted branch protection on private `main` failed with GitHub HTTP 403:
+  branch protection for this private repo requires GitHub Pro or public
+  visibility. This is tracked in GitHub issue #1.
+
+Open launch-gate issues:
+
+- #1 Enable branch protection and required `Validate` check.
+- #2 Define abuse, MNPI, defamation, spam, and takedown operations.
+- #3 Decide public visibility and `v0.1.0-alpha` tag.
+- #4 Address GitHub Actions Node.js 20 deprecation annotation.
 
 ## Alpha Release Gate
 
@@ -36,7 +68,12 @@ Required before tagging `v0.1.0-alpha`:
 - [x] Contributor research-batch workflow exists.
 - [x] Clean clone smoke test passed.
 - [x] Owner chose and committed Apache-2.0 license.
-- [ ] Owner chooses default branch and public repo visibility.
+- [x] Private staging default branch is `main`.
+- [x] Private staging GitHub Actions workflow passes on `main` and draft PRs.
+- [x] Private staging draft PRs exercise source-only, source/evidence/claim,
+  and question/challenge contribution shapes.
+- [ ] Branch protection and CODEOWNERS review enforcement are enabled.
+- [ ] Owner chooses public repo visibility.
 - [ ] Owner decides whether to tag `v0.1.0-alpha`.
 
 ## Clean Clone Smoke
