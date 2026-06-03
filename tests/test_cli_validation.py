@@ -2442,6 +2442,11 @@ class CliValidationTests(unittest.TestCase):
             )
 
             status, payload = run_json_command(cli.run_diff_review, repo, "HEAD")
+            records, errors = cli.validate_repo(repo, current_only=True)
+            self.assertEqual(errors, [])
+            impacted_target_ids = {
+                record.id for record in cli.changed_view_targets(repo, records, payload)
+            }
 
         self.assertEqual(status, 0, payload)
         self.assertTrue(payload["ok"])
@@ -2467,6 +2472,96 @@ class CliValidationTests(unittest.TestCase):
         self.assertIn(
             "challenge:test:diff-review-open",
             {item["id"] for item in payload["record_delta"]["added"]},
+        )
+        self.assertIn(
+            "thesis:synthetic:exdev-margin-risk-from-foundry-concentration",
+            impacted_target_ids,
+        )
+
+    def test_diff_review_chain_impact_includes_source_question_and_deleted_challenge(self) -> None:
+        target_id = "thesis:synthetic:exdev-margin-risk-from-foundry-concentration"
+        scenarios = (
+            (
+                "source",
+                lambda repo: write_yaml(
+                    repo / "records" / "sources" / "public" / "synthetic-exdev-fy2025-report.yml",
+                    {
+                        **load_yaml(
+                            repo
+                            / "records"
+                            / "sources"
+                            / "public"
+                            / "synthetic-exdev-fy2025-report.yml"
+                        ),
+                        "source_perspective": "company_self",
+                    },
+                ),
+                "source:public:synthetic:exdev-fy2025-report",
+            ),
+            (
+                "question",
+                lambda repo: write_yaml(
+                    repo / "records" / "questions" / "synthetic-chain-impact-question.yml",
+                    {
+                        "schema_version": 1,
+                        "kind": "question",
+                        "id": "question:test:synthetic-chain-impact",
+                        "question": "Does the synthetic supplier evidence need chain review?",
+                        "entities": ["entity:company:exdev"],
+                        "proof_type": "chain_review_fixture",
+                        "priority": "medium",
+                        "related_evidence": ["evidence:synthetic:exdev-fy2025-supplier-note"],
+                        "submitted_by": "github:tester",
+                    },
+                ),
+                "question:test:synthetic-chain-impact",
+            ),
+            (
+                "deleted_challenge",
+                lambda repo: (
+                    repo
+                    / "records"
+                    / "challenges"
+                    / "synthetic-exdev-margin-risk-needs-alternatives.yml"
+                ).unlink(),
+                "challenge:synthetic:exdev-margin-risk-needs-alternatives",
+            ),
+        )
+        for _, mutate, seed_id in scenarios:
+            with self.subTest(seed_id=seed_id), tempfile.TemporaryDirectory() as tmp:
+                repo = copy_fixture_repo(Path(tmp))
+                init_git_repo(repo)
+                mutate(repo)
+
+                status, payload = run_json_command(cli.run_diff_review, repo, "HEAD")
+
+            self.assertEqual(status, 0, payload)
+            self.assertIn(seed_id, payload["chain_impact"]["seed_ids"])
+            self.assertIn(target_id, payload["chain_impact"]["target_ids"])
+            target_item = next(
+                item for item in payload["chain_impact"]["by_target"] if item["id"] == target_id
+            )
+            self.assertIn(seed_id, target_item["seed_ids"])
+
+    def test_diff_review_chain_impact_does_not_expand_questions_for_evidence_origin(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            init_git_repo(repo)
+            evidence_path = repo / "records" / "evidence" / "public" / "sivers" / "valuation-20260529.yml"
+            evidence = load_yaml(evidence_path)
+            evidence["excerpt"] = evidence["excerpt"] + " Chain impact fanout regression fixture."
+            write_yaml(evidence_path, evidence)
+
+            status, payload = run_json_command(cli.run_diff_review, repo, "HEAD")
+
+        self.assertEqual(status, 0, payload)
+        self.assertEqual(
+            payload["chain_impact"]["target_ids"],
+            ["thesis:sivers:cpo-dfb-laser-frontier-watch"],
+        )
+        self.assertNotIn(
+            "relationship:sivers:ayar-hvm-development-partnership",
+            payload["chain_impact"]["target_ids"],
         )
 
     def test_diff_review_flags_translation_evidence_mutation(self) -> None:

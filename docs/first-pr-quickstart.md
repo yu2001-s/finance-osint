@@ -199,7 +199,7 @@ In the PR, summarize:
 - Open questions or challenges.
 - `fo diff-review` warnings, even when they are expected.
 - `fo view build` output or the CI `github-view` artifact when a thesis or
-  relationship changed.
+  relationship changed or was impacted by lower-level record changes.
 
 Do not add canonical `status`, `confidence`, `agent_run`, `generated_by`, or
 hidden source knowledge.
