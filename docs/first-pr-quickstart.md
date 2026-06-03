@@ -31,18 +31,18 @@ environment before editing records.
 
 ## 2. Search Before Adding
 
-Search for the company, source, or evidence terms first. This fixture query is
+Search for the company, source, or evidence terms first. This query is
 copy-runnable in a clean clone:
 
 ```bash
-uv run fo search "exdev" --json
+uv run fo search "axt" --json
 ```
 
 Inspect nearby records:
 
 ```bash
-uv run fo context entity:company:exdev --json
-uv run fo review thesis:synthetic:exdev-margin-risk-from-foundry-concentration --chain --json
+uv run fo context entity:company:axt-inc --json
+uv run fo review thesis:axt-sumitomo:inp-substrate-bottleneck-watch --chain --json
 ```
 
 Do not add a duplicate record when an existing one can be updated, validated, or
@@ -88,16 +88,16 @@ uv run fo new source \
 ```
 
 Remove `--dry-run` to write the record after the preview looks correct. Copy the
-returned `id` into evidence that depends on this source. The fixture IDs in the
-next two sections are for copy-paste smoke tests only; do not write those
-examples as-is for a real PR.
+returned `id` into evidence that depends on this source. The existing canonical
+IDs in the next two sections are for copy-paste smoke tests only; do not write
+duplicate versions of those examples for a real PR.
 
 For a real chained PR:
 
 - Write the source, then copy the returned source `id`.
-- Replace the fixture `--source` below with that source `id`, write the
+- Replace the example `--source` below with that source `id`, write the
   evidence, then copy the returned evidence `id`.
-- Replace the fixture `--evidence` in the claim command with that evidence
+- Replace the example `--evidence` in the claim command with that evidence
   `id`.
 
 For mutable web-like sources, prefer `archive_url`. If no archive exists, add a
@@ -106,14 +106,14 @@ bounded evidence excerpt, `content_hash`, or a small referenced artifact.
 ## 5. Add Evidence
 
 Evidence is the strict layer. Quote or summarize only the bounded item needed
-for review. This command uses an existing fixture source so the dry-run is
+for review. This command uses an existing canonical source so the dry-run is
 copy-runnable. For a real PR, replace `--source` with the source `id` you just
 wrote.
 
 ```bash
 uv run fo new evidence \
   --evidence-class public_primary \
-  --source source:public:synthetic:exdev-fy2025-report \
+  --source source:public:axt:fy2025-form-10-k \
   --summary "Quickstart dry-run evidence preview." \
   --content-mode excerpt \
   --excerpt "Short exact excerpt." \
@@ -130,24 +130,25 @@ claims, validations, questions, or challenges that depend on this evidence.
 ## 6. Add One Reviewable Object
 
 For a narrow sourced assertion, first choose an existing entity from search or
-add a new entity record. This command uses an existing fixture entity and
+add a new entity record. This command uses an existing canonical entity and
 evidence so the dry-run is copy-runnable.
 
 ```bash
 uv run fo new claim \
-  --statement "Quickstart dry-run claim preview." \
-  --subject entity:company:exdev \
+  --statement "AXT discloses indium phosphide substrate products." \
+  --subject entity:company:axt-inc \
   --predicate product_signal \
-  --object "quickstart product signal" \
-  --support-type observed \
-  --evidence evidence:synthetic:exdev-fy2025-supplier-note \
+  --object entity:component:indium-phosphide-substrate \
+  --support-type direct \
+  --evidence evidence:public:axt:fy2025-inp-products \
   --submitted-by github:quickstart \
   --dry-run \
   --json
 ```
 
-Remove `--dry-run` only after replacing the fixture IDs with the source and
-evidence IDs for your contribution.
+Remove `--dry-run` only after replacing the example IDs, statement, subject,
+predicate, object, support type, and evidence IDs with the actual content for
+your contribution.
 
 If the evidence does not prove the stronger business conclusion, add a question
 or challenge instead of stretching the claim.

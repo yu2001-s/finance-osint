@@ -1,0 +1,21 @@
+kind: debate
+id: debate:example:alpd-supplier-risk
+title: Is Alpha Devices exposed to supplier concentration risk?
+question: Does the example supplier relationship imply meaningful gross margin or supply continuity risk?
+status: open
+entities:
+  - entity:company:alpd
+  - entity:company:nfab
+linked_claims:
+  - claim:example:alpd-uses-nfab-for-a1
+linked_relationships:
+  - relationship:example:alpd-nfab-a1-supplier
+linked_theses:
+  - thesis:example:alpd-margin-risk-from-nfab-concentration
+positions:
+  - supplier concentration is material
+  - supplier concentration is manageable
+time_scope:
+  start: "2025-01-01"
+  end: null
+created_at: "2026-06-02T00:00:00Z"
