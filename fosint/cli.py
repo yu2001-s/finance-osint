@@ -191,6 +191,65 @@ SOURCE_PERSPECTIVES = sorted(
     | COMPANY_ORIGINATED_SOURCE_PERSPECTIVES
     | OTHER_SOURCE_PERSPECTIVES
 )
+STRONG_RELATIONSHIP_TYPES = {
+    "customer_relationship",
+    "design_win",
+    "manufacturing_partner",
+    "qualified_supplier",
+    "supplier_relationship",
+}
+CHAIN_RISK_FLAG_CATEGORIES = {
+    "social_or_media": {
+        "market_rerating_not_revenue",
+        "reuters_reprint",
+        "social_reported_by_media",
+        "social_media_source",
+    },
+    "market_data": {
+        "market_data_snapshot",
+        "valuation_conversion_unproven",
+        "valuation_rerated",
+    },
+    "compiled_or_negative_search": {
+        "compiled_research",
+        "negative_search",
+        "not_primary_source",
+    },
+    "relationship_promotion": {
+        "architecture_layer_not_supplier_allocation",
+        "capability_not_customer_revenue",
+        "customer_design_in_unproven",
+        "customer_names_not_disclosed",
+        "customer_split_missing",
+        "ecosystem_adjacency_not_supplier_proof",
+        "nvidia_allocation_unproven",
+        "product_fit_not_customer_proof",
+        "product_fit_not_revenue",
+        "revenue_bridge_missing",
+        "revenue_conversion_unproven",
+        "revenue_split_missing",
+        "revenue_unquantified",
+        "sole_source_unproven",
+        "supplier_allocation_unproven",
+        "unnamed_customer",
+    },
+    "timing_or_conversion": {
+        "backlog_not_revenue",
+        "demo_not_order_or_revenue",
+        "development_not_volume_revenue",
+        "development_order_not_volume_revenue",
+        "expected_shipments",
+        "financing_not_capacity_online",
+        "forward_looking_delivery_timing",
+        "forward_looking_ramps",
+        "forward_looking_volume_production",
+        "funding_not_customer_revenue",
+        "not_volume_revenue",
+        "order_value_unproven",
+        "pipeline_not_backlog",
+        "planned_product",
+    },
+}
 ARTIFACTS_ROOT = Path("artifacts")
 SOURCE_ARTIFACTS_ROOT = Path("artifacts/sources")
 SOURCE_ARTIFACT_SUFFIXES = {".png", ".jpg", ".jpeg", ".pdf"}
@@ -2603,6 +2662,362 @@ def build_review_analysis(
     }
 
 
+def chain_dependency_ids(target: Record, id_map: dict[str, Record]) -> dict[str, list[str]]:
+    dependencies = {key: [] for key in DEPENDENCY_KEYS}
+    if target.kind in {"thesis", "challenge", "validation"}:
+        depends_on = target.data.get("depends_on", {})
+        if isinstance(depends_on, dict):
+            dependencies = dependency_ids(depends_on)
+    elif target.kind == "relationship":
+        derived_from = target.data.get("derived_from", {})
+        if isinstance(derived_from, dict):
+            dependencies = dependency_ids(derived_from)
+    elif target.kind == "claim":
+        dependencies["evidence"] = evidence_ids_for_claim(target)
+    elif target.kind in {"metric", "event"}:
+        dependencies["evidence"] = as_reference_list(target.data.get("evidence"))
+    elif target.kind == "dataset":
+        dependencies["evidence"] = as_reference_list(target.data.get("evidence"))
+    elif target.kind == "evidence":
+        dependencies["evidence"] = [target.id]
+
+    if target.kind != "evidence":
+        dependencies["evidence"] = sorted(
+            set(dependencies.get("evidence", []))
+            | set(evidence_ids_for_record(target, id_map))
+        )
+    return {key: sorted(set(dependencies.get(key, []))) for key in DEPENDENCY_KEYS}
+
+
+def records_for_ids(ids: list[str], id_map: dict[str, Record], kind: str | None = None) -> list[Record]:
+    records: list[Record] = []
+    for record_id in sorted(set(ids)):
+        record = id_map.get(record_id)
+        if record and (kind is None or record.kind == kind):
+            records.append(record)
+    return records
+
+
+def risk_flags_for_records(records: list[Record]) -> list[str]:
+    return sorted({flag for record in records for flag in risk_flags_for(record.data)})
+
+
+def build_claim_chain(dependencies: dict[str, list[str]], id_map: dict[str, Record]) -> dict[str, Any]:
+    records = records_for_ids(dependencies.get("claims", []), id_map, "claim")
+    return {
+        "count": len(records),
+        "ids": [record.id for record in records],
+        "predicate_counts": sorted_counts(
+            [str(record.data.get("predicate")) for record in records if record.data.get("predicate")]
+        ),
+        "support_type_counts": sorted_counts(
+            [
+                str(record.data.get("support_type"))
+                for record in records
+                if record.data.get("support_type")
+            ]
+        ),
+        "risk_flags": risk_flags_for_records(records),
+        "items": [
+            {
+                "id": record.id,
+                "predicate": record.data.get("predicate"),
+                "support_type": record.data.get("support_type"),
+                "evidence_ids": evidence_ids_for_claim(record),
+                "risk_flags": risk_flags_for(record.data),
+            }
+            for record in records
+        ],
+    }
+
+
+def build_relationship_chain(
+    target: Record,
+    dependencies: dict[str, list[str]],
+    id_map: dict[str, Record],
+) -> dict[str, Any]:
+    relationship_ids = set(dependencies.get("relationships", []))
+    if target.kind == "relationship":
+        relationship_ids.add(target.id)
+    records = records_for_ids(sorted(relationship_ids), id_map, "relationship")
+    items: list[dict[str, Any]] = []
+    strong_ids: list[str] = []
+
+    for record in records:
+        relationship_type = str(record.data.get("type", ""))
+        if relationship_type in STRONG_RELATIONSHIP_TYPES:
+            strong_ids.append(record.id)
+        derived_from = record.data.get("derived_from", {})
+        derived_dependencies = dependency_ids(derived_from if isinstance(derived_from, dict) else {})
+        items.append(
+            {
+                "id": record.id,
+                "type": relationship_type,
+                "participants": record.data.get("participants", []),
+                "derived_from": derived_dependencies,
+                "evidence_ids": evidence_ids_for_relationship(record, id_map),
+                "risk_flags": risk_flags_for(record.data),
+                "strong_relationship_type": relationship_type in STRONG_RELATIONSHIP_TYPES,
+            }
+        )
+
+    return {
+        "count": len(records),
+        "ids": [record.id for record in records],
+        "type_counts": sorted_counts([str(record.data.get("type")) for record in records]),
+        "strong_relationship_type_ids": sorted(strong_ids),
+        "strong_relationship_types": sorted(
+            {
+                str(record.data.get("type"))
+                for record in records
+                if str(record.data.get("type", "")) in STRONG_RELATIONSHIP_TYPES
+            }
+        ),
+        "risk_flags": risk_flags_for_records(records),
+        "items": items,
+    }
+
+
+def build_metric_event_chain(
+    dependencies: dict[str, list[str]], id_map: dict[str, Record]
+) -> dict[str, Any]:
+    metric_records = records_for_ids(dependencies.get("metrics", []), id_map, "metric")
+    event_records = records_for_ids(dependencies.get("events", []), id_map, "event")
+    dataset_records = records_for_ids(dependencies.get("datasets", []), id_map, "dataset")
+    return {
+        "metrics": {
+            "count": len(metric_records),
+            "ids": [record.id for record in metric_records],
+            "metric_definition_counts": sorted_counts(
+                [
+                    str(record.data.get("metric_definition"))
+                    for record in metric_records
+                    if record.data.get("metric_definition")
+                ]
+            ),
+            "risk_flags": risk_flags_for_records(metric_records),
+        },
+        "events": {
+            "count": len(event_records),
+            "ids": [record.id for record in event_records],
+            "state_counts": sorted_counts(
+                [
+                    str(record.data.get("event_state"))
+                    for record in event_records
+                    if record.data.get("event_state")
+                ]
+            ),
+            "risk_flags": risk_flags_for_records(event_records),
+        },
+        "datasets": {
+            "count": len(dataset_records),
+            "ids": [record.id for record in dataset_records],
+            "risk_flags": risk_flags_for_records(dataset_records),
+        },
+    }
+
+
+def source_evidence_chain_items(
+    evidence_items: list[dict[str, Any]], id_map: dict[str, Record]
+) -> list[dict[str, Any]]:
+    items: list[dict[str, Any]] = []
+    for item in evidence_items:
+        source_id = item.get("source_id")
+        source_perspective = (
+            source_perspective_for_source(str(source_id), id_map) if source_id else None
+        )
+        items.append(
+            {
+                "evidence_id": item.get("id"),
+                "evidence_class": item.get("evidence_class"),
+                "source_id": source_id,
+                "source_perspective": source_perspective,
+                "content_mode": item.get("content_mode"),
+                "observed_at": item.get("observed_at"),
+                "risk_flags": item.get("risk_flags", []),
+            }
+        )
+    return items
+
+
+def question_matches_for_chain(
+    question: Record, relevant_ids: set[str]
+) -> tuple[list[str], dict[str, list[str]]]:
+    field_map = {
+        "related_evidence": "evidence",
+        "related_claims": "claims",
+        "related_relationships": "relationships",
+        "related_theses": "theses",
+    }
+    by_field: dict[str, list[str]] = {}
+    matched: set[str] = set()
+    for field_name, bucket_name in field_map.items():
+        ids = sorted(set(as_reference_list(question.data.get(field_name))) & relevant_ids)
+        if ids:
+            by_field[bucket_name] = ids
+            matched.update(ids)
+    return sorted(matched), by_field
+
+
+def build_question_summary(
+    target: Record,
+    dependencies: dict[str, list[str]],
+    id_map: dict[str, Record],
+) -> dict[str, Any]:
+    relevant_ids = {target.id}
+    for ids in dependencies.values():
+        relevant_ids.update(ids)
+
+    items: list[dict[str, Any]] = []
+    for record in sorted(id_map.values(), key=lambda item: item.id):
+        if record.kind != "question":
+            continue
+        matched_ids, matches_by_field = question_matches_for_chain(record, relevant_ids)
+        if not matched_ids:
+            continue
+        resolved_by = as_reference_list(record.data.get("resolved_by"))
+        items.append(
+            {
+                "id": record.id,
+                "question": record.data.get("question"),
+                "priority": record.data.get("priority"),
+                "proof_type": record.data.get("proof_type"),
+                "open": not bool(resolved_by),
+                "resolved_by": resolved_by,
+                "matched_ids": matched_ids,
+                "matches_by_field": matches_by_field,
+                "risk_flags": risk_flags_for(record.data),
+            }
+        )
+
+    open_items = [item for item in items if item["open"]]
+    return {
+        "total_count": len(items),
+        "open_count": len(open_items),
+        "open_question_ids": [item["id"] for item in open_items],
+        "by_priority": sorted_counts([str(item["priority"]) for item in items]),
+        "open_by_priority": sorted_counts([str(item["priority"]) for item in open_items]),
+        "proof_type_counts": sorted_counts([str(item["proof_type"]) for item in items]),
+        "risk_flags": sorted({flag for item in items for flag in item["risk_flags"]}),
+        "items": items,
+    }
+
+
+def chain_risk_summary(
+    target: Record,
+    dependencies: dict[str, list[str]],
+    review_analysis: dict[str, Any],
+    claim_chain: dict[str, Any],
+    relationship_chain: dict[str, Any],
+    metric_event_chain: dict[str, Any],
+    question_summary: dict[str, Any],
+    id_map: dict[str, Record],
+) -> dict[str, Any]:
+    dependency_records = [
+        record
+        for ids in dependencies.values()
+        for record in records_for_ids(ids, id_map)
+    ]
+    all_flags = set(risk_flags_for(target.data))
+    all_flags.update(risk_flags_for_records(dependency_records))
+    all_flags.update(review_analysis["support_summary"]["risk_flags"])
+    all_flags.update(review_analysis["challenge_summary"]["risk_flags"])
+    all_flags.update(claim_chain["risk_flags"])
+    all_flags.update(relationship_chain["risk_flags"])
+    all_flags.update(metric_event_chain["metrics"]["risk_flags"])
+    all_flags.update(metric_event_chain["events"]["risk_flags"])
+    all_flags.update(metric_event_chain["datasets"]["risk_flags"])
+    all_flags.update(question_summary["risk_flags"])
+    sorted_flags = sorted(all_flags)
+    return {
+        "all_risk_flags": sorted_flags,
+        "by_category": {
+            category: sorted(set(sorted_flags) & flags)
+            for category, flags in CHAIN_RISK_FLAG_CATEGORIES.items()
+        },
+    }
+
+
+def build_chain_summary(
+    target: Record,
+    review_analysis: dict[str, Any],
+    id_map: dict[str, Record],
+) -> dict[str, Any]:
+    dependencies = chain_dependency_ids(target, id_map)
+    dependency_counts = {key: len(ids) for key, ids in dependencies.items()}
+    claim_chain = build_claim_chain(dependencies, id_map)
+    relationship_chain = build_relationship_chain(target, dependencies, id_map)
+    metric_event_chain = build_metric_event_chain(dependencies, id_map)
+    question_summary = build_question_summary(target, dependencies, id_map)
+    source_independence = review_analysis["support_summary"]["source_independence"]
+    risk_summary = chain_risk_summary(
+        target,
+        dependencies,
+        review_analysis,
+        claim_chain,
+        relationship_chain,
+        metric_event_chain,
+        question_summary,
+        id_map,
+    )
+    promotion_risk_flags = risk_summary["by_category"]["relationship_promotion"]
+
+    return {
+        "target": {
+            "id": target.id,
+            "kind": target.kind,
+            "label": record_label(target),
+        },
+        "dependency_ids": dependencies,
+        "dependency_counts": dependency_counts,
+        "stage_coverage": {
+            "has_source_evidence": bool(review_analysis["support_summary"]["evidence_ids"]),
+            "has_claims": bool(dependencies["claims"]),
+            "has_relationships": bool(relationship_chain["ids"]),
+            "has_metrics": bool(dependencies["metrics"]),
+            "has_events": bool(dependencies["events"]),
+            "has_datasets": bool(dependencies["datasets"]),
+            "has_open_questions": bool(question_summary["open_count"]),
+            "has_open_challenges": bool(review_analysis["challenge_summary"]["open_count"]),
+        },
+        "source_evidence_chain": {
+            "evidence_count": review_analysis["support_summary"]["evidence_count"],
+            "evidence_ids": review_analysis["support_summary"]["evidence_ids"],
+            "evidence_class_counts": review_analysis["support_summary"][
+                "evidence_class_counts"
+            ],
+            "source_count": source_independence["unique_source_count"],
+            "source_ids": source_independence["source_ids"],
+            "source_perspective_counts": source_independence["source_perspective_counts"],
+            "source_perspective_by_source": source_independence[
+                "source_perspective_by_source"
+            ],
+            "items": source_evidence_chain_items(
+                review_analysis["support_summary"]["items"], id_map
+            ),
+        },
+        "claim_chain": claim_chain,
+        "relationship_chain": relationship_chain,
+        "metric_event_chain": metric_event_chain,
+        "question_summary": question_summary,
+        "challenge_summary": {
+            "open_count": review_analysis["challenge_summary"]["open_count"],
+            "open_challenge_ids": review_analysis["challenge_summary"]["open_challenge_ids"],
+            "open_by_type": review_analysis["challenge_summary"]["open_by_type"],
+            "risk_flags": review_analysis["challenge_summary"]["risk_flags"],
+        },
+        "relationship_promotion_pressure": {
+            "has_pressure": bool(
+                relationship_chain["strong_relationship_type_ids"] or promotion_risk_flags
+            ),
+            "strong_relationship_type_ids": relationship_chain["strong_relationship_type_ids"],
+            "strong_relationship_types": relationship_chain["strong_relationship_types"],
+            "promotion_risk_flags": promotion_risk_flags,
+        },
+        "risk_flag_summary": risk_summary,
+    }
+
+
 def json_error(error: str) -> dict[str, Any]:
     path = ""
     message = error
@@ -4061,6 +4476,7 @@ def run_review(
     record_id: str,
     json_output: bool = False,
     include_archive: bool = False,
+    chain: bool = False,
 ) -> int:
     try:
         with connect_index(root) as conn:
@@ -4081,6 +4497,9 @@ def run_review(
                 target_archived=bool(record["archived"]),
             )
             review_state = review_analysis["review_state"]
+            chain_summary = (
+                build_chain_summary(target, review_analysis, id_map) if chain else None
+            )
     except FileNotFoundError as exc:
         error = command_error("index_missing", str(exc), "Run `fo index build` first.")
         if json_output:
@@ -4097,27 +4516,28 @@ def run_review(
         return 1
 
     if json_output:
-        print_json(
-            result_envelope(
-                "review",
-                root,
-                id=record_id,
-                record=record,
-                review_state=review_state,
-                support_summary=review_analysis["support_summary"],
-                target_evidence_summary=review_analysis["target_evidence_summary"],
-                review_evidence_summary=review_analysis["review_evidence_summary"],
-                validation_summary=review_analysis["validation_summary"],
-                challenge_summary=review_analysis["challenge_summary"],
-                contradiction_summary=review_analysis["contradiction_summary"],
-                supersession_summary=review_analysis["supersession_summary"],
-                staleness_summary=review_analysis["staleness_summary"],
-                scope_summary=review_analysis["scope_summary"],
-                evidence=evidence_records,
-                validations=validations,
-                challenges=challenges,
-            )
+        payload = result_envelope(
+            "review",
+            root,
+            id=record_id,
+            record=record,
+            review_state=review_state,
+            support_summary=review_analysis["support_summary"],
+            target_evidence_summary=review_analysis["target_evidence_summary"],
+            review_evidence_summary=review_analysis["review_evidence_summary"],
+            validation_summary=review_analysis["validation_summary"],
+            challenge_summary=review_analysis["challenge_summary"],
+            contradiction_summary=review_analysis["contradiction_summary"],
+            supersession_summary=review_analysis["supersession_summary"],
+            staleness_summary=review_analysis["staleness_summary"],
+            scope_summary=review_analysis["scope_summary"],
+            evidence=evidence_records,
+            validations=validations,
+            challenges=challenges,
         )
+        if chain_summary is not None:
+            payload["chain_summary"] = chain_summary
+        print_json(payload)
     else:
         print(f"{record_id}: {review_state['primary_label']}")
         if review_state["flags"]:
@@ -4134,6 +4554,34 @@ def run_review(
         print(f"{source_count} support source(s), {unique_paths} validation path(s)")
         if repeated_paths:
             print(f"{repeated_paths} repeated validation path(s)")
+        if chain_summary is not None:
+            source_chain = chain_summary["source_evidence_chain"]
+            relationship_chain = chain_summary["relationship_chain"]
+            question_summary = chain_summary["question_summary"]
+            challenge_summary = chain_summary["challenge_summary"]
+            risk_flags = chain_summary["risk_flag_summary"]["all_risk_flags"]
+            print("chain:")
+            print(
+                f"  evidence: {source_chain['evidence_count']} across "
+                f"{source_chain['source_count']} source(s)"
+            )
+            dependency_text = ", ".join(
+                f"{key}={value}"
+                for key, value in chain_summary["dependency_counts"].items()
+                if value
+            )
+            print(f"  dependencies: {dependency_text or 'none'}")
+            if relationship_chain["type_counts"]:
+                relationship_types = ", ".join(
+                    f"{key}={value}" for key, value in relationship_chain["type_counts"].items()
+                )
+                print(f"  relationship types: {relationship_types}")
+            print(
+                f"  open questions: {question_summary['open_count']}; "
+                f"open challenges: {challenge_summary['open_count']}"
+            )
+            if risk_flags:
+                print("  risk flags: " + ", ".join(risk_flags[:12]))
     return 0
 
 
@@ -4143,6 +4591,7 @@ def cmd_review(args: argparse.Namespace) -> int:
         args.id,
         json_output=bool(args.json),
         include_archive=bool(args.include_archive),
+        chain=bool(args.chain),
     )
 
 
@@ -4710,6 +5159,11 @@ def build_parser() -> argparse.ArgumentParser:
     review_parser.add_argument("id", help="record id")
     review_parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
     review_parser.add_argument("--include-archive", action="store_true", help="include archive records")
+    review_parser.add_argument(
+        "--chain",
+        action="store_true",
+        help="include source-to-claim chain summary for agent and PR review",
+    )
     review_parser.set_defaults(func=cmd_review)
 
     diff_review_parser = subparsers.add_parser(

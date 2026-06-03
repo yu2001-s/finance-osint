@@ -207,6 +207,14 @@ contradictions, supersession, staleness, and scope limitations. Staleness is v1
 explicit-signal only: a `marks_stale` validation, `outdated` challenge, or
 matching risk flag.
 
+`fo review RECORD --chain --json` keeps the same review surface and adds
+`chain_summary`. This is the deterministic source-to-claim review layer for
+agents and PR authors. It reports dependency IDs/counts, source/evidence chain
+items, claim predicates, metric/event coverage, relationship types, open
+questions, open challenges, relationship-promotion pressure, and risk-flag
+categories. The command still does not write truth status or confidence back
+into canonical records.
+
 `fo diff-review BASE` is the deterministic PR review layer. It compares records
 by canonical ID, validates the current tree, flags canonical evidence edits,
 shows reference and graph impact, reports before/after derived review-state
