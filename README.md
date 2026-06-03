@@ -107,13 +107,13 @@ guardrails, see:
 uv run fo lint                 # validate schemas, references, and ontology usage
 uv run fo lint --json          # machine-readable lint output for agents/CI
 uv run fo index build --json   # build .local/index.sqlite from YAML
-uv run fo search exdev --json  # search indexed records
+uv run fo search axt --json    # search indexed records
 uv run fo context RECORD --json
 uv run fo review RECORD --json
 uv run fo diff-review main --json
 uv run fo graph build          # build .local/graph.json from current repo data
 uv run fo graph neighbors RECORD --json
-uv run fo graph inspect exdev  # find graph records mentioning a string
+uv run fo graph inspect axt    # find graph records mentioning a string
 uv run fo view build main      # build .local/github-view markdown for GitHub PR review
 ```
 
@@ -188,13 +188,14 @@ summarize documents, infer claims, or decide truth.
 
 ```bash
 uv run fo new claim \
-  --statement "EXDEV uses FNDWY for the X1 processor." \
-  --subject entity:company:exdev \
-  --predicate disclosed_relationship \
-  --object entity:company:fndwy \
+  --statement "AXT discloses indium phosphide substrate products." \
+  --subject entity:company:axt-inc \
+  --predicate product_signal \
+  --object entity:component:indium-phosphide-substrate \
   --support-type direct \
-  --evidence evidence:synthetic:exdev-fy2025-supplier-note \
+  --evidence evidence:public:axt:fy2025-inp-products \
   --submitted-by github:username \
+  --dry-run \
   --json
 ```
 

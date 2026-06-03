@@ -14,6 +14,7 @@ from fosint import cli
 
 
 ROOT = Path(__file__).resolve().parents[1]
+SYNTHETIC_RECORDS = ROOT / "tests" / "fixtures" / "synthetic-records" / "records"
 FIXTURE_DIRS = ("schemas", "ontology", "records")
 
 
@@ -22,6 +23,8 @@ def copy_fixture_repo(target: Path) -> Path:
     repo.mkdir()
     for dirname in FIXTURE_DIRS:
         shutil.copytree(ROOT / dirname, repo / dirname)
+    if SYNTHETIC_RECORDS.exists():
+        shutil.copytree(SYNTHETIC_RECORDS, repo / "records", dirs_exist_ok=True)
     return repo
 
 

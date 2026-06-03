@@ -25,7 +25,7 @@ Before code changes:
 - this migration doc captures the order of schema, template, validator, CLI, and
   fixture changes
 
-Public data has not launched yet, so v1 may update existing synthetic fixtures
+Public data has not launched yet, so v1 may update fixture and test records
 directly. After public launch, future changes should use migration notes under
 `schemas/migrations/`.
 
@@ -518,9 +518,9 @@ Target participant shape:
 ```yaml
 participants:
   - role: buyer
-    entity: entity:company:exdev
+    entity: entity:company:axt-inc
   - role: supplier
-    entity: entity:company:fndwy
+    entity: entity:company:sumitomo-electric-industries
 ```
 
 Scope example:
@@ -528,9 +528,9 @@ Scope example:
 ```yaml
 scope:
   products:
-    - entity:product:example-phone
+    - entity:product:jabil-1p6t-lro-pluggable-transceiver
   components:
-    - entity:component:x1-processor
+    - entity:component:indium-phosphide-substrate
   geographies:
     - entity:geography:global
 ```
@@ -627,7 +627,7 @@ Forecasts remain inside thesis records:
 ```yaml
 forecast:
   metric_definition: metric_definition:revenue
-  entity: entity:company:exdev
+  entity: entity:company:axt-inc
   period:
     start: "2026-01-01"
     end: "2026-12-31"
@@ -685,9 +685,11 @@ Implement in this order:
 
 Do not add embeddings in v1.
 
-## Current Synthetic Fixture Migration
+## Synthetic Fixture Migration
 
-The existing EXDEV/FNDWY fixture should migrate as the first concrete example.
+The original EXDEV/FNDWY fixture migrated as the first concrete example and now
+lives under `tests/fixtures/synthetic-records/`, outside canonical public
+records.
 
 Expected changes:
 
@@ -721,9 +723,9 @@ uv run python -m unittest discover -s tests
 uv run fo graph build
 uv run fo graph build --json
 uv run fo index build --json
-uv run fo search exdev --json
-uv run fo context relationship:synthetic-exdev-fndwy-x1-supply --json
-uv run fo review relationship:synthetic-exdev-fndwy-x1-supply --json
+uv run fo search axt --json
+uv run fo context entity:company:axt-inc --json
+uv run fo review thesis:axt-sumitomo:inp-substrate-bottleneck-watch --chain --json
 ```
 
 `fo lint --json` should be the main agent contract for PR automation.
