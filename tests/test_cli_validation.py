@@ -313,6 +313,104 @@ class CliValidationTests(unittest.TestCase):
         self.assertEqual(status, 1, output)
         self.assertIn("qualifier `secret_supplier` is not allowed", output)
 
+    def test_metric_unit_must_match_definition(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            path = repo / "records" / "metrics" / "axt" / "q1-2026-inp-revenue.yml"
+            metric = load_yaml(path)
+            metric["unit"] = "shares"
+            write_yaml(path, metric)
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 1, output)
+        self.assertIn("unit `shares` is not allowed by metric definition", output)
+
+    def test_metric_value_basis_must_match_definition(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            path = repo / "records" / "metrics" / "xfab" / "price-to-sales-20260529.yml"
+            metric = load_yaml(path)
+            metric["value_basis"] = "reported"
+            write_yaml(path, metric)
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 1, output)
+        self.assertIn("value_basis `reported` is not allowed by metric definition", output)
+
+    def test_metric_definition_must_be_registered(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            path = repo / "ontology" / "metric-definitions" / "revenue.yml"
+            definition = load_yaml(path)
+            definition["state"] = "proposed"
+            write_yaml(path, definition)
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 1, output)
+        self.assertIn("metric_definition `metric_definition:revenue` is not registered", output)
+
+    def test_registered_metric_definition_requires_allowed_units_and_basis(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            path = repo / "ontology" / "metric-definitions" / "revenue.yml"
+            definition = load_yaml(path)
+            definition["allowed_units"] = []
+            definition["allowed_value_basis"] = []
+            write_yaml(path, definition)
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 1, output)
+        self.assertIn("registered metric definition must declare allowed_units", output)
+        self.assertIn("registered metric definition must declare allowed_value_basis", output)
+
+    def test_metric_required_period_context_must_be_present(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            path = repo / "records" / "metrics" / "axt" / "q1-2026-inp-revenue.yml"
+            metric = load_yaml(path)
+            metric["period"] = {}
+            write_yaml(path, metric)
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 1, output)
+        self.assertIn("requires `period` context", output)
+
+    def test_metric_required_as_of_context_must_be_present(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            path = repo / "records" / "metrics" / "fit-hon-teng" / "market-cap-20260529.yml"
+            metric = load_yaml(path)
+            metric.pop("as_of")
+            metric["period"].pop("as_of")
+            write_yaml(path, metric)
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 1, output)
+        self.assertIn("requires `as_of` context", output)
+
+    def test_metric_required_dimension_context_must_be_present(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            definition_path = repo / "ontology" / "metric-definitions" / "revenue.yml"
+            definition = load_yaml(definition_path)
+            definition["required_dimensions"] = ["period", "product"]
+            write_yaml(definition_path, definition)
+            metric_path = repo / "records" / "metrics" / "axt" / "q1-2026-inp-revenue.yml"
+            metric = load_yaml(metric_path)
+            metric["dimensions"].pop("product")
+            write_yaml(metric_path, metric)
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 1, output)
+        self.assertIn("requires `product` context", output)
+
     def test_challenge_references_are_checked(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
