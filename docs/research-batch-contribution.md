@@ -1,20 +1,32 @@
-# Research Batch Contribution Workflow
+# Research Batch Contribution
 
-Use this when adding a sourced public-equity research batch by hand or with an
-agent. The PR submitter owns the output.
+Use this workflow when adding a source-backed public-equity research batch by
+hand or with an agent. The PR submitter owns the output.
 
 ## Start From Explicit Material
 
-Every batch starts from material already in the repo, supplied by the user, or
-added as source records. Do not add hidden source knowledge, hidden agent state,
-`agent_run`, `generated_by`, canonical `status`, or canonical `confidence`.
+Every batch starts from material that is:
 
-For stock-research migration, use the frozen snapshot recorded in
-`docs/stock-research-seed-snapshot.yml`, not the moving source worktree.
+- already in the repo
+- supplied by the contributor
+- added as source records in the PR
 
-## Add Records In Layers
+Do not add hidden source knowledge, hidden agent state, private reviewer notes,
+canonical truth `status`, or canonical `confidence`.
 
-Add only the layers the batch needs, in this order:
+## Scope The Batch
+
+Before writing records, define:
+
+- the company, product, market, technology, event, or relationship being studied
+- the primary sources being added or reused
+- the question the batch helps answer
+- what the batch will not prove
+
+Prefer small batches. A focused source-to-claim chain is easier to review than
+a broad thesis with weak dependencies.
+
+## Add Layers In Order
 
 ```text
 entity
@@ -27,67 +39,88 @@ question / challenge / validation
 thesis
 ```
 
-Do not write a thesis first. Do not create a relationship until its supporting
-claim or evidence exists.
-
-## Keep Boundaries Clear
-
-- `source`: where the information came from.
-- `evidence`: bounded excerpt, summary, observation, or proof packet from a
-  source.
-- `metric`: reported, observed, derived, estimated, or restated numeric fact.
-- `event`: occurred or expected timing record.
-- `claim`: narrow statement backed by evidence.
-- `relationship`: typed graph edge derived from evidence, claims, metrics, or
-  events.
-- `question`: open proof gap or next investigation target.
-- `challenge`: open objection or pressure on an object.
-- `thesis`: interpretation or forecast that depends on explicit records.
+Stop at the strongest layer the evidence supports. If the source only says a
+company introduced a product, do not create a customer relationship or revenue
+bridge.
 
 ## Use Conservative Promotion
 
-Promote a relationship only when the evidence supports that exact edge.
+Promote a relationship only when evidence supports the exact edge:
 
-Good examples from seeded batches:
+- A named foundry relationship can support `manufacturing_partner`.
+- A named supplier statement can support `supplier_relationship` if buyer,
+  seller, item, scope, and timing are clear enough.
+- A qualification or AVL statement can support `qualified_supplier` only when
+  approval or qualification is actually disclosed.
+- A product composition statement can support `uses_component`.
+- A customer or revenue allocation claim needs customer-specific support, not
+  only segment revenue or broad market exposure.
 
-- Navitas naming X-FAB as U.S. manufacturer supports a scoped
-  `manufacturing_partner` relationship.
-- FIT plus Broadcom naming FIT TH5-Bailly CPO interconnect hardware supports a
-  scoped `supplier_relationship`.
-- Chroma purchase-order language supports a management-statement claim, not a
-  named customer relationship.
-- FOCI/Himax demo and planned-delivery evidence supports collaboration and
-  product-fit records, not NVIDIA/TSMC/COUPE supplier allocation.
+When order value, volume, margin, customer allocation, BOM/AVL status, timing,
+or valuation conversion is missing, add a question or challenge.
 
-When revenue, order value, margin, customer allocation, BOM/AVL, or valuation
-conversion is missing, add a question and challenge instead of stretching the
-relationship.
+## Use Metrics And Events
 
-## Write Theses As Contested Interpretations
+Do not bury structured observations inside prose:
 
-A seed thesis should name:
+- revenue, backlog, market cap, ownership, price-to-sales, gross margin,
+  shipments, opportunity pipeline, and allocation share belong in `metric`
+  records when numeric support exists.
+- orders, filings, permits, approvals, expected ramps, shipments, product
+  launches, financing, and missed/cancelled milestones belong in `event`
+  records when timing support exists.
+
+Use `value_basis` conservatively:
 
 ```text
-dependencies
-core evidence
-open proof gaps
-observable next evidence
-time horizon
-challenge or kill criteria
+reported
+observed
+derived
+estimated
+restated
 ```
 
-It should not encode a truth status. The canonical truth surface is the evidence
-and reported metrics; the thesis is the interpretation layer.
+Derived or estimated metrics should name their input metrics, evidence, method,
+and limitations.
+
+## Write Claims Narrowly
+
+Claims should be checkable. Use `support_type`:
+
+```text
+direct
+observed
+inferred
+private_attestation
+rumor
+```
+
+If the claim predicate does not exist, add a proposed claim predicate under
+`ontology/claim-predicates/proposals/` and link it from the claim.
+
+## Write Theses As Interpretations
+
+A thesis should name:
+
+- dependencies
+- core evidence
+- open proof gaps
+- observable next evidence
+- time horizon
+- challenge or kill criteria
+
+A thesis is not a truth label. It is an argument that readers can inspect,
+challenge, validate, narrow, or supersede.
 
 ## Run Local Review
 
-Set the base to the branch point or PR base:
+Use the branch point or pull-request base:
 
 ```bash
-BASE=HEAD
+BASE=origin/main
 ```
 
-Before opening a PR, run:
+Run:
 
 ```bash
 uv run fo lint --json
@@ -99,24 +132,23 @@ uv run fo diff-review "$BASE" --json
 uv run fo view build "$BASE" --json
 ```
 
-For the main thesis or any strong relationship, also run:
+For key relationships and theses:
 
 ```bash
 uv run fo review RECORD_ID --chain --json
 ```
 
-Review every warning. Warnings are not automatic failures, but they are review
-items.
+Review every warning. Warnings are review items even when CI passes.
 
-## PR Summary Checklist
+## PR Summary
 
-In the PR, summarize:
+Include:
 
-- Records added or changed by kind.
-- Main sources and evidence classes.
-- Any company-only, counterparty, independent, market-data, social, or compiled
-  research support.
-- Strong relationships promoted and why they are scoped correctly.
-- Open questions and challenges.
-- `fo diff-review`, `chain_review_changed.py`, and generated
-  `.local/github-view/pr-review.md` results.
+- records added or changed by kind
+- main source and evidence IDs
+- evidence classes and source perspectives
+- strong relationships promoted and why the scope fits
+- metrics/events added and their value basis
+- open questions and challenges
+- every `fo diff-review` warning and how it was handled
+- generated `.local/github-view/pr-review.md` or CI `github-view` artifact notes
