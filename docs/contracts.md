@@ -220,6 +220,9 @@ Mutable web-like source types:
 web_page
 news_article
 research_report
+product_page
+market_data_page
+exchange_filing
 ```
 
 These should not rely on `url` alone. Prefer `archive_url`. If no archive exists,
@@ -281,6 +284,51 @@ short source excerpts: excerpt
 private or sensitive material: redacted_summary or metadata_only
 synthetic examples: small_fixture
 ```
+
+## Translation And OCR
+
+Source records should declare `source_language` when the source is not plainly
+English or when language matters for review. Use BCP-47-like tags such as `en`,
+`zh-Hant`, `ja`, or `de`.
+
+For translated evidence, keep `excerpt` as the reviewer-facing excerpt used by
+existing review output, and add bounded source-language and translation fields:
+
+```yaml
+original_excerpt: "Bounded excerpt in the source language."
+translated_excerpt: "Reviewer-language translation of the bounded excerpt."
+translation:
+  source_language: zh-Hant
+  translated_language: en
+  translator: github:username
+  machine_translation: true
+  translation_date: "YYYY-MM-DD"
+  translation_version: tool-or-review-version
+  method: machine_translation_with_reviewer_check
+ocr:
+  used: false
+  engine: ""
+  engine_version: ""
+  language: zh-Hant
+  quality_notes: ""
+encoding_notes: "Charset, normalization, or OCR caveats."
+```
+
+Do not replace the original excerpt with only an English paraphrase. If OCR was
+used, record the engine/version when known and include quality notes for tables,
+scanned PDFs, rotated text, or encoding conversion. `fo lint` warns when an
+excerpted evidence record cites a non-English source without both original and
+translated excerpt provenance.
+
+For preservation and review compatibility, translated evidence should still keep
+`excerpt` populated. `original_excerpt` and `translated_excerpt` are provenance
+fields; they do not replace the existing `excerpt` field in current review
+output.
+
+Keep both original and translated excerpts bounded to the claim-relevant span.
+Do not commit full OCR dumps, full tables, transcript chunks, or long translated
+passages when a locator, archive/hash, artifact reference, and short excerpt are
+enough.
 
 ## Evidence Classes
 

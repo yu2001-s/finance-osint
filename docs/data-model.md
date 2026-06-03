@@ -45,7 +45,10 @@ Source
   own evidence chain.
 
 Evidence
-  A locator, excerpt, observation, row, table, or source-backed report.
+  A locator, excerpt, observation, row, table, or source-backed report. When
+  evidence is translated or OCR-derived, keep the original excerpt, translated
+  excerpt, translation metadata, OCR metadata, and encoding notes on the
+  evidence record that uses the source.
 
 Metric
   A structured numeric value with provenance.

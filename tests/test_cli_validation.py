@@ -696,6 +696,129 @@ class CliValidationTests(unittest.TestCase):
         self.assertIn("filing_date", messages)
         self.assertIn("does not match", messages)
 
+    def test_lint_warns_for_non_english_excerpt_without_translation_provenance(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            write_yaml(
+                repo / "records" / "sources" / "public" / "non-english-source.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "source",
+                    "id": "source:test:non-english-source",
+                    "source_type": "company_report",
+                    "title": "Non-English source",
+                    "public_status": "public",
+                    "source_perspective": "company_self",
+                    "accessed_at": "2026-06-03T00:00:00Z",
+                    "content_mode": "external_link",
+                    "source_language": "zh-Hant",
+                },
+            )
+            write_yaml(
+                repo / "records" / "evidence" / "public" / "non-english-evidence.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "evidence",
+                    "id": "evidence:test:non-english-evidence",
+                    "evidence_class": "public_primary",
+                    "source": "source:test:non-english-source",
+                    "summary": "Non-English evidence without translation provenance.",
+                    "content_mode": "excerpt",
+                    "excerpt": "Reviewer-facing translated excerpt without source-language provenance.",
+                    "observed_at": "2026-06-03T00:00:00Z",
+                    "submitted_by": "github:tester",
+                    "source_attribution": "named_public",
+                },
+            )
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        self.assertEqual(
+            [warning["code"] for warning in payload["warnings"]],
+            ["non_english_excerpt_without_translation_provenance"],
+        )
+
+    def test_lint_warns_for_global_report_without_source_language(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            write_yaml(
+                repo / "records" / "sources" / "public" / "missing-source-language.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "source",
+                    "id": "source:test:missing-source-language",
+                    "source_type": "company_report",
+                    "title": "Missing source language report",
+                    "public_status": "public",
+                    "source_perspective": "company_self",
+                    "accessed_at": "2026-06-03T00:00:00Z",
+                    "content_mode": "metadata_only",
+                },
+            )
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        self.assertEqual(
+            [warning["code"] for warning in payload["warnings"]],
+            ["missing_source_language_for_global_source"],
+        )
+
+    def test_lint_warns_for_ocr_translation_without_quality_notes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            write_yaml(
+                repo / "records" / "sources" / "public" / "ocr-source.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "source",
+                    "id": "source:test:ocr-source",
+                    "source_type": "company_report",
+                    "title": "OCR source",
+                    "public_status": "public",
+                    "source_perspective": "company_self",
+                    "accessed_at": "2026-06-03T00:00:00Z",
+                    "content_mode": "external_link",
+                    "source_language": "zh-Hant",
+                },
+            )
+            write_yaml(
+                repo / "records" / "evidence" / "public" / "ocr-evidence.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "evidence",
+                    "id": "evidence:test:ocr-evidence",
+                    "evidence_class": "public_primary",
+                    "source": "source:test:ocr-source",
+                    "summary": "OCR evidence missing quality notes.",
+                    "content_mode": "excerpt",
+                    "excerpt": "Translated excerpt.",
+                    "original_excerpt": "原文摘錄。",
+                    "translated_excerpt": "Translated excerpt.",
+                    "translation": {
+                        "source_language": "zh-Hant",
+                        "translated_language": "en",
+                        "translator": "github:tester",
+                        "machine_translation": True,
+                        "translation_date": "2026-06-03",
+                        "translation_version": "fixture-v1",
+                    },
+                    "ocr": {"used": True, "engine": "fixture-ocr"},
+                    "observed_at": "2026-06-03T00:00:00Z",
+                    "submitted_by": "github:tester",
+                    "source_attribution": "named_public",
+                },
+            )
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        self.assertEqual(
+            [warning["code"] for warning in payload["warnings"]],
+            ["non_english_excerpt_without_translation_provenance"],
+        )
+
     def test_lint_accepts_referenced_source_artifact_for_mutable_source(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
@@ -1665,6 +1788,34 @@ class CliValidationTests(unittest.TestCase):
             {item["id"] for item in payload["record_delta"]["added"]},
         )
 
+    def test_diff_review_flags_translation_evidence_mutation(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            init_git_repo(repo)
+
+            evidence_path = (
+                repo
+                / "records"
+                / "evidence"
+                / "public"
+                / "foci"
+                / "q1-2026-financial-report.yml"
+            )
+            evidence = load_yaml(evidence_path)
+            evidence["translated_excerpt"] = "Changed translated excerpt for diff-review."
+            write_yaml(evidence_path, evidence)
+
+            status, payload = run_json_command(cli.run_diff_review, repo, "HEAD")
+
+        self.assertEqual(status, 0, payload)
+        warning = next(
+            warning
+            for warning in payload["warnings"]
+            if warning["code"] == "modifies_canonical_evidence"
+        )
+        self.assertEqual(warning["record_id"], "evidence:public:foci:q1-2026-financial-report")
+        self.assertIn("translated_excerpt", warning["details"]["fields"])
+
     def test_diff_review_returns_validation_error_exit_for_invalid_current_tree(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
@@ -1827,6 +1978,49 @@ class CliValidationTests(unittest.TestCase):
         self.assertEqual(source["record"]["filing_issuer"], "entity:company:exdev")
         self.assertEqual(source["record"]["issuer_code_scheme"], "hkex_stock_code")
         self.assertEqual(source["record"]["report_period"], "2026-Q1")
+
+    def test_new_evidence_helper_records_translation_and_ocr_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+
+            status, evidence = run_new_json(
+                cli.run_new_evidence,
+                repo,
+                evidence_class="public_primary",
+                source="source:public:foci:q1-2026-financial-report",
+                summary="Helper translated MOPS evidence.",
+                content_mode="excerpt",
+                observed_at="2026-03-31T00:00:00Z",
+                submitted_by="github:tester",
+                source_attribution="named_public",
+                excerpt="Helper translated revenue row.",
+                original_excerpt="營業收入合計 381,969。",
+                translated_excerpt="Total operating revenue was NT$381.969M.",
+                translation_json=(
+                    '{"source_language":"zh-Hant","translated_language":"en",'
+                    '"translator":"github:tester","machine_translation":true,'
+                    '"translation_date":"2026-06-03",'
+                    '"translation_version":"fixture-v1",'
+                    '"method":"machine_translation_with_reviewer_check"}'
+                ),
+                ocr_json='{"used":false}',
+                encoding_notes="Decoded from MOPS Big5/inline-XBRL HTML.",
+                locator=["section=statement of comprehensive income", "row=revenue"],
+                source_access_json=None,
+                verification_status="translated_fixture",
+            )
+            self.assertEqual(status, 0, evidence)
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        self.assertEqual(payload["warnings"], [])
+        self.assertEqual(evidence["record"]["translation"]["source_language"], "zh-Hant")
+        self.assertEqual(evidence["record"]["ocr"], {"used": False})
+        self.assertEqual(
+            evidence["record"]["encoding_notes"],
+            "Decoded from MOPS Big5/inline-XBRL HTML.",
+        )
 
     def test_new_metric_helper_validates_metric_definition_rules(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

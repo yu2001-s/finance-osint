@@ -208,6 +208,8 @@ E5_unverified_rumor -> rumor
 - rename `attribution` to `source_attribution`
 - remove `anonymous_to_maintainers`
 - add `content_mode`
+- add `original_excerpt`, `translated_excerpt`, `translation`, `ocr`, and
+  `encoding_notes` for translated or OCR-derived evidence
 - keep `source_access`, `verification_status`, and `risk_flags` for private,
   anonymous, or low-trust evidence
 
