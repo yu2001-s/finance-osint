@@ -3999,6 +3999,7 @@ def validate_new_record(root: Path, path: Path, data: dict[str, Any]) -> list[st
     errors.extend(validate_references(root, [new_record], id_map))
     errors.extend(validate_claim_predicates(root, combined, id_map))
     errors.extend(validate_relationships(root, combined, id_map))
+    errors.extend(validate_metrics(root, combined, id_map))
     errors.extend(validate_evidence_policy(root, [new_record], id_map))
     errors.extend(validate_source_artifacts(root, combined))
     errors.extend(validate_archive_policy(root, combined, id_map))
@@ -4020,6 +4021,7 @@ def run_new_record(
     data: dict[str, Any],
     json_output: bool = False,
     overwrite: bool = False,
+    dry_run: bool = False,
 ) -> int:
     try:
         relative_path = path.relative_to(root)
@@ -4056,6 +4058,22 @@ def run_new_record(
                 print(f"ERROR {error}", file=sys.stderr)
         return 1
 
+    result = {
+        "created": not dry_run,
+        "dry_run": dry_run,
+        "path": str(relative_path),
+        "id": data["id"],
+        "record": data,
+        "next_commands": ["uv run fo lint --json"],
+    }
+    if dry_run:
+        if json_output:
+            print_json(result_envelope(command, root, **result))
+        else:
+            print(f"Dry run: would create {result['path']}")
+            print(yaml.safe_dump(data, sort_keys=False, allow_unicode=False).rstrip())
+        return 0
+
     try:
         write_record_file(path, data, overwrite=overwrite)
     except OSError as exc:
@@ -4066,13 +4084,6 @@ def run_new_record(
             print(f"ERROR {error['message']}", file=sys.stderr)
         return 1
 
-    result = {
-        "created": True,
-        "path": str(relative_path),
-        "id": data["id"],
-        "record": data,
-        "next_commands": ["uv run fo lint --json"],
-    }
     if json_output:
         print_json(result_envelope(command, root, **result))
     else:
@@ -4108,7 +4119,7 @@ def run_new_source(root: Path, args: argparse.Namespace) -> int:
         data["source_artifacts"] = source_artifacts
     add_optional_common_fields(data, args)
     path = generated_record_path(root, record_dir("sources"), record_id, args.path)
-    return run_new_record(root, "new source", path, data, args.json, args.overwrite)
+    return run_new_record(root, "new source", path, data, args.json, args.overwrite, args.dry_run)
 
 
 def run_new_evidence(root: Path, args: argparse.Namespace) -> int:
@@ -4140,7 +4151,7 @@ def run_new_evidence(root: Path, args: argparse.Namespace) -> int:
         data["source_artifacts"] = source_artifacts
     add_optional_common_fields(data, args)
     path = generated_record_path(root, record_dir("evidence"), record_id, args.path)
-    return run_new_record(root, "new evidence", path, data, args.json, args.overwrite)
+    return run_new_record(root, "new evidence", path, data, args.json, args.overwrite, args.dry_run)
 
 
 def run_new_claim(root: Path, args: argparse.Namespace) -> int:
@@ -4169,7 +4180,7 @@ def run_new_claim(root: Path, args: argparse.Namespace) -> int:
         data["proposed_predicate_definition"] = args.proposed_predicate_definition
     add_optional_common_fields(data, args)
     path = generated_record_path(root, record_dir("claims"), record_id, args.path)
-    return run_new_record(root, "new claim", path, data, args.json, args.overwrite)
+    return run_new_record(root, "new claim", path, data, args.json, args.overwrite, args.dry_run)
 
 
 def run_new_validation(root: Path, args: argparse.Namespace) -> int:
@@ -4187,7 +4198,7 @@ def run_new_validation(root: Path, args: argparse.Namespace) -> int:
     }
     add_optional_common_fields(data, args)
     path = generated_record_path(root, record_dir("validations"), record_id, args.path)
-    return run_new_record(root, "new validation", path, data, args.json, args.overwrite)
+    return run_new_record(root, "new validation", path, data, args.json, args.overwrite, args.dry_run)
 
 
 def run_new_challenge(root: Path, args: argparse.Namespace) -> int:
@@ -4211,7 +4222,7 @@ def run_new_challenge(root: Path, args: argparse.Namespace) -> int:
             data[field] = value
     add_optional_common_fields(data, args)
     path = generated_record_path(root, record_dir("challenges"), record_id, args.path)
-    return run_new_record(root, "new challenge", path, data, args.json, args.overwrite)
+    return run_new_record(root, "new challenge", path, data, args.json, args.overwrite, args.dry_run)
 
 
 def run_new_relationship(root: Path, args: argparse.Namespace) -> int:
@@ -4246,7 +4257,7 @@ def run_new_relationship(root: Path, args: argparse.Namespace) -> int:
         data["proposed_type_definition"] = args.proposed_type_definition
     add_optional_common_fields(data, args)
     path = generated_record_path(root, record_dir("relationships"), record_id, args.path)
-    return run_new_record(root, "new relationship", path, data, args.json, args.overwrite)
+    return run_new_record(root, "new relationship", path, data, args.json, args.overwrite, args.dry_run)
 
 
 def run_new_entity(root: Path, args: argparse.Namespace) -> int:
@@ -4277,7 +4288,7 @@ def run_new_entity(root: Path, args: argparse.Namespace) -> int:
         record_id,
         args.path,
     )
-    return run_new_record(root, "new entity", path, data, args.json, args.overwrite)
+    return run_new_record(root, "new entity", path, data, args.json, args.overwrite, args.dry_run)
 
 
 def run_new_metric(root: Path, args: argparse.Namespace) -> int:
@@ -4319,7 +4330,7 @@ def run_new_metric(root: Path, args: argparse.Namespace) -> int:
             data[field] = value
     add_optional_common_fields(data, args)
     path = generated_record_path(root, record_dir("metrics"), record_id, args.path)
-    return run_new_record(root, "new metric", path, data, args.json, args.overwrite)
+    return run_new_record(root, "new metric", path, data, args.json, args.overwrite, args.dry_run)
 
 
 def run_new_event(root: Path, args: argparse.Namespace) -> int:
@@ -4347,7 +4358,7 @@ def run_new_event(root: Path, args: argparse.Namespace) -> int:
         data["properties"] = properties
     add_optional_common_fields(data, args)
     path = generated_record_path(root, record_dir("events"), record_id, args.path)
-    return run_new_record(root, "new event", path, data, args.json, args.overwrite)
+    return run_new_record(root, "new event", path, data, args.json, args.overwrite, args.dry_run)
 
 
 def run_new_dataset(root: Path, args: argparse.Namespace) -> int:
@@ -4371,7 +4382,7 @@ def run_new_dataset(root: Path, args: argparse.Namespace) -> int:
             data[field] = value
     add_optional_common_fields(data, args)
     path = generated_record_path(root, record_dir("datasets"), record_id, args.path)
-    return run_new_record(root, "new dataset", path, data, args.json, args.overwrite)
+    return run_new_record(root, "new dataset", path, data, args.json, args.overwrite, args.dry_run)
 
 
 def run_new_thesis(root: Path, args: argparse.Namespace) -> int:
@@ -4405,7 +4416,7 @@ def run_new_thesis(root: Path, args: argparse.Namespace) -> int:
         data["contradicting_evidence"] = sorted(set(args.contradicting_evidence))
     add_optional_common_fields(data, args)
     path = generated_record_path(root, record_dir("theses"), record_id, args.path)
-    return run_new_record(root, "new thesis", path, data, args.json, args.overwrite)
+    return run_new_record(root, "new thesis", path, data, args.json, args.overwrite, args.dry_run)
 
 
 def run_new_question(root: Path, args: argparse.Namespace) -> int:
@@ -4433,7 +4444,7 @@ def run_new_question(root: Path, args: argparse.Namespace) -> int:
             data[data_field] = values
     add_optional_common_fields(data, args)
     path = generated_record_path(root, record_dir("questions"), record_id, args.path)
-    return run_new_record(root, "new question", path, data, args.json, args.overwrite)
+    return run_new_record(root, "new question", path, data, args.json, args.overwrite, args.dry_run)
 
 
 def run_lint(root: Path, json_output: bool = False, current_only: bool = False) -> int:
@@ -4955,6 +4966,7 @@ def add_new_common_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--created-at", help="explicit record creation timestamp")
     parser.add_argument("--risk-flag", action="append", default=[], help="repeatable risk flag")
     parser.add_argument("--overwrite", action="store_true", help="replace an existing file")
+    parser.add_argument("--dry-run", action="store_true", help="validate and preview without writing")
     parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
 
 
@@ -4974,6 +4986,7 @@ def add_new_file_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--created-at", help="explicit record creation timestamp")
     parser.add_argument("--risk-flag", action="append", default=[], help="repeatable risk flag")
     parser.add_argument("--overwrite", action="store_true", help="replace an existing file")
+    parser.add_argument("--dry-run", action="store_true", help="validate and preview without writing")
     parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
 
 
