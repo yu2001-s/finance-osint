@@ -1,13 +1,23 @@
 # Finance OSINT
 
-Finance OSINT is a local-first evidence graph for public-market research. The
-repository is the database: contributors add YAML records, validate them
-locally, and submit changes by pull request.
+Finance OSINT is a community-driven research database for public-market
+intelligence.
 
-The project stores provenance, evidence, structured observations, graph
-relationships, review pressure, and theses. It does not store canonical truth
-status, confidence scores, hidden moderation decisions, or private agent state.
-Review state is derived locally from the records.
+The project exists to help narrow the research access gap for retail investors,
+independent analysts, and open-source researchers. Valuable market research is
+scattered across filings, transcripts, news, company materials, obscure
+datasets, field notes, first-hand observations, and contributor-sourced
+findings. Finance OSINT turns legally shareable evidence into durable records
+that can be checked, connected, debated, and improved in public.
+
+The repository is the database: contributors add YAML records for provenance,
+evidence, structured observations, graph relationships, review pressure, and
+proposed theses, then validate them locally and submit changes by pull request.
+
+Finance OSINT preserves evidence and analysis, not hidden authority. It does not
+store canonical truth status, confidence scores, hidden moderation decisions,
+material non-public information, private expert-network material, or private
+agent state. Review state is derived locally from the records.
 
 ## Repository Map
 
