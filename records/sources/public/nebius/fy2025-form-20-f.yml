@@ -1,0 +1,29 @@
+schema_version: 1
+kind: source
+id: source:public:nebius:fy2025-form-20-f
+source_type: sec_filing
+title: Nebius Group 2025 Form 20-F annual report
+public_status: public
+source_perspective: company_self
+accessed_at: '2026-06-03T00:00:00Z'
+content_mode: external_link
+submitted_by: github:codex
+publisher: Nebius Group N.V. via SEC EDGAR
+url: https://www.sec.gov/Archives/edgar/data/1513845/000110465926052948/nbis-20251231x20f.htm
+published_at: '2026-04-30'
+provenance: Verified from SEC EDGAR filing detail for accession 0001104659-26-052948.
+filing_jurisdiction: US
+filing_authority: SEC
+filing_regime: foreign_private_issuer_annual_report
+filing_issuer: entity:company:nebius-group
+local_form_type: 20-F
+issuer_code: NBIS
+issuer_code_scheme: nasdaq_ticker
+report_period: '2025-12-31'
+filing_date: '2026-04-30'
+accepted_at: '2026-04-30T16:16:27Z'
+accession_number: 0001104659-26-052948
+form_type: 20-F
+source_language: en
+preservation_path: external:sec/edgar/1513845/000110465926052948/nbis-20251231x20f.htm
+created_at: '2026-06-03T00:00:00Z'
