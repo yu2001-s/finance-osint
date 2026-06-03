@@ -98,6 +98,7 @@ uv run fo diff-review main --json
 uv run fo graph build          # build .local/graph.json from current repo data
 uv run fo graph neighbors RECORD --json
 uv run fo graph inspect exdev  # find graph records mentioning a string
+uv run fo view build main      # build .local/github-view markdown for GitHub PR review
 ```
 
 `fo review` is the deterministic truth-surface command. It does not decide

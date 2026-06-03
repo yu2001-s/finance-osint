@@ -96,6 +96,7 @@ uv run fo index build --json
 uv run python scripts/chain_review_changed.py "$BASE"
 uv run fo graph build --json
 uv run fo diff-review "$BASE" --json
+uv run fo view build "$BASE" --json
 ```
 
 For the main thesis or any strong relationship, also run:
@@ -117,4 +118,5 @@ In the PR, summarize:
   research support.
 - Strong relationships promoted and why they are scoped correctly.
 - Open questions and challenges.
-- `fo diff-review` and `chain_review_changed.py` results.
+- `fo diff-review`, `chain_review_changed.py`, and generated
+  `.local/github-view/pr-review.md` results.

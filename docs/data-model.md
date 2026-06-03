@@ -246,6 +246,11 @@ fo diff-review BASE --json
 fo graph neighbors ID --json
 ```
 
+`fo view build BASE` writes GitHub-readable Markdown under `.local/github-view/`
+or `.local/ci/github-view/`. The generated view summarizes diff-review output
+and changed thesis/relationship source-to-claim chains for PR readers. It is a
+derived review aid, not canonical data.
+
 `fo review` reports deterministic review state without writing truth back into
 canonical records. The JSON includes `review_state` plus summaries for support
 evidence, source independence, validation dependency paths, challenges,

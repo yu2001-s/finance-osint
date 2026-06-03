@@ -270,12 +270,19 @@ Acceptance criteria:
 Rationale: Local CLI review is strong, but casual GitHub readers cannot easily
 follow record chains.
 
+Status: first GitHub-only viewing slice addressed locally. CI now builds a
+derived `.local/ci/github-view/` Markdown artifact with `pr-review.md`, an
+artifact index, and changed thesis/relationship chain pages. The workflow
+appends the PR summary to `$GITHUB_STEP_SUMMARY` and uploads the markdown as a
+`github-view` artifact. Committed company pages remain deferred until the
+artifact proves useful and a freshness contract exists.
+
 Acceptance criteria:
 
-- Decide whether to generate committed markdown index pages, company pages, or
+- [x] Decide whether to generate committed markdown index pages, company pages, or
   PR review summaries.
-- Make thesis-to-source chains easier to follow in GitHub.
-- Keep generated artifacts deterministic and clearly separated from canonical
+- [x] Make thesis-to-source chains easier to follow in GitHub.
+- [x] Keep generated artifacts deterministic and clearly separated from canonical
   records.
 
 ### Improve First-Time Contributor UX
