@@ -1,14 +1,6 @@
-We are preparing Finance OSINT, a local-first, git-native finance OSINT evidence graph.
+We are preparing Finance OSINT, a local-first, git-native finance OSINT database.
 
-Useful docs:
-
-- `docs/release-readiness.md`
-- `docs/governance.md`
-- `docs/research-batch-contribution.md`
-- `docs/seed-full-chain-review-20260603.md`
-- `docs/seed-migration.md`
-
-Before committing meaningful changes, run:
+Before committing meaningful changes on database, run:
 
 ```bash
 uv run fo lint --json
