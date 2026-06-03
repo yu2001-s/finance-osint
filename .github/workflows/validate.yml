@@ -7,7 +7,8 @@ on:
       - main
 
 jobs:
-  lint:
+  validate:
+    name: Validate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
