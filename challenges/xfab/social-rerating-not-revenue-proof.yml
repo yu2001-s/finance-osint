@@ -1,0 +1,24 @@
+schema_version: 1
+kind: challenge
+id: challenge:xfab:social-rerating-not-revenue-proof
+target: thesis:xfab-navitas:800-vdc-foundry-watch
+submitted_by: github:codex
+challenge_type: materiality_dispute
+summary: Reuters-reported social/retail rerating is market-recognition evidence,
+  not proof of customer allocation, production orders, revenue, margin, or cash
+  conversion for X-FAB's WBG or 800 VDC exposure.
+depends_on:
+  evidence:
+  - evidence:public:market-news:xfab-social-rerating-20260527
+  - evidence:public:market-data:xfab-valuation-20260529
+  claims:
+  - claim:xfab:social-rerating-20260527
+  - claim:xfab:valuation-snapshot-20260529
+  metrics:
+  - metric:xfab:market-cap-20260529
+  - metric:xfab:price-to-sales-20260529
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- social_reported_by_media
+- market_rerating_not_revenue
+- valuation_conversion_unproven

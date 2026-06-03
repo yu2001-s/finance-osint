@@ -1,0 +1,19 @@
+schema_version: 1
+kind: claim
+id: claim:xfab:sic-gan-foundry-capability
+statement: X-FAB company and government material supports SiC/GaN open-foundry
+  capability and U.S. SiC/GaN facility expansion context, while not proving any
+  specific customer revenue by itself.
+subject: entity:company:x-fab
+predicate: product_signal
+support_type: direct
+evidence:
+- id: evidence:public:xfab:sic-gan-foundry-services
+- id: evidence:public:nist:xfab-texas-chips-funding
+submitted_by: github:codex
+object: entity:service:xfab-sic-gan-foundry-services
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- company_originated
+- government_originated
+- capability_not_customer_revenue

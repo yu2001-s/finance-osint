@@ -1,0 +1,17 @@
+schema_version: 1
+kind: source
+id: source:public:nist:xfab-texas-chips-funding
+source_type: web_page
+title: CHIPS for America funding announcement for X-FAB Texas
+public_status: public
+source_perspective: government_or_regulator
+accessed_at: '2026-06-03T00:00:00Z'
+content_mode: external_link
+submitted_by: github:codex
+publisher: NIST / CHIPS for America
+url: https://www.nist.gov/chips/xfab-texas-inc
+provenance: Migrated from frozen stock-research source src_nist_xfab_chips_texas
+  at finance-osint-seed-20260603.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- government_originated

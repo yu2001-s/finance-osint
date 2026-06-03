@@ -1,0 +1,17 @@
+schema_version: 1
+kind: entity
+id: entity:company:x-fab
+entity_type: company
+name: X-FAB
+submitted_by: github:codex
+aliases:
+- XFAB
+- X-FAB Silicon Foundries
+identifiers:
+  ticker: XFAB.PA
+description: Specialty foundry with source-backed SiC/GaN foundry capability and
+  a Navitas customer-side filing naming X-FAB as U.S. manufacturer for Navitas
+  SiC products; NVIDIA 800 VDC production and revenue conversion remain unproven
+  in the migrated evidence.
+state: active
+created_at: '2026-06-03T00:00:00Z'

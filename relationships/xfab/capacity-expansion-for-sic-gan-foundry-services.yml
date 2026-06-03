@@ -1,0 +1,33 @@
+schema_version: 1
+kind: relationship
+id: relationship:xfab:capacity-expansion-for-sic-gan-foundry-services
+type: capacity_expansion_for
+participants:
+- role: operator
+  entity: entity:company:x-fab
+- role: capacity_asset
+  entity: entity:service:xfab-sic-gan-foundry-services
+- role: output
+  entity: entity:component:wide-bandgap-power-semiconductors
+derived_from:
+  claims:
+  - claim:xfab:sic-gan-foundry-capability
+  evidence:
+  - evidence:public:xfab:sic-gan-foundry-services
+  - evidence:public:nist:xfab-texas-chips-funding
+  events:
+  - event:xfab:chips-funded-sic-gan-expansion
+submitted_by: github:codex
+scope:
+  geography: United States
+  market: entity:market:ai-datacenter-infrastructure
+qualifiers:
+- announced
+- direct_statement
+materiality:
+  level: medium
+  basis: observed
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- funding_not_customer_revenue
+- capability_not_customer_revenue

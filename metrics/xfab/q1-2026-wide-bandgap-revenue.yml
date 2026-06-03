@@ -1,0 +1,24 @@
+schema_version: 1
+kind: metric
+id: metric:xfab:q1-2026-wide-bandgap-revenue
+entity: entity:company:x-fab
+metric_definition: metric_definition:revenue
+value: 15100000.0
+unit: USD
+period:
+  type: quarter
+  value: 2026Q1
+value_basis: reported
+evidence:
+- evidence:public:xfab:q1-2026-wbg-revenue
+submitted_by: github:codex
+source_locator:
+  section: X-FAB Q1 2026 wide-bandgap revenue disclosure
+dimensions:
+  segment: wide_bandgap
+reported_at: '2026-04-30'
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- company_originated
+- broad_segment_bucket
+- customer_split_missing

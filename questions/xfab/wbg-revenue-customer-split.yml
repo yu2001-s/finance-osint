@@ -1,0 +1,29 @@
+schema_version: 1
+kind: question
+id: question:xfab:wbg-revenue-customer-split
+question: Can X-FAB's broad WBG revenue and SiC wafer shipment growth be split
+  by customer, product, wafer starts, margin, or end-market enough to distinguish
+  Navitas/NVIDIA/800 VDC exposure from generic WBG growth?
+entities:
+- entity:company:x-fab
+- entity:service:xfab-sic-gan-foundry-services
+- entity:component:wide-bandgap-power-semiconductors
+proof_type: segment_customer_materiality
+priority: high
+submitted_by: github:codex
+related_evidence:
+- evidence:public:xfab:q1-2026-wbg-revenue
+- evidence:public:stock-research:xfab-navitas-800vdc-proof-gaps
+related_claims:
+- claim:xfab:q1-2026-wbg-revenue-watch
+- claim:xfab:navitas-800vdc-chain-revenue-unproven
+related_relationships:
+- relationship:xfab:capacity-expansion-for-sic-gan-foundry-services
+next_actions:
+- Monitor X-FAB Q2/Q3/Q4 2026 WBG revenue, SiC wafer shipments, backlog, order
+  intake, customer commentary, and margin disclosures.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- proof_gap
+- customer_split_missing
+- broad_segment_bucket

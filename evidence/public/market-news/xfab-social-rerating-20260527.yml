@@ -1,0 +1,27 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:market-news:xfab-social-rerating-20260527
+evidence_class: public_secondary
+source: source:public:market-news:xfab-social-rally-20260527
+summary: Reuters-reported market coverage said X-FAB rose as much as 76% intraday
+  on May 27, 2026, with traders citing a viral Serenity/@aleabitoreddit post and
+  X-FAB's CEO saying no undisclosed material development explained the move.
+content_mode: excerpt
+observed_at: '2026-05-27T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: Reuters-reported coverage described an X-FAB intraday rally of as much
+  as 76% on May 27, 2026, said traders cited a viral Serenity/@aleabitoreddit post,
+  and said X-FAB's CEO stated no undisclosed material development explained the move.
+locator:
+  section: Reuters market report on X-FAB retail-driven rally
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: media_report
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- social_reported_by_media
+- market_rerating_not_revenue
+- reuters_reprint

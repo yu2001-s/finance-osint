@@ -1,0 +1,13 @@
+schema_version: 1
+kind: entity
+id: entity:component:wide-bandgap-power-semiconductors
+entity_type: component
+name: Wide-bandgap power semiconductors
+submitted_by: github:codex
+aliases:
+- WBG power semiconductors
+- SiC/GaN power semiconductors
+description: SiC and GaN high-voltage power semiconductor layer relevant to 800
+  VDC AI data-center power architectures.
+state: active
+created_at: '2026-06-03T00:00:00Z'

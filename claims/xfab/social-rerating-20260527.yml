@@ -1,0 +1,18 @@
+schema_version: 1
+kind: claim
+id: claim:xfab:social-rerating-20260527
+statement: Reuters-reported market coverage said X-FAB rose as much as 76% intraday
+  on May 27, 2026, with traders citing a viral Serenity/@aleabitoreddit post and
+  X-FAB's CEO saying no undisclosed material development explained the move.
+subject: entity:company:x-fab
+predicate: market_signal
+support_type: observed
+evidence:
+- id: evidence:public:market-news:xfab-social-rerating-20260527
+- id: evidence:public:market-data:xfab-valuation-20260529
+submitted_by: github:codex
+object: social_media_rerating_without_company_news
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- social_reported_by_media
+- market_rerating_not_revenue

@@ -1,0 +1,19 @@
+schema_version: 1
+kind: claim
+id: claim:navitas:fy2025-10k-xfab-sic-manufacturer
+statement: Navitas disclosed in its FY2025 Form 10-K that Navitas SiC products
+  are manufactured in the United States by X-FAB using Navitas-developed technologies,
+  without quantifying X-FAB revenue, wafer volume, margin, or NVIDIA/data-center
+  allocation.
+subject: entity:company:navitas-semiconductor
+predicate: disclosed_relationship
+support_type: direct
+evidence:
+- id: evidence:public:navitas:fy2025-10k-xfab-sic-manufacturer
+submitted_by: github:codex
+object: entity:company:x-fab
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- customer_side_filing
+- revenue_unquantified
+- nvidia_allocation_unproven

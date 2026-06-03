@@ -1,0 +1,11 @@
+schema_version: 1
+kind: entity
+id: entity:service:xfab-sic-gan-foundry-services
+entity_type: service
+name: X-FAB SiC/GaN foundry services
+submitted_by: github:codex
+description: X-FAB open-foundry service capability for SiC and GaN power semiconductor
+  products, including U.S. SiC/GaN facility expansion context from CHIPS for America
+  material.
+state: active
+created_at: '2026-06-03T00:00:00Z'
