@@ -77,10 +77,15 @@ uv run fo view build "origin/${{ github.base_ref }}" --output .local/ci/github-v
 CI validates structure, references, ontology usage, tests, and derived local
 read artifacts. It does not decide investment truth.
 
+Repository-owner pull requests may use the explicit owner fast-pass in
+`.github/workflows/validate.yml` to avoid waiting for the heavy PR gate. The
+full `Validate` workflow still runs on every push to `main`, including owner
+merges.
+
 The timing wrapper runs lint, tests, index build, changed chain review, graph
 build, and diff-review once and writes a generated JSON report under `.local/`.
 The 10k scale smoke uses a temporary generated repository and does not commit
-generated YAML. Timing budgets are advisory before public launch; see
+generated YAML. Timing budgets are advisory during public alpha; see
 `docs/performance-budgets.md`.
 
 `fo view build BASE` writes generated Markdown under `.local/github-view/` for

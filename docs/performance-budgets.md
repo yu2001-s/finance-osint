@@ -22,7 +22,7 @@ includes:
 - Advisory budget comparison from `.github/ci/timing-budgets.json`.
 - Record, graph, `.local`, source-artifact, and git object summaries.
 
-Budgets are warning-mode before public launch. A step can exceed budget without
+Budgets are warning-mode during public alpha. A step can exceed budget without
 failing CI unless maintainers intentionally rerun with `--enforce-budgets`.
 
 ## Generated Scale Smoke

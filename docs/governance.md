@@ -29,20 +29,23 @@ For now, maintainers are the GitHub users with merge rights on the repo.
 
 ## GitHub Controls
 
-The GitHub repository is the contribution queue and public audit trail. Before
-public launch, maintainers should verify the controls in
-`docs/github-public-launch-checklist.md` and review the current pre-public
-assessment in `docs/pre-public-review-20260603.md`.
+The GitHub repository is the contribution queue and public audit trail. Current
+public-alpha controls are tracked in `docs/github-public-launch-checklist.md`
+and release/tag state is tracked in `docs/release-readiness.md`.
 
 At minimum:
 
 - Protect the default branch.
 - Require the `Validate` workflow before merge.
-- Require review for CODEOWNERS paths.
 - Require conversation resolution before merge.
 - Block force pushes and default-branch deletion.
 - Route disputes, ontology proposals, source/takedown concerns, and abuse or
   market-integrity concerns through GitHub issue templates.
+
+Current branch protection requires fresh `Validate`, conversation resolution,
+blocks force pushes/deletions, and enforces those rules for admins. Required
+approving review and required CODEOWNERS review are not enabled yet; the owner
+should decide whether to enable them before tagging `v0.1.0-alpha`.
 
 ## Merge Criteria
 

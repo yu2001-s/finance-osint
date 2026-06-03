@@ -4,8 +4,8 @@ Finance OSINT is a local-first, git-native evidence graph for retail investors.
 
 The repo is the canonical database. Contributors pull it, add structured data locally, validate it, and submit changes by pull request. There is no server, hosted database, private moderation layer, or hidden agent state.
 
-Licensed under the Apache License, Version 2.0. The repo is not public or tagged
-yet; publication is intentionally deferred.
+Licensed under the Apache License, Version 2.0. The repository is public alpha
+infrastructure; the `v0.1.0-alpha` tag has not been cut yet.
 
 ## Core Layers
 
@@ -77,14 +77,15 @@ note.
 For a concrete sourced-research batch workflow, see
 `docs/research-batch-contribution.md`.
 
+For the public docs/wiki entry point, start with `docs/README.md`.
+
 For release status, lightweight governance, review rubrics, and GitHub launch
 guardrails, see:
 
+- `docs/README.md`
 - `docs/release-readiness.md`
 - `docs/governance.md`
 - `docs/review-rubric.md`
-- `docs/pre-public-review-20260603.md`
-- `docs/pre-public-issue-backlog-20260603.md`
 - `docs/github-public-launch-checklist.md`
 - `docs/first-pr-quickstart.md`
 
