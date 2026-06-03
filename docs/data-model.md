@@ -241,4 +241,5 @@ They should not perform ingestion, summarization, or semantic inference.
 
 The common v1 contribution path is covered by helpers for entity, source,
 evidence, claim, metric, event, dataset, validation, challenge, question,
-relationship, and thesis records. Ontology-definition helpers remain deferred.
+relationship, and thesis records. Every public v1 kind has a YAML template;
+ontology-definition helpers remain deferred.

@@ -1,0 +1,39 @@
+schema_version: 1
+kind: relationship_type
+id: proposed_relationship_type
+label: Proposed Relationship Type
+description: What this relationship means and when it should be used.
+state: proposed
+ontology_version: 1
+directional: true
+roles:
+  - name: subject
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types:
+      - company
+    description: Entity playing the subject role.
+  - name: object
+    required: true
+    min: 1
+    max: 1
+    allowed_entity_types:
+      - company
+    description: Entity playing the object role.
+allowed_scope:
+  - product
+  - geography
+  - market
+allowed_qualifiers:
+  - direct_statement
+  - inferred
+inverse_type: null
+inverse_behavior: none
+materiality:
+  allowed_values:
+    - low
+    - medium
+    - high
+    - critical
+evidence_required: true
