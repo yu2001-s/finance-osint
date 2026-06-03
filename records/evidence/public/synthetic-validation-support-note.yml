@@ -1,0 +1,20 @@
+schema_version: 1
+kind: evidence
+id: evidence:synthetic:validation-support-note
+evidence_class: public_secondary
+source: source:public:synthetic:validation-review-note
+summary: Synthetic independent review note corroborates Example Devices supplier use of Foundry Works for the X1 processor.
+content_mode: small_fixture
+excerpt: "Synthetic independent review confirms that Example Devices used Foundry Works for X1 processor manufacturing support in the Example Phone program."
+locator:
+  section: Synthetic support validation note
+observed_at: "2026-06-03T00:00:00Z"
+submitted_by: github:scaffold
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: synthetic_fixture
+risk_flags:
+  - synthetic_fixture

@@ -1,0 +1,19 @@
+schema_version: 1
+kind: claim
+id: claim:synthetic:validation-falsified-current-market-cap
+statement: The December 31, 2025 synthetic Example Devices market-cap snapshot remains the current market-cap observation on June 3, 2026.
+subject: entity:company:exdev
+predicate: market_signal
+object: December 31, 2025 market-cap snapshot remains current on June 3, 2026
+qualifiers:
+  stale_metric: metric:synthetic-exdev:market-cap-stale-20251231
+  refreshed_metric: metric:synthetic-exdev:market-cap-refreshed-20260603
+support_type: inferred
+evidence:
+  - id: evidence:synthetic:exdev-market-data-20251231
+  - id: evidence:synthetic:validation-falsification-note
+submitted_by: github:scaffold
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - synthetic_fixture
+  - market_data_snapshot

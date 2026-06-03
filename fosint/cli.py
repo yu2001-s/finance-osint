@@ -1137,10 +1137,18 @@ def validate_evidence_policy(
                         "derive review state locally"
                     )
 
-        if record.kind == "validation" and "confidence" in record.data:
-            errors.append(
-                f"{relative}: validation records must not store `confidence`; derive review state locally"
-            )
+        if record.kind == "validation":
+            for field in ("status", "confidence"):
+                if field in record.data:
+                    errors.append(
+                        f"{relative}: validation records must not store `{field}`; "
+                        "derive review state locally"
+                    )
+            dependencies = dependency_ids(record.data.get("depends_on"))
+            if not any(dependencies.values()):
+                errors.append(
+                    f"{relative}: validation records must cite at least one dependency"
+                )
 
         if record.kind == "challenge" and "status" in record.data:
             errors.append(
@@ -2934,10 +2942,17 @@ def validation_path_summary(record: dict[str, Any], id_map: dict[str, Record]) -
         }
     )
     dependency_parts = [
-        f"{key}:{record_id}"
-        for key in DEPENDENCY_KEYS
-        for record_id in dependencies.get(key, [])
+        *[f"evidence:{record_id}" for record_id in evidence_ids],
+        *[f"source:{record_id}" for record_id in source_ids],
     ]
+    if not dependency_parts:
+        target_id = data.get("target")
+        dependency_parts = [
+            f"{key}:{record_id}"
+            for key in DEPENDENCY_KEYS
+            for record_id in dependencies.get(key, [])
+            if record_id != target_id
+        ]
     signature = "|".join(dependency_parts) or "empty"
     return {
         "id": record["id"],
@@ -2980,6 +2995,9 @@ def summarize_validations(
         "repeated_dependency_paths": repeated_signatures,
         "support_evidence_ids": sorted(
             {evidence_id for path in supporting for evidence_id in path["evidence_ids"]}
+        ),
+        "all_validation_evidence_ids": sorted(
+            {evidence_id for path in paths for evidence_id in path["evidence_ids"]}
         ),
         "contesting_validation_ids": [path["id"] for path in contesting],
         "stale_validation_ids": [path["id"] for path in stale],
@@ -3233,7 +3251,7 @@ def build_review_analysis(
     review_evidence_summary = evidence_summary(
         sorted(
             set(
-                validation_summary["support_evidence_ids"]
+                validation_summary["all_validation_evidence_ids"]
                 + challenge_summary["challenge_evidence_ids"]
             )
         ),
@@ -4041,6 +4059,7 @@ def review_snapshot_for_records(
         "repeated_validation_path_count": analysis["validation_summary"][
             "repeated_dependency_path_count"
         ],
+        "repeated_validation_paths": analysis["validation_summary"]["repeated_dependency_paths"],
         "low_trust_evidence_ids": analysis["support_summary"]["low_trust_evidence_ids"],
         "private_evidence_ids": analysis["support_summary"]["private_evidence_ids"],
     }
@@ -4055,6 +4074,7 @@ def review_snapshot_key(snapshot: dict[str, Any] | None) -> dict[str, Any] | Non
         "support_source_count": snapshot["support_source_count"],
         "open_challenge_count": snapshot["open_challenge_count"],
         "repeated_validation_path_count": snapshot["repeated_validation_path_count"],
+        "repeated_validation_paths": snapshot["repeated_validation_paths"],
         "low_trust_evidence_ids": snapshot["low_trust_evidence_ids"],
         "private_evidence_ids": snapshot["private_evidence_ids"],
     }
@@ -4200,15 +4220,53 @@ def diff_review_warnings(
                 )
             )
 
-        if record.kind == "validation" and data.get("verdict") == "marks_stale":
-            warnings.append(
-                warning_item(
-                    "adds_or_updates_stale_validation",
-                    "Record adds or updates a marks_stale validation.",
-                    record.id,
-                    related_ids=[str(data.get("target"))] if data.get("target") else [],
+        if record.kind == "validation":
+            verdict = data.get("verdict")
+            if verdict in SUPPORTING_VERDICTS:
+                warnings.append(
+                    warning_item(
+                        "adds_or_updates_support_validation",
+                        "Record adds or updates a support validation.",
+                        record.id,
+                        related_ids=[str(data.get("target"))] if data.get("target") else [],
+                    )
                 )
-            )
+            elif verdict in PARTIAL_VERDICTS:
+                warnings.append(
+                    warning_item(
+                        "adds_or_updates_partial_validation",
+                        "Record adds or updates a partial validation.",
+                        record.id,
+                        related_ids=[str(data.get("target"))] if data.get("target") else [],
+                    )
+                )
+            elif verdict in CONTESTING_VERDICTS:
+                warnings.append(
+                    warning_item(
+                        "adds_or_updates_contesting_validation",
+                        "Record adds or updates a contesting validation.",
+                        record.id,
+                        related_ids=[str(data.get("target"))] if data.get("target") else [],
+                    )
+                )
+            elif verdict in STALE_VERDICTS:
+                warnings.append(
+                    warning_item(
+                        "adds_or_updates_stale_validation",
+                        "Record adds or updates a stale validation.",
+                        record.id,
+                        related_ids=[str(data.get("target"))] if data.get("target") else [],
+                    )
+                )
+            elif verdict in WITHDRAWAL_VERDICTS:
+                warnings.append(
+                    warning_item(
+                        "adds_or_updates_withdrawal_validation",
+                        "Record adds or updates a withdrawal validation.",
+                        record.id,
+                        related_ids=[str(data.get("target"))] if data.get("target") else [],
+                    )
+                )
 
         if record.kind in REVIEWABLE_KINDS and (
             as_reference_list(data.get("contradicts"))
@@ -4314,7 +4372,10 @@ def diff_review_warnings(
                     details={
                         "repeated_validation_path_count": impact["after"][
                             "repeated_validation_path_count"
-                        ]
+                        ],
+                        "repeated_validation_paths": impact["after"][
+                            "repeated_validation_paths"
+                        ],
                     },
                 )
             )

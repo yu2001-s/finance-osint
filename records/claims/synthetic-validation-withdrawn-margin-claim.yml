@@ -1,0 +1,15 @@
+schema_version: 1
+kind: claim
+id: claim:synthetic:validation-withdrawn-margin-claim
+statement: Synthetic Example Devices disclosed gross-margin expansion from the Foundry Works X1 processor relationship.
+subject: entity:company:exdev
+predicate: source_attestation
+object: gross margin expansion from Foundry Works X1 relationship
+support_type: observed
+evidence:
+  - id: evidence:synthetic:validation-withdrawal-note
+submitted_by: github:scaffold
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - synthetic_fixture
+  - revenue_bridge_missing

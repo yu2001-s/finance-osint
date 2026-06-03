@@ -1,0 +1,19 @@
+schema_version: 1
+kind: claim
+id: claim:synthetic:validation-disputed-allocation
+statement: Synthetic Example Devices disclosed that Foundry Works received 80% allocation share for X1 processors.
+subject: entity:company:exdev
+predicate: market_signal
+object: 80% allocation share to Foundry Works
+qualifiers:
+  product_name: Example Phone
+  component_name: X1 Processor
+support_type: inferred
+evidence:
+  - id: evidence:synthetic:validation-limitation-note
+methodology: Inferred allocation claim is intentionally overbroad for the dispute fixture; the cited note says exact allocation was not disclosed.
+submitted_by: github:scaffold
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - synthetic_fixture
+  - supplier_allocation_unproven

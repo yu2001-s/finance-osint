@@ -1,0 +1,21 @@
+schema_version: 1
+kind: evidence
+id: evidence:synthetic:validation-withdrawal-note
+evidence_class: public_secondary
+source: source:public:synthetic:validation-review-note
+summary: Synthetic review note withdraws an overbroad gross-margin claim because the cited supplier evidence does not support it.
+content_mode: small_fixture
+excerpt: "Synthetic review withdraws the gross-margin expansion claim because the cited supplier-use evidence does not contain margin, price, or cost disclosures."
+locator:
+  section: Synthetic withdrawal validation note
+observed_at: "2026-06-03T00:00:00Z"
+submitted_by: github:scaffold
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: synthetic_fixture
+risk_flags:
+  - synthetic_fixture
+  - revenue_bridge_missing

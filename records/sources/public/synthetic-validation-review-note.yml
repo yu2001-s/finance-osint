@@ -1,0 +1,14 @@
+schema_version: 1
+kind: source
+id: source:public:synthetic:validation-review-note
+source_type: other
+title: Synthetic validation review note
+publisher: Finance OSINT scaffold
+published_at: "2026-06-03"
+accessed_at: "2026-06-03T00:00:00Z"
+public_status: public
+source_perspective: independent_research
+content_mode: small_fixture
+provenance: Synthetic fixture for exercising validation verdicts.
+risk_flags:
+  - synthetic_fixture

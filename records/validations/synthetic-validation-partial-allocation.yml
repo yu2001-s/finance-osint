@@ -1,0 +1,16 @@
+schema_version: 1
+kind: validation
+id: validation:synthetic:validation-partial-allocation
+target: claim:synthetic:validation-partial-allocation
+submitted_by: github:scaffold
+verdict: partially_supports
+summary: The evidence supports supplier use but not exact allocation share, sole-source status, or revenue conversion.
+depends_on:
+  evidence:
+    - evidence:synthetic:validation-limitation-note
+  claims:
+    - claim:synthetic:validation-partial-allocation
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - synthetic_fixture
+  - supplier_allocation_unproven

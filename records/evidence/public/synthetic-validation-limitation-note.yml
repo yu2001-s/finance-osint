@@ -1,0 +1,22 @@
+schema_version: 1
+kind: evidence
+id: evidence:synthetic:validation-limitation-note
+evidence_class: public_secondary
+source: source:public:synthetic:validation-review-note
+summary: Synthetic review note says supplier-use evidence does not disclose allocation share, sole-source status, or gross margin.
+content_mode: small_fixture
+excerpt: "Synthetic review confirms supplier use, but no source in the fixture discloses 80% allocation share, sole-source status, or gross-margin expansion from the Foundry Works relationship."
+locator:
+  section: Synthetic partial and dispute validation note
+observed_at: "2026-06-03T00:00:00Z"
+submitted_by: github:scaffold
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: synthetic_fixture
+risk_flags:
+  - synthetic_fixture
+  - supplier_allocation_unproven
+  - revenue_bridge_missing

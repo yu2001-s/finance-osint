@@ -66,6 +66,28 @@ Use challenges for open objections:
 
 Validation evaluates support. Challenge records unresolved pressure.
 
+Validation verdict meanings:
+
+- `attests`: reviewer confirms a narrow record or evidence object exists as
+  described.
+- `supports`: dependency path supports the target as written.
+- `partially_supports`: dependency path supports only part of the target or
+  supports it with material scope limits.
+- `disputes`: dependency path contests the target or shows the current wording is
+  overbroad.
+- `falsifies`: dependency path contradicts the target strongly enough that the
+  target should review as contested unless withdrawn or superseded.
+- `marks_stale`: dependency path shows the target is outdated for current use.
+- `withdraws`: reviewer withdraws a prior target, usually because the submitted
+  claim was overbroad, duplicated, or no longer supportable.
+
+Independent support is about resolved evidence/source paths, not vote count.
+Prefer validations backed by a distinct evidence path whose source perspective is
+`independent_media`, `independent_research`, `government_or_regulator`, or
+`court_or_legal_record`. Repeated validations over the same resolved
+evidence/source path should be counted as repeated review, not as independent
+support.
+
 ## Derived State
 
 Canonical records should not store truth `status` or `confidence`. Local tools

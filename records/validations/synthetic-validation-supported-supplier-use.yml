@@ -1,0 +1,15 @@
+schema_version: 1
+kind: validation
+id: validation:synthetic:validation-supported-supplier-use
+target: claim:synthetic:validation-supported-supplier-use
+submitted_by: github:scaffold
+verdict: supports
+summary: The independent synthetic review note directly supports the narrow supplier-use claim.
+depends_on:
+  evidence:
+    - evidence:synthetic:validation-support-note
+  claims:
+    - claim:synthetic:validation-supported-supplier-use
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - synthetic_fixture
