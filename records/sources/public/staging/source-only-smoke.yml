@@ -1,0 +1,16 @@
+schema_version: 1
+kind: source
+id: source:public:staging:source-only-smoke
+source_type: web_page
+title: Staging source-only smoke source
+public_status: public
+source_perspective: synthetic_fixture
+accessed_at: '2026-06-03T00:00:00Z'
+content_mode: small_fixture
+submitted_by: github:codex
+publisher: Finance OSINT staging fixture
+url: https://example.com/finance-osint/staging-source-only
+provenance: Private GitHub staging source-only PR smoke test.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- staging_smoke
