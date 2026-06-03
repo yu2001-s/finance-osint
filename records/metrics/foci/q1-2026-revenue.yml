@@ -8,7 +8,15 @@ unit: TWD
 period:
   type: quarter
   value: 2026Q1
+  period_start: '2026-01-01'
+  period_end: '2026-03-31'
 value_basis: reported
+comparability:
+  reporting_currency: TWD
+  accounting_standard: TIFRS
+  consolidation_scope: consolidated
+  fiscal_year_end: "12-31"
+  fx_methodology: not_applicable
 evidence:
 - evidence:public:foci:q1-2026-financial-report
 submitted_by: github:codex

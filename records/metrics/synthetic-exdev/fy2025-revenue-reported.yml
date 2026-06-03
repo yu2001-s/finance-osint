@@ -1,0 +1,29 @@
+schema_version: 1
+kind: metric
+id: metric:synthetic-exdev:fy2025-revenue-reported
+entity: entity:company:exdev
+metric_definition: metric_definition:revenue
+value: 100000000.0
+unit: USD
+period:
+  type: fiscal_year
+  fiscal_year: "2025"
+  period_start: "2025-01-01"
+  period_end: "2025-12-31"
+value_basis: reported
+comparability:
+  reporting_currency: USD
+  accounting_standard: US_GAAP
+  consolidation_scope: consolidated
+  fiscal_year_end: "12-31"
+  fx_methodology: not_applicable
+evidence:
+  - evidence:synthetic:exdev-fy2025-metric-note
+source_locator:
+  section: Synthetic metric comparability note
+reported_at: "2026-06-02"
+published_at: "2026-06-02"
+submitted_by: github:scaffold
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - synthetic_fixture

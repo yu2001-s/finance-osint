@@ -51,7 +51,10 @@ Evidence
   evidence record that uses the source.
 
 Metric
-  A structured numeric value with provenance.
+  A structured numeric value with provenance. Global financial metrics should
+  make comparability explicit through period shape, reporting/trading currency,
+  accounting standard, consolidation scope, fiscal year-end, value basis, and
+  FX methodology where applicable.
 
   Metrics reference registered `metric_definition` records. Lint enforces the
   definition's allowed units, allowed value basis, and required `period` or

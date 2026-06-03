@@ -42,6 +42,41 @@
     "reported_at": { "type": "string" },
     "published_at": { "type": "string" },
     "restated_from": { "type": "string" },
+    "comparability": {
+      "type": "object",
+      "properties": {
+        "reporting_currency": { "type": "string", "minLength": 1 },
+        "trading_currency": { "type": "string", "minLength": 1 },
+        "accounting_standard": { "type": "string", "minLength": 1 },
+        "consolidation_scope": { "type": "string", "minLength": 1 },
+        "fiscal_year_end": {
+          "type": "string",
+          "pattern": "^([0-9]{2}-[0-9]{2}|unknown|not_applicable)$"
+        },
+        "fx_methodology": {
+          "oneOf": [
+            { "type": "string", "minLength": 1 },
+            { "type": "object", "additionalProperties": true }
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "derived_from": {
+      "type": "object",
+      "properties": {
+        "metrics": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^metric:[A-Za-z0-9_.:-]+$" }
+        },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^evidence:[A-Za-z0-9_.:-]+$" }
+        },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
     "dimensions": { "type": "object", "additionalProperties": true },
     "methodology": { "type": "string" },
     "limitations": { "type": "string" },

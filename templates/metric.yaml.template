@@ -7,12 +7,25 @@ value: 0
 unit: USD
 period:
   type: fiscal_year
-  value: "YYYY"
+  fiscal_year: "YYYY"
+  period_start: "YYYY-MM-DD"
+  period_end: "YYYY-MM-DD"
 value_basis: reported
+comparability:
+  reporting_currency: USD
+  trading_currency: USD
+  accounting_standard: US_GAAP
+  consolidation_scope: consolidated
+  fiscal_year_end: "12-31"
+  fx_methodology: not_applicable
 evidence:
   - evidence:provider:slug
 source_locator:
   section: Section name
+derived_from:
+  metrics: []
+  evidence: []
+  notes: ""
 as_of: "YYYY-MM-DD"
 reported_at: "YYYY-MM-DD"
 published_at: "YYYY-MM-DD"

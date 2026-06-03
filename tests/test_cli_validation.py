@@ -421,6 +421,153 @@ class CliValidationTests(unittest.TestCase):
         self.assertEqual(status, 1, output)
         self.assertIn("requires `product` context", output)
 
+    def test_metric_required_comparability_must_be_present(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            definition_path = repo / "ontology" / "metric-definitions" / "revenue.yml"
+            definition = load_yaml(definition_path)
+            definition["required_comparability"] = ["reporting_currency"]
+            write_yaml(definition_path, definition)
+            metric_path = repo / "records" / "metrics" / "foci" / "q1-2026-revenue.yml"
+            metric = load_yaml(metric_path)
+            metric["comparability"].pop("reporting_currency")
+            write_yaml(metric_path, metric)
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 1, output)
+        self.assertIn("requires `comparability.reporting_currency`", output)
+
+    def test_lint_warns_for_recommended_metric_comparability(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            definition_path = repo / "ontology" / "metric-definitions" / "market_cap.yml"
+            definition = load_yaml(definition_path)
+            definition["recommended_comparability"] = ["trading_currency"]
+            write_yaml(definition_path, definition)
+            metric_path = repo / "records" / "metrics" / "foci" / "market-cap-20260529.yml"
+            metric = load_yaml(metric_path)
+            metric["comparability"].pop("trading_currency")
+            write_yaml(metric_path, metric)
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        warning_codes = {warning["code"] for warning in payload["warnings"]}
+        self.assertIn("metric_missing_recommended_comparability", warning_codes)
+
+    def test_derived_and_estimated_metrics_require_methodology(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            derived_path = (
+                repo
+                / "records"
+                / "metrics"
+                / "synthetic-exdev"
+                / "price-to-sales-derived-20260602.yml"
+            )
+            derived = load_yaml(derived_path)
+            derived.pop("methodology")
+            write_yaml(derived_path, derived)
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 1, output)
+        self.assertIn("derived metric requires methodology", output)
+
+    def test_restated_metric_requires_restated_from(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            metric_path = (
+                repo
+                / "records"
+                / "metrics"
+                / "synthetic-exdev"
+                / "fy2025-revenue-restated.yml"
+            )
+            metric = load_yaml(metric_path)
+            metric.pop("restated_from")
+            write_yaml(metric_path, metric)
+
+            status, output = run_lint(repo)
+
+        self.assertEqual(status, 1, output)
+        self.assertIn("restated metric requires restated_from", output)
+
+    def test_estimated_metric_without_limitations_warns(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            metric_path = (
+                repo
+                / "records"
+                / "metrics"
+                / "synthetic-exdev"
+                / "fy2026-revenue-estimated.yml"
+            )
+            metric = load_yaml(metric_path)
+            metric.pop("limitations")
+            write_yaml(metric_path, metric)
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        self.assertEqual(
+            [warning["code"] for warning in payload["warnings"]],
+            ["estimated_metric_missing_limitations"],
+        )
+
+    def test_metric_accepts_structured_fx_methodology(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            metric_path = repo / "records" / "metrics" / "foci" / "q1-2026-revenue.yml"
+            metric = load_yaml(metric_path)
+            metric["unit"] = "USD"
+            metric["comparability"]["fx_methodology"] = {
+                "method": "period_end_spot_rate",
+                "from_currency": "TWD",
+                "to_currency": "USD",
+                "rate": "0.0312",
+                "rate_date": "2026-03-31",
+                "rate_source": "evidence:public:foci:q1-2026-financial-report",
+            }
+            write_yaml(metric_path, metric)
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        self.assertEqual(payload["warnings"], [])
+
+    def test_metric_value_basis_fixture_examples_cover_all_kinds(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            records, errors = cli.load_records(repo)
+
+        self.assertEqual(errors, [])
+        value_bases = {
+            record.data.get("value_basis")
+            for record in records
+            if record.kind == "metric"
+        }
+        self.assertTrue(
+            {"reported", "observed", "derived", "estimated", "restated"}.issubset(value_bases)
+        )
+
+    def test_review_chain_includes_derived_metric_inputs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            records, errors = cli.load_records(repo)
+            self.assertEqual(errors, [])
+            id_map, id_errors = cli.build_id_map(repo, records)
+            self.assertEqual(id_errors, [])
+            target = id_map["metric:synthetic-exdev:price-to-sales-derived-20260602"]
+
+            dependencies = cli.chain_dependency_ids(target, id_map)
+
+        self.assertIn(
+            "metric:synthetic-exdev:fy2025-revenue-restated",
+            dependencies["metrics"],
+        )
+
     def test_challenge_references_are_checked(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
@@ -2051,6 +2198,100 @@ class CliValidationTests(unittest.TestCase):
         self.assertEqual(status, 1, payload)
         self.assertFalse(payload["ok"])
         self.assertIn("unit `shares` is not allowed by metric definition", payload["errors"][0]["message"])
+
+    def test_new_metric_helper_records_comparability(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+
+            status, payload = run_new_json(
+                cli.run_new_metric,
+                repo,
+                entity="entity:company:exdev",
+                metric_definition="metric_definition:revenue",
+                value=100.0,
+                unit="USD",
+                period=["type=fiscal_year", "fiscal_year=2025", "period_end=2025-12-31"],
+                value_basis="reported",
+                evidence=["evidence:synthetic:exdev-fy2025-metric-note"],
+                source_locator=["section=synthetic metric note"],
+                dimension=[],
+                comparability=[
+                    "reporting_currency=USD",
+                    "accounting_standard=US_GAAP",
+                    "consolidation_scope=consolidated",
+                    "fiscal_year_end=12-31",
+                    "fx_methodology=not_applicable",
+                ],
+                derived_from_metric=[],
+                derived_from_evidence=[],
+                derived_from_notes=None,
+                as_of=None,
+                reported_at="2026-06-02",
+                published_at="2026-06-02",
+                restated_from=None,
+                methodology=None,
+                limitations=None,
+                submitted_by="github:tester",
+                dry_run=True,
+            )
+
+        self.assertEqual(status, 0, payload)
+        self.assertEqual(
+            payload["record"]["comparability"],
+            {
+                "reporting_currency": "USD",
+                "accounting_standard": "US_GAAP",
+                "consolidation_scope": "consolidated",
+                "fiscal_year_end": "12-31",
+                "fx_methodology": "not_applicable",
+            },
+        )
+
+    def test_new_metric_helper_records_derived_from(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+
+            status, payload = run_new_json(
+                cli.run_new_metric,
+                repo,
+                entity="entity:company:exdev",
+                metric_definition="metric_definition:price_to_sales_ratio",
+                value=2.0,
+                unit="ratio",
+                period=["type=point_in_time", "as_of=2026-06-02"],
+                value_basis="derived",
+                evidence=["evidence:synthetic:exdev-fy2025-metric-note"],
+                source_locator=["section=synthetic metric note"],
+                dimension=["source_methodology=synthetic_fixture"],
+                comparability=[
+                    "trading_currency=USD",
+                    "accounting_standard=not_applicable",
+                    "consolidation_scope=market_observed",
+                    "fiscal_year_end=not_applicable",
+                    "fx_methodology=not_applicable",
+                ],
+                derived_from_metric=["metric:synthetic-exdev:fy2025-revenue-restated"],
+                derived_from_evidence=["evidence:synthetic:exdev-fy2025-metric-note"],
+                derived_from_notes="Derived from synthetic restated revenue.",
+                as_of="2026-06-02",
+                reported_at=None,
+                published_at="2026-06-02",
+                restated_from=None,
+                methodology="Market cap divided by restated revenue.",
+                limitations=None,
+                submitted_by="github:tester",
+                dry_run=True,
+            )
+
+        self.assertEqual(status, 0, payload)
+        self.assertEqual(
+            payload["record"]["derived_from"],
+            {
+                "metrics": ["metric:synthetic-exdev:fy2025-revenue-restated"],
+                "evidence": ["evidence:synthetic:exdev-fy2025-metric-note"],
+                "notes": "Derived from synthetic restated revenue.",
+            },
+        )
 
     def test_new_source_helper_records_source_artifact(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

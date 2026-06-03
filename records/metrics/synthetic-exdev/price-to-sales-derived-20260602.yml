@@ -1,0 +1,41 @@
+schema_version: 1
+kind: metric
+id: metric:synthetic-exdev:price-to-sales-derived-20260602
+entity: entity:company:exdev
+metric_definition: metric_definition:price_to_sales_ratio
+value: 2.0
+unit: ratio
+period:
+  type: point_in_time
+  as_of: "2026-06-02"
+value_basis: derived
+comparability:
+  trading_currency: USD
+  accounting_standard: not_applicable
+  consolidation_scope: market_observed
+  fiscal_year_end: not_applicable
+  fx_methodology: not_applicable
+evidence:
+  - evidence:synthetic:exdev-fy2025-metric-note
+source_locator:
+  section: Synthetic metric comparability note
+dimensions:
+  source_methodology: synthetic_fixture
+  numerator: synthetic_market_cap_usd_190m
+  denominator: metric:synthetic-exdev:fy2025-revenue-restated
+derived_from:
+  metrics:
+    - metric:synthetic-exdev:fy2025-revenue-restated
+  evidence:
+    - evidence:synthetic:exdev-fy2025-metric-note
+  notes: Uses the synthetic restated FY2025 revenue metric as denominator.
+as_of: "2026-06-02"
+published_at: "2026-06-02"
+methodology: Derived as USD 190.0M synthetic market cap divided by USD 95.0M
+  restated FY2025 revenue from the synthetic fixture note.
+limitations: Synthetic calculation fixture only; not a market-data provider
+  observation or investable valuation.
+submitted_by: github:scaffold
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - synthetic_fixture

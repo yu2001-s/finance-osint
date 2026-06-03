@@ -9,6 +9,12 @@ period:
   type: point_in_time
   value: '2026-05-29'
 value_basis: observed
+comparability:
+  trading_currency: TWD
+  accounting_standard: not_applicable
+  consolidation_scope: market_observed
+  fiscal_year_end: not_applicable
+  fx_methodology: not_applicable
 evidence:
 - evidence:public:market-data:foci-valuation-20260529
 submitted_by: github:codex

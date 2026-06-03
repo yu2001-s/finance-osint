@@ -1,0 +1,33 @@
+schema_version: 1
+kind: metric
+id: metric:synthetic-exdev:fy2026-revenue-estimated
+entity: entity:company:exdev
+metric_definition: metric_definition:revenue
+value: 120000000.0
+unit: USD
+period:
+  type: fiscal_year
+  fiscal_year: "2026"
+  period_start: "2026-01-01"
+  period_end: "2026-12-31"
+value_basis: estimated
+comparability:
+  reporting_currency: USD
+  accounting_standard: US_GAAP
+  consolidation_scope: consolidated
+  fiscal_year_end: "12-31"
+  fx_methodology: not_applicable
+evidence:
+  - evidence:synthetic:exdev-fy2025-metric-note
+source_locator:
+  section: Synthetic metric comparability note
+published_at: "2026-06-02"
+methodology: Synthetic estimate stated directly in the fixture note; no model,
+  sell-side consensus, or private forecast is implied.
+limitations: Synthetic fixture estimate only. It should not be treated as a
+  current revenue result, management guidance, or investable forecast.
+submitted_by: github:scaffold
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - synthetic_fixture
+  - estimated_metric

@@ -26,6 +26,8 @@
     },
     "required_dimensions": { "type": "array", "items": { "type": "string" }, "default": [] },
     "optional_dimensions": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "required_comparability": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "recommended_comparability": { "type": "array", "items": { "type": "string" }, "default": [] },
     "source_requirements": { "type": "array", "items": { "type": "string" }, "default": [] }
   },
   "additionalProperties": true
