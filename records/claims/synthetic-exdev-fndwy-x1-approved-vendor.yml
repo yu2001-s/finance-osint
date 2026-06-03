@@ -1,0 +1,21 @@
+schema_version: 1
+kind: claim
+id: claim:synthetic:exdev-fndwy-x1-approved-vendor
+statement: Synthetic Example Devices listed Synthetic Foundry Works as an approved vendor for X1 Processor manufacturing support as of the FY2025 report date.
+subject: entity:company:exdev
+predicate: disclosed_relationship
+object: entity:company:fndwy
+qualifiers:
+  product: entity:product:example-phone
+  component: entity:component:x1-processor
+  qualification_stage: approved_vendor
+as_of: "2026-06-02"
+support_type: direct
+evidence:
+  - id: evidence:synthetic:exdev-fy2025-avl-note
+submitted_by: github:scaffold
+created_at: "2026-06-02T00:00:00Z"
+limitations: AVL approval does not establish allocation share, shipments, revenue, purchase orders, or ongoing approval after the report date.
+risk_flags:
+  - synthetic_fixture
+  - supplier_allocation_unproven
