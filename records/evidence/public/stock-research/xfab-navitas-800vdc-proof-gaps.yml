@@ -10,7 +10,7 @@ summary: The frozen X-FAB/Navitas conversion update treats the Navitas-to-X-FAB
 content_mode: summary
 observed_at: '2026-06-01T00:00:00Z'
 submitted_by: github:codex
-source_attribution: named_public
+source_attribution: unknown
 excerpt: The frozen stock-research update strengthened the X-FAB 800 VDC chain
   because Navitas names X-FAB as its U.S. SiC manufacturer and Navitas supports
   NVIDIA 800 VDC architecture, but no public source proved NVIDIA qualification,
@@ -21,7 +21,7 @@ locator:
 source_access:
   nda_or_confidentiality: false
   recording_available: false
-  source_identity_public: true
+  source_identity_public: false
 verification_status: compiled_research_negative_search
 created_at: '2026-06-03T00:00:00Z'
 risk_flags:
@@ -29,3 +29,4 @@ risk_flags:
 - negative_search
 - not_primary_source
 - revenue_conversion_unproven
+- unpublished_local_snapshot

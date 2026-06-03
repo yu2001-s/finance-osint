@@ -3,7 +3,7 @@ kind: metric
 id: metric:axt:fy2025-total-revenue
 entity: entity:company:axt-inc
 metric_definition: metric_definition:revenue
-value: 88300000.0
+value: 88326000.0
 unit: USD
 period:
   type: fiscal_year

@@ -17,3 +17,5 @@ created_at: '2026-06-03T00:00:00Z'
 risk_flags:
 - company_originated
 - mops_hosted
+- generic_query_url
+- snapshot_artifact_missing

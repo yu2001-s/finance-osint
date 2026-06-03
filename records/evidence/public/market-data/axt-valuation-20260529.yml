@@ -30,3 +30,5 @@ verification_status: verified_secondary_market_data_snapshot
 created_at: '2026-06-03T00:00:00Z'
 risk_flags:
 - market_data_snapshot
+- dynamic_market_data_url
+- snapshot_artifact_missing

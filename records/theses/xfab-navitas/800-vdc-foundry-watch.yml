@@ -2,13 +2,14 @@ schema_version: 1
 kind: thesis
 id: thesis:xfab-navitas:800-vdc-foundry-watch
 title: X-FAB Navitas 800 VDC foundry watch
-summary: X-FAB has source-backed SiC/GaN foundry capability, CHIPS-supported U.S.
-  capacity context, a Navitas customer-side filing naming X-FAB as U.S. manufacturer
-  for Navitas SiC products, and broad Q1 2026 WBG revenue growth. Navitas separately
-  supports 800 V data-center development. The watch thesis is that X-FAB may sit
-  in an 800 VDC WBG device manufacturing chain, but current evidence still lacks
-  NVIDIA qualification, production use, purchase orders, X-FAB wafer starts, customer-specific
-  revenue, margin, and cash-conversion proof.
+summary: X-FAB has source-backed SiC/GaN foundry capability, preliminary proposed
+  CHIPS support for U.S. SiC capacity context, a Navitas customer-side filing
+  naming X-FAB as U.S. manufacturer for Navitas SiC products, and broad Q1 2026
+  WBG revenue growth. Navitas separately supports 800 V data-center development.
+  The watch thesis is that X-FAB may sit in an 800 VDC WBG device manufacturing
+  chain, but current evidence still lacks NVIDIA qualification, production use,
+  purchase orders, X-FAB wafer starts, customer-specific revenue, margin, and
+  cash-conversion proof.
 depends_on:
   evidence:
   - evidence:public:xfab:sic-gan-foundry-services
@@ -42,7 +43,7 @@ depends_on:
   - metric:xfab:market-cap-20260529
   - metric:xfab:price-to-sales-20260529
   events:
-  - event:xfab:chips-funded-sic-gan-expansion
+  - event:xfab:preliminary-chips-sic-capacity-terms
   datasets: []
 submitted_by: github:codex
 stance: watch

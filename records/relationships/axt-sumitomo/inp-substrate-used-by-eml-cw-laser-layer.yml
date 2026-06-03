@@ -16,8 +16,12 @@ submitted_by: github:codex
 scope:
   market: entity:market:ai-datacenter-infrastructure
 qualifiers:
-- direct_statement
+- inferred
+- single_source
 materiality:
-  level: high
-  basis: observed
+  level: medium
+  basis: inferred
 created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- inferred_material_chain
+- no_direct_eml_cw_inp_statement

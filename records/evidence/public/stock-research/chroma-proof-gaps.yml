@@ -10,7 +10,7 @@ summary: The frozen Chroma sidecar records that CPO insertion purchase-order and
 content_mode: summary
 observed_at: '2026-05-31T00:00:00Z'
 submitted_by: github:codex
-source_attribution: named_public
+source_attribution: unknown
 excerpt: The frozen stock-research pass found Chroma CPO insertion purchase-order
   and SiPh/PIC test-system proof, but no primary or near-primary source naming the
   CPO customer/platform, exact order value, CPO revenue split, gross margin, or
@@ -20,10 +20,11 @@ locator:
 source_access:
   nda_or_confidentiality: false
   recording_available: false
-  source_identity_public: true
+  source_identity_public: false
 verification_status: compiled_research_negative_search
 created_at: '2026-06-03T00:00:00Z'
 risk_flags:
 - compiled_research
 - negative_search
 - not_primary_source
+- unpublished_local_snapshot

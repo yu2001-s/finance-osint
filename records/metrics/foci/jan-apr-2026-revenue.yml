@@ -21,3 +21,5 @@ reported_at: '2026-05-10'
 created_at: '2026-06-03T00:00:00Z'
 risk_flags:
 - monthly_revenue_snapshot
+- generic_query_url
+- snapshot_artifact_missing

@@ -20,8 +20,7 @@ related_claims:
   - claim:fit-hon-teng:q1-2026-financial-update-no-cpo-bridge
   - claim:fit-hon-teng:cpo-elsfp-conversion-proof-gap
 related_relationships:
-  - relationship:fit-hon-teng:manufactures-102p4t-elsfp-platform
-  - relationship:fit-hon-teng:broadcom-th5-cpo-interconnect-supplier
+  - relationship:fit-hon-teng:broadcom-th5-cpo-interconnect-partnership
   - relationship:fit-hon-teng:manufactures-broadcom-th5-cpo-interconnect-hardware
 related_theses:
   - thesis:fit-hon-teng:cpo-elsfp-conversion-watch
