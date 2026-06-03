@@ -140,21 +140,52 @@ content_mode
 source_perspective
 ```
 
-SEC filing source fields:
+Filing source fields:
 
 ```text
+filing_jurisdiction
+filing_authority
+filing_regime
+filing_issuer
 accession_number
 form_type
+local_form_type
+issuer_code
+issuer_code_scheme
+report_period
 filing_date
 accepted_at
 period_of_report
 amends
+source_language
 url
 archive_url
+preservation_path
+source_artifacts
 content_hash
 ```
 
-Use `source_type: sec_filing` rather than creating a separate filing object.
+Use `source_type: sec_filing` for SEC filings and `source_type:
+exchange_filing` for filings distributed by a non-US exchange, regulator, or
+official disclosure system. Use `source_type: company_report` when the issuer
+publishes the report directly but still include the filing metadata above when
+the report is part of a regulated reporting regime. Do not create a separate
+filing object.
+
+Use `filing_issuer` for the canonical company entity when known. `issuer_code`
+is interpreted within `issuer_code_scheme`, or within the
+`filing_authority`/`filing_regime` pair when no scheme is supplied. Use
+`form_type` for SEC forms and `local_form_type` for local form names, report
+classes, or announcement categories. `filing_authority` is the regulator,
+exchange, or official disclosure system, such as SEC EDGAR, HKEXnews, MOPS, or a
+European regulated-market disclosure venue. `report_period` should name the
+covered fiscal period as a string or object. `period_of_report` remains valid
+for SEC-style report-period dates.
+
+`preservation_path` is a locator, not proof that the content is durably
+preserved. Durable preservation should use `archive_url`, `content_hash`,
+`source_artifacts`, or a linked evidence excerpt. When a file is committed
+locally, also reference it through `source_artifacts`.
 
 Use `source_type: social_media_post` for public posts. The post directly
 supports attribution claims about what the account said; underlying company

@@ -1,7 +1,7 @@
 schema_version: 1
 kind: source
 id: source:public:foci:q1-2026-financial-report
-source_type: company_report
+source_type: exchange_filing
 title: FOCI MOPS financial report for Q1 2026
 public_status: public
 source_perspective: company_self
@@ -11,6 +11,20 @@ submitted_by: github:codex
 publisher: MOPS / FOCI Fiber Optic Communications
 url: https://mopsov.twse.com.tw/server-java/t164sb01?step=1&CO_ID=3363&SYEAR=2026&SSEASON=1&REPORT_ID=C
 published_at: '2026-05-15'
+filing_jurisdiction: TW
+filing_authority: MOPS
+filing_regime: tw_mops_financial_report
+filing_issuer: entity:company:foci-fiber-optic-communications
+local_form_type: quarterly_financial_report
+issuer_code: "3363"
+issuer_code_scheme: tw_mops_company_code
+report_period:
+  fiscal_year: 2026
+  fiscal_quarter: Q1
+  period_end: "2026-03-31"
+filing_date: '2026-05-15'
+source_language: zh-Hant
+preservation_path: external:mops/t164sb01/3363/2026/Q1/C
 provenance: Migrated from frozen stock-research source src_foci_q1_2026_mops_financial_report
   at finance-osint-seed-20260603.
 created_at: '2026-06-03T00:00:00Z'

@@ -35,7 +35,10 @@ Source -> Dataset -> Evidence -> Metric/Event/Claim -> Relationship -> Thesis
 
 Source
   Provenance metadata for a filing, transcript, page, dataset, meeting,
-  observation, or report.
+  observation, or report. Filing-like sources carry normalized jurisdiction,
+  authority, regime, issuer reference/code, local form or report type, report
+  period, filing date, source language, and preservation locator fields so
+  non-US reports can be compared without SEC-specific assumptions.
 
   `social_media_post` is a source type. It can directly support an attribution
   claim such as "account X said Y"; underlying company facts still need their
