@@ -1,0 +1,25 @@
+schema_version: 1
+kind: question
+id: question:nebius:ai-cloud-revenue-durability
+question: What portion of Nebius' Q1 2026 revenue, deferred revenue, and planned AI-factory
+  capacity is backed by signed customer commitments, and what utilization, gross-margin,
+  and capex funding path would support revenue durability through 2026-2028?
+entities:
+- entity:company:nebius-group
+proof_type: ai_cloud_revenue_durability
+priority: high
+submitted_by: github:codex
+related_evidence:
+- evidence:public:nebius:q1-2026-revenue-ai-factory
+related_claims:
+- claim:nebius:q1-2026-revenue-ai-factory-signal
+next_actions:
+- Find customer-contract disclosures, backlog/deferred-revenue details, or counterparty
+  evidence for committed AI-cloud capacity.
+- Track utilization, gross margin, capex, debt, and operating cash flow in subsequent
+  Nebius filings.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- capex_funding_watch
+- customer_commitment_unproven
+- proof_gap

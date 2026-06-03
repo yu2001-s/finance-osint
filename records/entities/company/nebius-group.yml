@@ -1,0 +1,17 @@
+schema_version: 1
+kind: entity
+id: entity:company:nebius-group
+entity_type: company
+name: Nebius Group N.V.
+submitted_by: github:codex
+aliases:
+- NBIS
+- Nebius
+identifiers:
+  ticker: NBIS
+  cik: '1513845'
+  exchange: Nasdaq
+description: Amsterdam-headquartered public AI cloud and AI infrastructure company
+  listed on Nasdaq under ticker NBIS.
+state: active
+created_at: '2026-06-03T00:00:00Z'

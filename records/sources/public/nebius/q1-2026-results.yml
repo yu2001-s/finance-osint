@@ -1,0 +1,18 @@
+schema_version: 1
+kind: source
+id: source:public:nebius:q1-2026-results
+source_type: press_release
+title: Nebius reports first quarter 2026 financial results
+public_status: public
+source_perspective: company_self
+accessed_at: '2026-06-03T00:00:00Z'
+content_mode: external_link
+submitted_by: github:codex
+publisher: Nebius Group N.V.
+url: https://assets.nebius.com/assets/6fc0ea6c-0884-4a1f-bed8-1f797eb9628f/Financial%20results_Q1%202026.pdf?cache-buster=2026-05-13T09%3A58%3A57.420Z
+published_at: '2026-05-13'
+provenance: Verified from Nebius investor relations Q1 2026 financial results PDF.
+report_period: 2026-Q1
+source_language: en
+preservation_path: external:nebius/financial-results/q1-2026.pdf
+created_at: '2026-06-03T00:00:00Z'
