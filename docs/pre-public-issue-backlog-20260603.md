@@ -118,13 +118,18 @@ Acceptance criteria:
 Rationale: Current records treat these mostly as proof gaps. Public supply-chain
 research may need first-class patterns or stricter claim/relationship rules.
 
+Status: first AVL example addressed locally with a synthetic `qualified_supplier`
+approved-vendor fixture. Purchase order, allocation share, shipment, and
+revenue-bridge examples remain open.
+
 Acceptance criteria:
 
-- Decide whether each concept needs a new record kind, relationship type, claim
+- [ ] Decide whether each concept needs a new record kind, relationship type, claim
   predicate, metric dimension, or documented pattern.
-- Add examples for a named purchase order, AVL approval, allocation share, and
+- [ ] Add examples for a named purchase order, allocation share, and
   shipment/revenue bridge.
-- Add review checks to prevent broad segment revenue from becoming named
+- [x] Add an AVL approval example using `qualified_supplier`.
+- [ ] Add review checks to prevent broad segment revenue from becoming named
   customer allocation.
 
 ### Exercise Strong Relationship Types
@@ -132,12 +137,18 @@ Acceptance criteria:
 Rationale: `design_win`, `qualified_supplier`, and `customer_relationship` are
 registered but not well exercised in current canonical records.
 
+Status: synthetic `qualified_supplier` fixture addressed locally. `design_win`
+and `customer_relationship` examples remain open.
+
 Acceptance criteria:
 
-- Add fixture or real examples for each strong type.
-- Add tests or review examples showing what evidence is sufficient and
+- [ ] Add fixture or real examples for each strong type.
+- [x] Add a `qualified_supplier` fixture with direct evidence.
+- [x] Add tests or review examples showing the `qualified_supplier` chain.
+- [ ] Add tests or review examples showing what evidence is sufficient and
   insufficient.
-- Verify `fo review --chain` surfaces promotion pressure clearly.
+- [x] Verify `fo review --chain` surfaces `qualified_supplier` promotion
+  pressure clearly.
 
 ## P2: Review And Data Quality
 

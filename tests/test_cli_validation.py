@@ -914,6 +914,36 @@ class CliValidationTests(unittest.TestCase):
             {neighbor["id"] for neighbor in neighbors["neighbors"]},
         )
 
+    def test_qualified_supplier_fixture_surfaces_strong_relationship_review(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            status, build_payload = run_json_command(cli.run_index_build, repo)
+            self.assertEqual(status, 0, build_payload)
+
+            status, review = run_json_command(
+                cli.run_review,
+                repo,
+                "relationship:synthetic:exdev-fndwy-x1-qualified-supplier",
+                chain=True,
+            )
+
+        self.assertEqual(status, 0, review)
+        chain = review["chain_summary"]
+        self.assertIn(
+            "relationship:synthetic:exdev-fndwy-x1-qualified-supplier",
+            chain["relationship_chain"]["strong_relationship_type_ids"],
+        )
+        self.assertEqual(chain["relationship_chain"]["type_counts"]["qualified_supplier"], 1)
+        self.assertIn(
+            "evidence:synthetic:exdev-fy2025-avl-note",
+            chain["source_evidence_chain"]["evidence_ids"],
+        )
+        self.assertTrue(chain["relationship_promotion_pressure"]["has_pressure"])
+        self.assertIn(
+            "supplier_allocation_unproven",
+            chain["relationship_promotion_pressure"]["promotion_risk_flags"],
+        )
+
     def test_review_surfaces_company_originated_only_support(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))

@@ -1,0 +1,22 @@
+schema_version: 1
+kind: evidence
+id: evidence:synthetic:exdev-fy2025-avl-note
+evidence_class: public_primary
+source: source:public:synthetic:exdev-fy2025-report
+summary: Synthetic fixture text states that Example Devices approved Foundry Works as an X1 processor vendor as of the report date.
+content_mode: small_fixture
+excerpt: "As of the FY2025 report dated 2026-06-02, Example Devices' approved vendor list names Foundry Works as approved for X1 processor manufacturing support for Example Phone; the list does not disclose allocation, shipments, or revenue."
+locator:
+  section: Synthetic approved vendor list note
+observed_at: "2026-06-02T00:00:00Z"
+submitted_by: github:scaffold
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: synthetic_fixture
+limitations: Synthetic AVL fixture proves approved-vendor status only, not allocation share, shipments, revenue, or ongoing approval after the report date.
+risk_flags:
+  - synthetic_fixture
+  - supplier_allocation_unproven
