@@ -1,0 +1,20 @@
+schema_version: 1
+kind: validation
+id: validation:synthetic:validation-falsified-current-market-cap
+target: claim:synthetic:validation-falsified-current-market-cap
+submitted_by: github:scaffold
+verdict: falsifies
+summary: The refreshed June 3, 2026 market-cap fixture falsifies treating the December 31, 2025 snapshot as current.
+depends_on:
+  evidence:
+    - evidence:synthetic:exdev-market-data-20251231
+    - evidence:synthetic:exdev-market-data-20260603
+    - evidence:synthetic:validation-falsification-note
+  metrics:
+    - metric:synthetic-exdev:market-cap-stale-20251231
+    - metric:synthetic-exdev:market-cap-refreshed-20260603
+  claims:
+    - claim:synthetic:validation-falsified-current-market-cap
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - synthetic_fixture

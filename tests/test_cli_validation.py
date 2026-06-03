@@ -1781,6 +1781,24 @@ class CliValidationTests(unittest.TestCase):
                     },
                 },
             )
+            write_yaml(
+                repo / "records" / "validations" / "same-evidence-different-raw-path.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "validation",
+                    "id": "validation:test:same-evidence-different-raw-path",
+                    "target": "claim:synthetic:exdev-uses-fndwy-for-x1",
+                    "submitted_by": "github:tester",
+                    "verdict": "supports",
+                    "summary": "Same resolved support path with a different raw dependency shape.",
+                    "depends_on": {
+                        "evidence": ["evidence:synthetic:exdev-fy2025-supplier-note"],
+                        "claims": [],
+                        "relationships": [],
+                        "theses": [],
+                    },
+                },
+            )
 
             status, build_payload = run_json_command(cli.run_index_build, repo)
             self.assertEqual(status, 0, build_payload)
@@ -1791,9 +1809,9 @@ class CliValidationTests(unittest.TestCase):
             )
 
         self.assertEqual(status, 0, review)
-        self.assertEqual(review["validation_summary"]["total_count"], 3)
+        self.assertEqual(review["validation_summary"]["total_count"], 4)
         self.assertEqual(review["validation_summary"]["unique_dependency_path_count"], 2)
-        self.assertEqual(review["validation_summary"]["repeated_dependency_path_count"], 1)
+        self.assertEqual(review["validation_summary"]["repeated_dependency_path_count"], 2)
         self.assertEqual(
             review["support_summary"]["source_independence"]["unique_source_count"],
             2,
@@ -1805,6 +1823,144 @@ class CliValidationTests(unittest.TestCase):
         self.assertEqual(
             review["support_summary"]["source_independence"]["independent_source_count"],
             1,
+        )
+
+    def test_review_surfaces_all_validation_verdict_examples(self) -> None:
+        cases = [
+            (
+                "claim:synthetic:validation-supported-supplier-use",
+                "supports",
+                "supported",
+                "supporting_count",
+                "validation:synthetic:validation-supported-supplier-use",
+                ["evidence:synthetic:validation-support-note"],
+            ),
+            (
+                "claim:synthetic:validation-partial-allocation",
+                "partially_supports",
+                "partially_supported",
+                "partial_validation_ids",
+                "validation:synthetic:validation-partial-allocation",
+                ["evidence:synthetic:validation-limitation-note"],
+            ),
+            (
+                "claim:synthetic:validation-disputed-allocation",
+                "disputes",
+                "contested",
+                "contesting_validation_ids",
+                "validation:synthetic:validation-disputed-allocation",
+                ["evidence:synthetic:validation-limitation-note"],
+            ),
+            (
+                "claim:synthetic:validation-falsified-current-market-cap",
+                "falsifies",
+                "contested",
+                "contesting_validation_ids",
+                "validation:synthetic:validation-falsified-current-market-cap",
+                [
+                    "evidence:synthetic:exdev-market-data-20251231",
+                    "evidence:synthetic:exdev-market-data-20260603",
+                    "evidence:synthetic:validation-falsification-note",
+                ],
+            ),
+            (
+                "claim:synthetic:validation-withdrawn-margin-claim",
+                "withdraws",
+                "withdrawn",
+                "withdrawal_validation_ids",
+                "validation:synthetic:validation-withdrawn-margin-claim",
+                ["evidence:synthetic:validation-withdrawal-note"],
+            ),
+            (
+                "metric:synthetic-exdev:market-cap-stale-20251231",
+                "marks_stale",
+                "stale",
+                "stale_validation_ids",
+                "validation:synthetic:exdev-market-cap-20251231-stale",
+                [
+                    "evidence:synthetic:exdev-market-data-20251231",
+                    "evidence:synthetic:exdev-market-data-20260603",
+                ],
+            ),
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            status, build_payload = run_json_command(cli.run_index_build, repo)
+            self.assertEqual(status, 0, build_payload)
+
+            reviews = {}
+            for target_id, *_ in cases:
+                status, review = run_json_command(cli.run_review, repo, target_id)
+                self.assertEqual(status, 0, review)
+                reviews[target_id] = review
+
+        for target_id, verdict, primary_label, bucket, validation_id, evidence_ids in cases:
+            review = reviews[target_id]
+            self.assertEqual(review["review_state"]["primary_label"], primary_label)
+            self.assertEqual(review["validation_summary"]["by_verdict"][verdict], 1)
+            self.assertTrue(
+                set(evidence_ids).issubset(
+                    set(review["validation_summary"]["all_validation_evidence_ids"])
+                ),
+                review["validation_summary"],
+            )
+            self.assertTrue(
+                set(evidence_ids).issubset(set(review["review_evidence_summary"]["evidence_ids"])),
+                review["review_evidence_summary"],
+            )
+            if bucket == "supporting_count":
+                self.assertEqual(review["validation_summary"][bucket], 1)
+            elif bucket == "partial_validation_ids":
+                self.assertIn(validation_id, review["scope_summary"][bucket])
+            elif bucket == "stale_validation_ids":
+                self.assertIn(validation_id, review["staleness_summary"][bucket])
+            else:
+                self.assertIn(validation_id, review["validation_summary"][bucket])
+
+    def test_lint_rejects_empty_validation_dependencies_and_status(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            write_yaml(
+                repo / "records" / "validations" / "empty-validation.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "validation",
+                    "id": "validation:test:empty-validation",
+                    "target": "claim:synthetic:exdev-uses-fndwy-for-x1",
+                    "submitted_by": "github:tester",
+                    "verdict": "disputes",
+                    "summary": "Empty validation dependency fixture.",
+                    "depends_on": {},
+                },
+            )
+            write_yaml(
+                repo / "records" / "validations" / "status-validation.yml",
+                {
+                    "schema_version": 1,
+                    "kind": "validation",
+                    "id": "validation:test:status-validation",
+                    "target": "claim:synthetic:exdev-uses-fndwy-for-x1",
+                    "submitted_by": "github:tester",
+                    "verdict": "supports",
+                    "summary": "Validation status fixture.",
+                    "depends_on": {
+                        "evidence": ["evidence:synthetic:exdev-fy2025-supplier-note"],
+                    },
+                    "status": "approved",
+                },
+            )
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 1, payload)
+        messages = [error["message"] for error in payload["errors"]]
+        self.assertTrue(
+            any("validation records must cite at least one dependency" in message for message in messages),
+            messages,
+        )
+        self.assertTrue(
+            any("validation records must not store `status`" in message for message in messages),
+            messages,
         )
 
     def test_review_derives_stale_from_explicit_validation(self) -> None:
@@ -2009,6 +2165,66 @@ class CliValidationTests(unittest.TestCase):
         )
         self.assertEqual(refreshed_review["review_state"]["primary_label"], "supported")
         self.assertNotIn("has_staleness_risk", refreshed_review["review_state"]["flags"])
+
+    def test_diff_review_warns_for_validation_verdict_buckets_and_repeated_paths(self) -> None:
+        verdict_cases = [
+            ("supports", "adds_or_updates_support_validation"),
+            ("partially_supports", "adds_or_updates_partial_validation"),
+            ("disputes", "adds_or_updates_contesting_validation"),
+            ("falsifies", "adds_or_updates_contesting_validation"),
+            ("marks_stale", "adds_or_updates_stale_validation"),
+            ("withdraws", "adds_or_updates_withdrawal_validation"),
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            init_git_repo(repo)
+            for verdict, _ in verdict_cases:
+                write_yaml(
+                    repo / "records" / "validations" / f"diff-review-{verdict}.yml",
+                    {
+                        "schema_version": 1,
+                        "kind": "validation",
+                        "id": f"validation:test:diff-review-{verdict}",
+                        "target": "claim:synthetic:exdev-uses-fndwy-for-x1",
+                        "submitted_by": "github:tester",
+                        "verdict": verdict,
+                        "summary": f"Diff-review {verdict} validation fixture.",
+                        "depends_on": {
+                            "evidence": ["evidence:synthetic:exdev-fy2025-supplier-note"],
+                            "claims": ["claim:synthetic:exdev-uses-fndwy-for-x1"],
+                        },
+                    },
+                )
+
+            status, payload = run_json_command(cli.run_diff_review, repo, "HEAD")
+
+        self.assertEqual(status, 0, payload)
+        warnings = payload["warnings"]
+        warning_codes = {warning["code"] for warning in warnings}
+        for _, code in verdict_cases:
+            self.assertIn(code, warning_codes)
+        contesting_warnings = [
+            warning
+            for warning in warnings
+            if warning["code"] == "adds_or_updates_contesting_validation"
+        ]
+        self.assertEqual(
+            {warning["record_id"] for warning in contesting_warnings},
+            {
+                "validation:test:diff-review-disputes",
+                "validation:test:diff-review-falsifies",
+            },
+        )
+        for warning in contesting_warnings:
+            self.assertEqual(warning["related_ids"], ["claim:synthetic:exdev-uses-fndwy-for-x1"])
+
+        repeated_warning = next(
+            warning for warning in warnings if warning["code"] == "repeated_validation_path"
+        )
+        self.assertEqual(repeated_warning["record_id"], "claim:synthetic:exdev-uses-fndwy-for-x1")
+        self.assertEqual(repeated_warning["details"]["repeated_validation_path_count"], 6)
+        self.assertTrue(repeated_warning["details"]["repeated_validation_paths"])
+        self.assertIn(7, repeated_warning["details"]["repeated_validation_paths"].values())
 
     def test_review_derives_low_trust_only_for_rumor_supported_claim(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

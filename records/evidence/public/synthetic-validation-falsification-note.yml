@@ -1,0 +1,20 @@
+schema_version: 1
+kind: evidence
+id: evidence:synthetic:validation-falsification-note
+evidence_class: public_secondary
+source: source:public:synthetic:validation-review-note
+summary: Synthetic review note says the refreshed June 3, 2026 market-cap snapshot falsifies treating the December 31, 2025 snapshot as current.
+content_mode: small_fixture
+excerpt: "Synthetic review compares the stale December 31, 2025 market-cap snapshot with the refreshed June 3, 2026 snapshot and rejects treating the old value as current."
+locator:
+  section: Synthetic falsification validation note
+observed_at: "2026-06-03T00:00:00Z"
+submitted_by: github:scaffold
+source_attribution: named_public
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: synthetic_fixture
+risk_flags:
+  - synthetic_fixture

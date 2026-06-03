@@ -214,12 +214,19 @@ Acceptance criteria:
 Rationale: Current seed data has many challenges and few validations. Mature
 community review needs visible support, dispute, stale, and withdrawal history.
 
+Status: validation coverage slice addressed locally. Canonical synthetic
+fixtures now exercise `supports`, `partially_supports`, `disputes`, `falsifies`,
+`marks_stale`, and `withdraws`; review-policy docs define validation verdict
+norms and independent support paths. Review output de-duplicates repeated
+validations by resolved evidence/source path, and lint rejects empty validations
+or canonical validation `status`.
+
 Acceptance criteria:
 
-- Define validation norms for independent support paths.
-- Add examples of `supports`, `partially_supports`, `disputes`, `falsifies`,
+- [x] Define validation norms for independent support paths.
+- [x] Add examples of `supports`, `partially_supports`, `disputes`, `falsifies`,
   `marks_stale`, and `withdraws`.
-- Ensure repeated validation paths are de-duplicated in review output.
+- [x] Ensure repeated validation paths are de-duplicated in review output.
 
 ### Tighten Source Perspective Requirements
 

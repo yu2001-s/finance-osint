@@ -1,0 +1,16 @@
+schema_version: 1
+kind: validation
+id: validation:synthetic:validation-disputed-allocation
+target: claim:synthetic:validation-disputed-allocation
+submitted_by: github:scaffold
+verdict: disputes
+summary: The evidence does not disclose an 80% allocation share, so the allocation-share claim is disputed.
+depends_on:
+  evidence:
+    - evidence:synthetic:validation-limitation-note
+  claims:
+    - claim:synthetic:validation-disputed-allocation
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - synthetic_fixture
+  - supplier_allocation_unproven
