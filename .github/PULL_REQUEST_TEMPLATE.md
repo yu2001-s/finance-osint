@@ -49,7 +49,7 @@ after `uv run fo index build --json` and summarize:
 - [ ] I ran `uv run fo lint --json`.
 - [ ] I ran `uv run python -m unittest discover -s tests`.
 - [ ] I ran `uv run fo index build --json`.
-- [ ] I ran `uv run fo review ID --chain --json` for changed theses/relationships.
+- [ ] I ran `uv run fo review ID --chain --json` for changed records/theses/relationships.
 - [ ] I ran `uv run fo graph build --json`.
 - [ ] I ran `uv run fo diff-review BASE --json`.
 - [ ] All support-affecting information is visible in the repo.

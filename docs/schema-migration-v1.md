@@ -119,7 +119,7 @@ Avoid loose `related_to` links in v1 schemas.
 Current files:
 
 ```text
-entities/
+records/entities/
 ```
 
 Target changes:
@@ -162,7 +162,7 @@ identifiers:
 Current files:
 
 ```text
-sources/
+records/sources/
 ```
 
 Target changes:
@@ -182,7 +182,7 @@ Target changes:
 Current files:
 
 ```text
-evidence/
+records/evidence/
 ```
 
 Target changes:
@@ -219,8 +219,8 @@ unknown
 New public v1 registry:
 
 ```text
-claim-predicates/
-claim-predicates/proposals/
+ontology/claim-predicates/
+ontology/claim-predicates/proposals/
 schemas/claim-predicate.schema.json
 templates/claim-predicate.yaml.template
 ```
@@ -262,7 +262,7 @@ If a predicate is not registered yet, contributors may use:
 
 ```yaml
 predicate: provisional:channel_inventory_signal
-proposed_predicate_definition: claim-predicates/proposals/channel_inventory_signal.yml
+proposed_predicate_definition: ontology/claim-predicates/proposals/channel_inventory_signal.yml
 ```
 
 ### Claim
@@ -270,7 +270,7 @@ proposed_predicate_definition: claim-predicates/proposals/channel_inventory_sign
 Current files:
 
 ```text
-claims/
+records/claims/
 ```
 
 Target changes:
@@ -310,8 +310,8 @@ evidence:
 New public v1 registry:
 
 ```text
-metric-definitions/
-metric-definitions/proposals/
+ontology/metric-definitions/
+ontology/metric-definitions/proposals/
 schemas/metric-definition.schema.json
 templates/metric-definition.yaml.template
 ```
@@ -343,7 +343,7 @@ customer_concentration_percent.
 New public v1 records:
 
 ```text
-metrics/
+records/metrics/
 schemas/metric.schema.json
 templates/metric.yaml.template
 ```
@@ -380,7 +380,7 @@ thesis forecasts, not metric records.
 New public v1 records:
 
 ```text
-events/
+records/events/
 schemas/event.schema.json
 templates/event.yaml.template
 ```
@@ -421,7 +421,7 @@ contributor forecast.
 New public v1 records:
 
 ```text
-datasets/
+records/datasets/
 schemas/dataset.schema.json
 templates/dataset.yaml.template
 ```
@@ -452,7 +452,7 @@ specific row, excerpt, observation, or value used.
 Current files:
 
 ```text
-relationship-types/
+ontology/relationship-types/
 ```
 
 Target changes:
@@ -488,7 +488,7 @@ roles:
 Current files:
 
 ```text
-relationships/
+records/relationships/
 ```
 
 Target changes:
@@ -529,7 +529,7 @@ scope:
 Current files:
 
 ```text
-validations/
+records/validations/
 ```
 
 Target changes:
@@ -565,7 +565,7 @@ partially_corroborates -> partially_supports
 Current files:
 
 ```text
-challenges/
+records/challenges/
 ```
 
 Target changes:
@@ -598,7 +598,7 @@ not suppress them.
 Current files:
 
 ```text
-theses/
+records/theses/
 ```
 
 Target changes:

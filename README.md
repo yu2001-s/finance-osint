@@ -14,20 +14,20 @@ Source -> Dataset -> Evidence -> Metric/Event/Claim -> Relationship -> Thesis
                               -> Validation/Challenge/Question
 ```
 
-- `sources/`: provenance metadata for filings, transcripts, pages, datasets, meetings, and observations.
-- `evidence/`: exact excerpts, locators, observations, or first-hand reports tied to sources.
-- `claim-predicates/`: registered claim predicate vocabulary.
-- `metric-definitions/`: registered metric vocabulary.
-- `metrics/`: structured numeric observations with provenance.
-- `events/`: structured time-bound occurrences or expected occurrences.
-- `datasets/`: metadata about source datasets.
-- `claims/`: narrow checkable statements backed by evidence.
-- `validations/`: append-only review records that evaluate support.
-- `challenges/`: append-only unresolved objections about evidence quality, scope, ontology, materiality, or missing support.
-- `questions/`: open proof gaps or next investigation targets for humans and agents.
-- `relationships/`: rich typed graph relationships derived from claims or evidence.
-- `theses/`: interpretations, forecasts, or arguments built from evidence, claims, metrics, events, datasets, and relationships.
-- `relationship-types/`: the graph ontology. Registered types are canonical; provisional types must declare their proposed definition.
+- `records/sources/`: provenance metadata for filings, transcripts, pages, datasets, meetings, and observations.
+- `records/evidence/`: exact excerpts, locators, observations, or first-hand reports tied to sources.
+- `ontology/claim-predicates/`: registered claim predicate vocabulary.
+- `ontology/metric-definitions/`: registered metric vocabulary.
+- `records/metrics/`: structured numeric observations with provenance.
+- `records/events/`: structured time-bound occurrences or expected occurrences.
+- `records/datasets/`: metadata about source datasets.
+- `records/claims/`: narrow checkable statements backed by evidence.
+- `records/validations/`: append-only review records that evaluate support.
+- `records/challenges/`: append-only unresolved objections about evidence quality, scope, ontology, materiality, or missing support.
+- `records/questions/`: open proof gaps or next investigation targets for humans and agents.
+- `records/relationships/`: rich typed graph relationships derived from claims or evidence.
+- `records/theses/`: interpretations, forecasts, or arguments built from evidence, claims, metrics, events, datasets, and relationships.
+- `ontology/relationship-types/`: the graph ontology. Registered types are canonical; provisional types must declare their proposed definition.
 - `schemas/`: JSON Schemas enforced locally and in CI.
 
 Examples are separate from canonical data. Prototype debate examples live under
@@ -146,8 +146,9 @@ preservation path and fails hard on invalid artifact files.
 
 ## Archive Policy
 
-Archive is path-level lifecycle state. Current records live in top-level data
-directories; archived records live under `archive/` and keep their canonical ID.
+Archive is path-level lifecycle state. Current records live under `records/`;
+current ontology registries live under `ontology/`. Archived records live under
+`archive/records/` or `archive/ontology/` and keep their canonical ID.
 
 Archived records must include at least one of `superseded_by`, `duplicate_of`,
 or `archive_reason`. Current records must not depend on archived records by

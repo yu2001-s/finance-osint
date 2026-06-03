@@ -44,10 +44,10 @@ old veto id        -> challenge/question/thesis decision
 entities
 sources
 evidence
-metrics/events/datasets
+records/metrics/records/events/datasets
 claims
 relationships
-questions/challenges
+records/questions/challenges
 theses
 ```
 
@@ -90,7 +90,7 @@ uv run fo diff-review HEAD --json
 - Unnamed customers/suppliers stay descriptors until named evidence exists; do
   not create fake company entities for them.
 - Pipeline, backlog, bookings, order value, revenue, guidance, and valuation
-  are distinct structured metrics/events.
+  are distinct structured records/metrics/events.
 - Product existence and market relevance are separate. Add `scope.market` to a
   product or manufacture relationship only when explicit dependencies support
   that market context.
@@ -109,7 +109,7 @@ uv run fo diff-review HEAD --json
 - Expected catalysts may be events. Use exact `expected_at` only when the source
   gives an exact date; otherwise record a window under `period` or `properties`.
 - Preserve conflicting values or statements as separate records plus
-  challenges/questions. Do not silently choose one value during migration.
+  records/challenges/questions. Do not silently choose one value during migration.
 - Mark stale links, preliminary or unaudited figures, OCR uncertainty,
   missing-source gaps, and contradicted-source situations with explicit
   limitations or `risk_flags`.

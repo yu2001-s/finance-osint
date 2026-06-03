@@ -145,7 +145,7 @@ Tighten during the next seed batch:
   existence.
 - Keep social posts as sources for what the account said only; underlying
   company facts still need separate hard evidence.
-- Prefer one narrow thesis with explicit questions/challenges over a broad
+- Prefer one narrow thesis with explicit records/questions/challenges over a broad
   narrative seed.
 
 Defer until repeated need appears:

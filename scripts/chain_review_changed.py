@@ -10,7 +10,12 @@ from typing import Any
 import yaml
 
 
-REVIEW_PATH_PREFIXES = ("relationships/", "theses/")
+REVIEW_PATH_PREFIXES = (
+    "records/relationships/",
+    "records/theses/",
+    "relationships/",
+    "theses/",
+)
 
 
 def run(args: list[str]) -> subprocess.CompletedProcess[str]:

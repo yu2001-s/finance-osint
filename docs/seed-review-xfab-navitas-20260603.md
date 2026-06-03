@@ -125,7 +125,7 @@ Carry forward:
   entire downstream thesis.
 - Social/market-rerating sources should support attribution and market context,
   not underlying company-fact truth unless independently backed.
-- Broad segment metrics need questions/challenges when the investment thesis
+- Broad segment metrics need records/questions/challenges when the investment thesis
   depends on a narrower customer or product bridge.
 
 Watch during full chain review:

@@ -17,21 +17,8 @@ from fosint import cli
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_DIRS = (
     "schemas",
-    "relationship-types",
-    "claim-predicates",
-    "metric-definitions",
-    "entities",
-    "sources",
-    "evidence",
-    "datasets",
-    "metrics",
-    "events",
-    "claims",
-    "validations",
-    "challenges",
-    "questions",
-    "relationships",
-    "theses",
+    "ontology",
+    "records",
 )
 
 
@@ -119,7 +106,7 @@ class CliValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
             write_yaml(
-                repo / "sources" / "firsthand" / "anonymous-rumor.yml",
+                repo / "records" / "sources" / "firsthand" / "anonymous-rumor.yml",
                 {
                     "schema_version": 1,
                     "kind": "source",
@@ -133,7 +120,7 @@ class CliValidationTests(unittest.TestCase):
                 },
             )
             write_yaml(
-                repo / "evidence" / "firsthand" / "anonymous-rumor.yml",
+                repo / "records" / "evidence" / "firsthand" / "anonymous-rumor.yml",
                 {
                     "schema_version": 1,
                     "kind": "evidence",
@@ -154,7 +141,7 @@ class CliValidationTests(unittest.TestCase):
                 },
             )
             write_yaml(
-                repo / "claims" / "anonymous-correlated-claim.yml",
+                repo / "records" / "claims" / "anonymous-correlated-claim.yml",
                 {
                     "schema_version": 1,
                     "kind": "claim",
@@ -178,7 +165,7 @@ class CliValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
             write_yaml(
-                repo / "sources" / "firsthand" / "anonymous-internal.yml",
+                repo / "records" / "sources" / "firsthand" / "anonymous-internal.yml",
                 {
                     "schema_version": 1,
                     "kind": "source",
@@ -192,7 +179,7 @@ class CliValidationTests(unittest.TestCase):
                 },
             )
             write_yaml(
-                repo / "evidence" / "firsthand" / "anonymous-internal.yml",
+                repo / "records" / "evidence" / "firsthand" / "anonymous-internal.yml",
                 {
                     "schema_version": 1,
                     "kind": "evidence",
@@ -213,7 +200,7 @@ class CliValidationTests(unittest.TestCase):
                 },
             )
             write_yaml(
-                repo / "claims" / "anonymous-internal-direct.yml",
+                repo / "records" / "claims" / "anonymous-internal-direct.yml",
                 {
                     "schema_version": 1,
                     "kind": "claim",
@@ -237,7 +224,7 @@ class CliValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
             write_yaml(
-                repo / "claims" / "wrong-object-kind.yml",
+                repo / "records" / "claims" / "wrong-object-kind.yml",
                 {
                     "schema_version": 1,
                     "kind": "claim",
@@ -260,7 +247,7 @@ class CliValidationTests(unittest.TestCase):
     def test_claim_predicate_rejects_missing_required_field(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
-            path = repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml"
+            path = repo / "records" / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml"
             claim = load_yaml(path)
             claim.pop("object")
             write_yaml(path, claim)
@@ -273,7 +260,7 @@ class CliValidationTests(unittest.TestCase):
     def test_claim_predicate_rejects_disallowed_context_reference_kind(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
-            path = repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml"
+            path = repo / "records" / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml"
             claim = load_yaml(path)
             claim["qualifiers"]["source_context"] = "source:public:synthetic:exdev-fy2025-report"
             write_yaml(path, claim)
@@ -286,7 +273,7 @@ class CliValidationTests(unittest.TestCase):
     def test_lint_rejects_hidden_agent_provenance_fields(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
-            path = repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml"
+            path = repo / "records" / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml"
             claim = load_yaml(path)
             claim["generated_by"] = "codex"
             claim["qualifiers"]["model"] = "gpt-test"
@@ -301,7 +288,7 @@ class CliValidationTests(unittest.TestCase):
     def test_relationship_materiality_level_must_match_type(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
-            path = repo / "relationships" / "synthetic-exdev-fndwy-x1-supply.yml"
+            path = repo / "records" / "relationships" / "synthetic-exdev-fndwy-x1-supply.yml"
             data = load_yaml(path)
             data["materiality"]["level"] = "existential"
             write_yaml(path, data)
@@ -314,7 +301,7 @@ class CliValidationTests(unittest.TestCase):
     def test_relationship_qualifier_must_match_type(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
-            path = repo / "relationships" / "synthetic-exdev-fndwy-x1-supply.yml"
+            path = repo / "records" / "relationships" / "synthetic-exdev-fndwy-x1-supply.yml"
             data = load_yaml(path)
             data["qualifiers"] = ["secret_supplier"]
             write_yaml(path, data)
@@ -328,7 +315,7 @@ class CliValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
             write_yaml(
-                repo / "challenges" / "missing-reference.yml",
+                repo / "records" / "challenges" / "missing-reference.yml",
                 {
                     "schema_version": 1,
                     "kind": "challenge",
@@ -364,7 +351,7 @@ class CliValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
             write_yaml(
-                repo / "sources" / "public" / "mutable-web-source.yml",
+                repo / "records" / "sources" / "public" / "mutable-web-source.yml",
                 {
                     "schema_version": 1,
                     "kind": "source",
@@ -393,7 +380,7 @@ class CliValidationTests(unittest.TestCase):
             artifact.parent.mkdir(parents=True)
             artifact.write_bytes(b"small artifact")
             write_yaml(
-                repo / "sources" / "public" / "mutable-web-source.yml",
+                repo / "records" / "sources" / "public" / "mutable-web-source.yml",
                 {
                     "schema_version": 1,
                     "kind": "source",
@@ -431,7 +418,7 @@ class CliValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
             write_yaml(
-                repo / "sources" / "public" / "bad-artifact-path.yml",
+                repo / "records" / "sources" / "public" / "bad-artifact-path.yml",
                 {
                     "schema_version": 1,
                     "kind": "source",
@@ -455,42 +442,42 @@ class CliValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
 
-            entity = load_yaml(repo / "entities" / "company" / "exdev.yml")
+            entity = load_yaml(repo / "records" / "entities" / "company" / "exdev.yml")
             entity["id"] = "entity:company:exdev-alt"
             entity["name"] = "Synthetic Example Devices Alternate"
-            write_yaml(repo / "entities" / "company" / "exdev-alt.yml", entity)
+            write_yaml(repo / "records" / "entities" / "company" / "exdev-alt.yml", entity)
 
             source = load_yaml(
-                repo / "sources" / "public" / "synthetic-exdev-fy2025-report.yml"
+                repo / "records" / "sources" / "public" / "synthetic-exdev-fy2025-report.yml"
             )
             source["url"] = "https://example.test/reports/exdev-fy2025"
-            write_yaml(repo / "sources" / "public" / "synthetic-exdev-fy2025-report.yml", source)
+            write_yaml(repo / "records" / "sources" / "public" / "synthetic-exdev-fy2025-report.yml", source)
             source["id"] = "source:public:synthetic:exdev-fy2025-report-alt"
             source["title"] = "Synthetic Example Devices FY2025 Report Alternate"
             write_yaml(
-                repo / "sources" / "public" / "synthetic-exdev-fy2025-report-alt.yml",
+                repo / "records" / "sources" / "public" / "synthetic-exdev-fy2025-report-alt.yml",
                 source,
             )
 
             evidence = load_yaml(
-                repo / "evidence" / "public" / "synthetic-exdev-fy2025-supplier-note.yml"
+                repo / "records" / "evidence" / "public" / "synthetic-exdev-fy2025-supplier-note.yml"
             )
             evidence["id"] = "evidence:synthetic:exdev-fy2025-supplier-note-alt"
             write_yaml(
-                repo / "evidence" / "public" / "synthetic-exdev-fy2025-supplier-note-alt.yml",
+                repo / "records" / "evidence" / "public" / "synthetic-exdev-fy2025-supplier-note-alt.yml",
                 evidence,
             )
 
-            claim = load_yaml(repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml")
+            claim = load_yaml(repo / "records" / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml")
             claim["id"] = "claim:synthetic:exdev-uses-fndwy-for-x1-alt"
-            write_yaml(repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1-alt.yml", claim)
+            write_yaml(repo / "records" / "claims" / "synthetic-exdev-uses-fndwy-for-x1-alt.yml", claim)
 
             relationship = load_yaml(
-                repo / "relationships" / "synthetic-exdev-fndwy-x1-supply.yml"
+                repo / "records" / "relationships" / "synthetic-exdev-fndwy-x1-supply.yml"
             )
             relationship["id"] = "relationship:synthetic:exdev-fndwy-x1-supply-alt"
             write_yaml(
-                repo / "relationships" / "synthetic-exdev-fndwy-x1-supply-alt.yml",
+                repo / "records" / "relationships" / "synthetic-exdev-fndwy-x1-supply-alt.yml",
                 relationship,
             )
 
@@ -514,7 +501,7 @@ class CliValidationTests(unittest.TestCase):
     def test_lint_duplicate_detection_ignores_archive_records(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
-            claim = load_yaml(repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml")
+            claim = load_yaml(repo / "records" / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml")
             claim["id"] = "claim:synthetic:archived-duplicate"
             claim["duplicate_of"] = "claim:synthetic:exdev-uses-fndwy-for-x1"
             write_yaml(repo / "archive" / "claims" / "archived-duplicate.yml", claim)
@@ -528,8 +515,8 @@ class CliValidationTests(unittest.TestCase):
     def test_archive_record_requires_reason_or_replacement(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
-            claim = load_yaml(repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml")
-            (repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml").unlink()
+            claim = load_yaml(repo / "records" / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml")
+            (repo / "records" / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml").unlink()
             write_yaml(repo / "archive" / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml", claim)
 
             status, output = run_lint(repo)
@@ -540,7 +527,7 @@ class CliValidationTests(unittest.TestCase):
     def test_archive_record_with_superseded_by_lints(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
-            original_path = repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml"
+            original_path = repo / "records" / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml"
             claim = load_yaml(original_path)
             original_path.unlink()
             claim["superseded_by"] = "claim:test:replacement"
@@ -548,21 +535,21 @@ class CliValidationTests(unittest.TestCase):
             replacement["id"] = "claim:test:replacement"
             replacement["statement"] = "Replacement synthetic supplier-use claim."
             write_yaml(repo / "archive" / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml", claim)
-            write_yaml(repo / "claims" / "replacement.yml", replacement)
-            thesis_path = repo / "theses" / "synthetic-exdev-margin-risk-from-foundry-concentration.yml"
+            write_yaml(repo / "records" / "claims" / "replacement.yml", replacement)
+            thesis_path = repo / "records" / "theses" / "synthetic-exdev-margin-risk-from-foundry-concentration.yml"
             thesis = load_yaml(thesis_path)
             thesis["depends_on"]["claims"] = ["claim:test:replacement"]
             write_yaml(thesis_path, thesis)
-            challenge_path = repo / "challenges" / "synthetic-exdev-margin-risk-needs-alternatives.yml"
+            challenge_path = repo / "records" / "challenges" / "synthetic-exdev-margin-risk-needs-alternatives.yml"
             challenge = load_yaml(challenge_path)
             challenge["depends_on"]["claims"] = ["claim:test:replacement"]
             write_yaml(challenge_path, challenge)
-            validation_path = repo / "validations" / "synthetic-exdev-uses-fndwy-for-x1.yml"
+            validation_path = repo / "records" / "validations" / "synthetic-exdev-uses-fndwy-for-x1.yml"
             validation = load_yaml(validation_path)
             validation["target"] = "claim:test:replacement"
             validation["depends_on"]["claims"] = ["claim:test:replacement"]
             write_yaml(validation_path, validation)
-            relationship_path = repo / "relationships" / "synthetic-exdev-fndwy-x1-supply.yml"
+            relationship_path = repo / "records" / "relationships" / "synthetic-exdev-fndwy-x1-supply.yml"
             relationship = load_yaml(relationship_path)
             relationship["derived_from"]["claims"] = ["claim:test:replacement"]
             write_yaml(relationship_path, relationship)
@@ -574,7 +561,7 @@ class CliValidationTests(unittest.TestCase):
     def test_current_record_cannot_depend_on_archived_record(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
-            evidence_path = repo / "evidence" / "public" / "synthetic-exdev-fy2025-supplier-note.yml"
+            evidence_path = repo / "records" / "evidence" / "public" / "synthetic-exdev-fy2025-supplier-note.yml"
             evidence = load_yaml(evidence_path)
             evidence_path.unlink()
             evidence["archive_reason"] = "Archived for test fixture."
@@ -592,26 +579,26 @@ class CliValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
             init_git_repo(repo)
-            original_path = repo / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml"
+            original_path = repo / "records" / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml"
             archived_path = repo / "archive" / "claims" / "synthetic-exdev-uses-fndwy-for-x1.yml"
             claim = load_yaml(original_path)
             claim["archive_reason"] = "Archived for diff-review test."
             original_path.unlink()
             write_yaml(archived_path, claim)
-            thesis_path = repo / "theses" / "synthetic-exdev-margin-risk-from-foundry-concentration.yml"
+            thesis_path = repo / "records" / "theses" / "synthetic-exdev-margin-risk-from-foundry-concentration.yml"
             thesis = load_yaml(thesis_path)
             thesis["depends_on"]["claims"] = []
             write_yaml(thesis_path, thesis)
-            challenge_path = repo / "challenges" / "synthetic-exdev-margin-risk-needs-alternatives.yml"
+            challenge_path = repo / "records" / "challenges" / "synthetic-exdev-margin-risk-needs-alternatives.yml"
             challenge = load_yaml(challenge_path)
             challenge["depends_on"]["claims"] = []
             write_yaml(challenge_path, challenge)
-            validation_path = repo / "validations" / "synthetic-exdev-uses-fndwy-for-x1.yml"
+            validation_path = repo / "records" / "validations" / "synthetic-exdev-uses-fndwy-for-x1.yml"
             validation = load_yaml(validation_path)
             validation["depends_on"]["claims"] = []
             validation["target"] = "evidence:synthetic:exdev-fy2025-supplier-note"
             write_yaml(validation_path, validation)
-            relationship_path = repo / "relationships" / "synthetic-exdev-fndwy-x1-supply.yml"
+            relationship_path = repo / "records" / "relationships" / "synthetic-exdev-fndwy-x1-supply.yml"
             relationship = load_yaml(relationship_path)
             relationship["derived_from"]["claims"] = []
             write_yaml(relationship_path, relationship)
@@ -809,7 +796,7 @@ class CliValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
             write_yaml(
-                repo / "sources" / "public" / "independent-review-source.yml",
+                repo / "records" / "sources" / "public" / "independent-review-source.yml",
                 {
                     "schema_version": 1,
                     "kind": "source",
@@ -824,7 +811,7 @@ class CliValidationTests(unittest.TestCase):
                 },
             )
             write_yaml(
-                repo / "evidence" / "public" / "independent-review-evidence.yml",
+                repo / "records" / "evidence" / "public" / "independent-review-evidence.yml",
                 {
                     "schema_version": 1,
                     "kind": "evidence",
@@ -840,7 +827,7 @@ class CliValidationTests(unittest.TestCase):
                 },
             )
             write_yaml(
-                repo / "validations" / "duplicate-path.yml",
+                repo / "records" / "validations" / "duplicate-path.yml",
                 {
                     "schema_version": 1,
                     "kind": "validation",
@@ -858,7 +845,7 @@ class CliValidationTests(unittest.TestCase):
                 },
             )
             write_yaml(
-                repo / "validations" / "independent-path.yml",
+                repo / "records" / "validations" / "independent-path.yml",
                 {
                     "schema_version": 1,
                     "kind": "validation",
@@ -905,7 +892,7 @@ class CliValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
             write_yaml(
-                repo / "validations" / "stale-claim.yml",
+                repo / "records" / "validations" / "stale-claim.yml",
                 {
                     "schema_version": 1,
                     "kind": "validation",
@@ -943,7 +930,7 @@ class CliValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
             write_yaml(
-                repo / "sources" / "firsthand" / "review-rumor.yml",
+                repo / "records" / "sources" / "firsthand" / "review-rumor.yml",
                 {
                     "schema_version": 1,
                     "kind": "source",
@@ -957,7 +944,7 @@ class CliValidationTests(unittest.TestCase):
                 },
             )
             write_yaml(
-                repo / "evidence" / "firsthand" / "review-rumor.yml",
+                repo / "records" / "evidence" / "firsthand" / "review-rumor.yml",
                 {
                     "schema_version": 1,
                     "kind": "evidence",
@@ -978,7 +965,7 @@ class CliValidationTests(unittest.TestCase):
                 },
             )
             write_yaml(
-                repo / "claims" / "review-rumor.yml",
+                repo / "records" / "claims" / "review-rumor.yml",
                 {
                     "schema_version": 1,
                     "kind": "claim",
@@ -1009,7 +996,7 @@ class CliValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
             write_yaml(
-                repo / "theses" / "self-cycle.yml",
+                repo / "records" / "theses" / "self-cycle.yml",
                 {
                     "schema_version": 1,
                     "kind": "thesis",
@@ -1044,12 +1031,12 @@ class CliValidationTests(unittest.TestCase):
             repo = copy_fixture_repo(Path(tmp))
             init_git_repo(repo)
 
-            evidence_path = repo / "evidence" / "public" / "synthetic-exdev-fy2025-supplier-note.yml"
+            evidence_path = repo / "records" / "evidence" / "public" / "synthetic-exdev-fy2025-supplier-note.yml"
             evidence = load_yaml(evidence_path)
             evidence["excerpt"] = "Updated synthetic excerpt for diff-review."
             write_yaml(evidence_path, evidence)
             write_yaml(
-                repo / "challenges" / "diff-review-open-challenge.yml",
+                repo / "records" / "challenges" / "diff-review-open-challenge.yml",
                 {
                     "schema_version": 1,
                     "kind": "challenge",
@@ -1100,7 +1087,7 @@ class CliValidationTests(unittest.TestCase):
             repo = copy_fixture_repo(Path(tmp))
             init_git_repo(repo)
             write_yaml(
-                repo / "claims" / "diff-review-invalid.yml",
+                repo / "records" / "claims" / "diff-review-invalid.yml",
                 {
                     "schema_version": 1,
                     "kind": "claim",
@@ -1184,7 +1171,7 @@ class CliValidationTests(unittest.TestCase):
         self.assertEqual(status, 0, output)
         self.assertEqual(source["record"]["source_perspective"], "independent_research")
         self.assertEqual(claim["record"]["evidence"], [{"id": evidence["id"]}])
-        self.assertTrue(claim["path"].startswith("claims/generated/"))
+        self.assertTrue(claim["path"].startswith("records/claims/generated/"))
 
     def test_new_source_helper_records_source_artifact(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -1275,7 +1262,7 @@ class CliValidationTests(unittest.TestCase):
 
         self.assertEqual(status, 0, output)
         self.assertEqual(payload["record"]["participants"][0]["role"], "buyer")
-        self.assertTrue(payload["path"].startswith("relationships/generated/"))
+        self.assertTrue(payload["path"].startswith("records/relationships/generated/"))
 
     def test_new_entity_metric_event_dataset_and_thesis_helpers_create_valid_yaml(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -1390,12 +1377,12 @@ class CliValidationTests(unittest.TestCase):
             status, output = run_lint(repo)
 
         self.assertEqual(status, 0, output)
-        self.assertTrue(entity["path"].startswith("entities/service/generated/"))
-        self.assertTrue(metric["path"].startswith("metrics/generated/"))
-        self.assertTrue(event["path"].startswith("events/generated/"))
-        self.assertTrue(dataset["path"].startswith("datasets/generated/"))
-        self.assertTrue(thesis["path"].startswith("theses/generated/"))
-        self.assertTrue(question["path"].startswith("questions/generated/"))
+        self.assertTrue(entity["path"].startswith("records/entities/service/generated/"))
+        self.assertTrue(metric["path"].startswith("records/metrics/generated/"))
+        self.assertTrue(event["path"].startswith("records/events/generated/"))
+        self.assertTrue(dataset["path"].startswith("records/datasets/generated/"))
+        self.assertTrue(thesis["path"].startswith("records/theses/generated/"))
+        self.assertTrue(question["path"].startswith("records/questions/generated/"))
         self.assertEqual(thesis["record"]["depends_on"]["metrics"], [metric["id"]])
         self.assertEqual(question["record"]["related_theses"], [thesis["id"]])
 
