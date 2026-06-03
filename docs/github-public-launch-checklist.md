@@ -2,51 +2,53 @@
 
 Finance OSINT is designed so the GitHub repository is the database, review
 surface, contribution queue, and public audit trail. This checklist captures the
-GitHub-side controls that must be verified before a public launch or public
-alpha tag.
+GitHub-side controls for the public repository and the remaining pre-tag gates
+before `v0.1.0-alpha`.
 
-## Private Staging Status
+## Current Public Status
 
-Private staging repo:
+Repository:
 
 ```text
 https://github.com/yu2001-s/finance-osint
-visibility: private
+visibility: public
 default branch: main
 ```
 
-Observed on 2026-06-03:
+Observed on 2026-06-04:
 
-- Initial `main` push ran `Validate` successfully.
-- Draft PR #5 tested a source-only contribution and passed `Validate`.
-- Draft PR #6 tested a source/evidence/claim contribution and passed
-  `Validate`.
-- Draft PR #7 tested a question/challenge contribution and passed `Validate`.
-- Each PR run uploaded `validation-reports` and `github-view` artifacts.
-- Branch protection configuration failed with GitHub HTTP 403 because the
-  current private repo cannot enable that feature without GitHub Pro or public
-  visibility. Track in GitHub issue #1 before any public launch or tag.
-- GitHub Actions emitted a Node.js 20 action deprecation annotation. Track in
-  GitHub issue #4 before public launch.
+- Repository visibility is public.
+- Branch protection is enabled for `main`.
+- Required status check: fresh `Validate`.
+- Force pushes and branch deletion are disabled for `main`.
+- Conversation resolution is required before merge.
+- Admin enforcement is enabled.
+- Required approving review count is currently `0`.
+- CODEOWNERS review is currently advisory, not required by branch protection.
+- Post-merge `main` `Validate` passed on commit `9fa223d` in 2m8s.
+- GitHub Actions emitted a Node.js 20 action deprecation annotation on the
+  current workflow pins. Track in GitHub issue #4 before the alpha tag.
 
 ## Required Repository Settings
 
-- Default branch is chosen and documented.
-- Branch protection is enabled for the default branch.
-- Direct pushes to the default branch are blocked except for emergency
-  maintainer recovery.
-- Force pushes and branch deletion are blocked on the default branch.
-- The `Validate` workflow is required before merge.
-- Required checks use fresh results from the PR head commit.
-- At least one approving review is required before merge.
-- Stale approvals are dismissed when support-affecting files change.
-- Conversations must be resolved before merge.
-- CODEOWNERS review is required for owned paths.
-- Maintainer admin bypass is disabled or explicitly documented.
+- [x] Default branch is chosen and documented.
+- [x] Branch protection is enabled for the default branch.
+- [x] Force pushes and branch deletion are blocked on the default branch.
+- [x] The `Validate` workflow is required before merge.
+- [x] Required checks use fresh results from the PR head commit.
+- [x] Conversations must be resolved before merge.
+- [x] Maintainer admin bypass is disabled through admin enforcement.
+- [ ] Owner decides whether public-alpha PRs should require at least one
+  approving review before merge.
+- [ ] Owner decides whether CODEOWNERS review should be required for owned
+  paths.
+- [ ] Node.js 20 action deprecation annotation is resolved on a fresh CI run.
 
 ## Required Review Ownership
 
-Use `.github/CODEOWNERS` as the baseline for GitHub review routing.
+Use `.github/CODEOWNERS` as the baseline for GitHub review routing. It is
+currently advisory. If the owner enables required CODEOWNERS review, high-risk
+paths should require maintainer review.
 
 High-risk paths should require maintainer review:
 
@@ -79,6 +81,9 @@ GitHub Issues should be used for actionable repo work:
 GitHub Discussions, when enabled, should be used for exploratory research and
 coordination. Durable evidence, claims, challenges, validations, questions, and
 relationships should move into repo records through PRs.
+
+GitHub Wiki is currently disabled. Public documentation lives under `docs/` and
+starts at `docs/README.md`.
 
 ## Required PR Gates
 

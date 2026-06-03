@@ -80,7 +80,7 @@ read artifacts. It does not decide investment truth.
 The timing wrapper runs lint, tests, index build, changed chain review, graph
 build, and diff-review once and writes a generated JSON report under `.local/`.
 The 10k scale smoke uses a temporary generated repository and does not commit
-generated YAML. Timing budgets are advisory before public launch; see
+generated YAML. Timing budgets are advisory during public alpha; see
 `docs/performance-budgets.md`.
 
 `fo view build BASE` writes generated Markdown under `.local/github-view/` for
