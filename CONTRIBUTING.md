@@ -19,6 +19,7 @@ uv run fo graph build
 
 For a full research-batch workflow, see
 `docs/research-batch-contribution.md`.
+For merge rules and ontology governance, see `docs/governance.md`.
 
 1. Add or update entities under `entities/`.
 2. Add source metadata under `sources/`.

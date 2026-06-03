@@ -59,6 +59,9 @@ Evidence is the strict layer. Claims, relationships, theses, validations, and ch
 For a concrete sourced-research batch workflow, see
 `docs/research-batch-contribution.md`.
 
+For release status and lightweight governance, see `docs/release-readiness.md`
+and `docs/governance.md`.
+
 - Public evidence should be source-backed and reviewable.
 - New sources should declare `source_perspective` so review output can separate
   company-originated, independent, social, first-hand, anonymous, internal, and
