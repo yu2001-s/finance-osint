@@ -443,8 +443,9 @@ superseded
 
 stale
   Record has a stale validation, open outdated challenge, or explicit stale risk
-  flag on the record, supporting path, validation, or open challenge. Automated
-  freshness windows are deferred from v1 review state.
+  flag on the record, supporting path, validation, or open challenge. Automatic
+  freshness windows are warning-only in v1 and do not by themselves move review
+  state.
 
 contested
   Record has at least one open challenge, contradiction, or dispute/falsify validation.

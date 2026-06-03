@@ -8,6 +8,12 @@ summary: Reuters-reported market coverage said X-FAB rose as much as 76% intrada
   X-FAB's CEO saying no undisclosed material development explained the move.
 content_mode: excerpt
 observed_at: '2026-05-27T00:00:00Z'
+freshness:
+  freshness_class: market_news
+  as_of: "2026-05-27"
+  review_after: "2026-11-23"
+  automatic_window_days: 180
+  policy: warning_only
 submitted_by: github:codex
 source_attribution: named_public
 excerpt: Reuters-reported coverage described an X-FAB intraday rally of as much

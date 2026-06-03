@@ -1,0 +1,21 @@
+schema_version: 1
+kind: source
+id: source:public:synthetic:exdev-market-data-20251231
+source_type: market_data_page
+title: Synthetic Example Devices market data snapshot on December 31, 2025
+publisher: Finance OSINT scaffold
+published_at: "2025-12-31"
+accessed_at: "2026-06-03T00:00:00Z"
+public_status: public
+source_perspective: synthetic_fixture
+content_mode: small_fixture
+freshness:
+  freshness_class: valuation_snapshot
+  as_of: "2025-12-31"
+  review_after: "2026-01-30"
+  automatic_window_days: 30
+  policy: warning_only
+provenance: Synthetic stale market-data fixture for validating freshness review.
+risk_flags:
+  - synthetic_fixture
+  - market_data_snapshot

@@ -71,4 +71,6 @@ Validation evaluates support. Challenge records unresolved pressure.
 Canonical records should not store truth `status` or `confidence`. Local tools
 derive review labels from the evidence graph, validations, challenges,
 contradictions, archive location, freshness, source perspective, and
-supersession links.
+supersession links. Automatic freshness windows are advisory warnings in v1;
+use `marks_stale` validations or open `outdated` challenges to move review state
+to stale.

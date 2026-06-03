@@ -192,19 +192,22 @@ Acceptance criteria:
 Rationale: Staleness is currently explicit-signal only. Dated market data and
 news can mislead when treated as current.
 
-Status: first semantics slice addressed locally. Open `outdated` challenges now
-move targets toward stale review state, while addressed/withdrawn/superseded
-`outdated` challenges remain visible as history without keeping targets stale.
-Automatic freshness windows remain open.
+Status: staleness policy slice addressed locally. Freshness-sensitive
+market-data/news evidence and market-data valuation metrics now carry
+`freshness` windows, and automatic freshness windows are warning-only in v1.
+Open `outdated` challenges and `marks_stale` validations move targets toward
+stale review state; addressed/withdrawn/superseded `outdated` challenges remain
+visible as history without keeping targets stale. Synthetic stale and refreshed
+market-data fixtures exercise the path.
 
 Acceptance criteria:
 
-- [ ] Define record classes that require freshness review.
+- [x] Define record classes that require freshness review.
 - [x] Decide that open explicit stale signals move derived review state, while
   closed outdated challenges do not.
-- [ ] Decide whether automatic freshness windows are warning-only or derived
+- [x] Decide whether automatic freshness windows are warning-only or derived
   review-state movement.
-- [ ] Add examples for stale valuation snapshots and refreshed market data.
+- [x] Add examples for stale valuation snapshots and refreshed market data.
 
 ### Increase Validation Coverage
 

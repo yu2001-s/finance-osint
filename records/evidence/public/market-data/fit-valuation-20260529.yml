@@ -9,6 +9,12 @@ excerpt: StockAnalysis showed FIT Hon Teng at HKD 8.90, about HKD 63.29B market 
 locator:
   section: StockAnalysis 6088.HK overview page
 observed_at: "2026-05-29T00:00:00Z"
+freshness:
+  freshness_class: valuation_snapshot
+  as_of: "2026-05-29"
+  review_after: "2026-06-28"
+  automatic_window_days: 30
+  policy: warning_only
 submitted_by: github:codex
 source_attribution: named_public
 verification_status: verified_from_frozen_stock_research_source_page

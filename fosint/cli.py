@@ -8,6 +8,7 @@ import sqlite3
 import subprocess
 import sys
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -192,6 +193,22 @@ MUTABLE_WEB_SOURCE_TYPES = {
     "market_data_page",
     "exchange_filing",
 }
+FRESHNESS_SENSITIVE_SOURCE_TYPES = {"market_data_page", "news_article"}
+FRESHNESS_SENSITIVE_METRIC_DEFINITIONS = {"metric_definition:market_cap"}
+FRESHNESS_SENSITIVE_OBSERVED_METRIC_DEFINITIONS = {"metric_definition:price_to_sales_ratio"}
+FRESHNESS_SENSITIVE_RISK_FLAGS = {
+    "market_data_snapshot",
+    "market_rerating_not_revenue",
+    "secondary_market_data",
+    "valuation_rerated",
+}
+REQUIRED_FRESHNESS_FIELDS = (
+    "freshness_class",
+    "as_of",
+    "review_after",
+    "automatic_window_days",
+    "policy",
+)
 INDEPENDENT_SOURCE_PERSPECTIVES = {
     "independent_media",
     "independent_research",
@@ -1318,6 +1335,149 @@ def preservation_policy_warnings(root: Path, records: list[Record]) -> list[dict
                 "content_hash, or a small referenced source_artifacts file.",
             )
         )
+    return warnings
+
+
+def source_type_for_evidence_record(record: Record, id_map: dict[str, Record]) -> str:
+    source_id = record.data.get("source")
+    source = id_map.get(source_id) if isinstance(source_id, str) else None
+    if source and source.kind == "source":
+        return str(source.data.get("source_type", ""))
+    return ""
+
+
+def record_evidence_records(record: Record, id_map: dict[str, Record]) -> list[Record]:
+    return [
+        evidence
+        for evidence_id in as_reference_list(record.data.get("evidence"))
+        if (evidence := id_map.get(evidence_id)) and evidence.kind == "evidence"
+    ]
+
+
+def has_market_data_evidence(record: Record, id_map: dict[str, Record]) -> bool:
+    for evidence in record_evidence_records(record, id_map):
+        if set(risk_flags_for(evidence.data)) & FRESHNESS_SENSITIVE_RISK_FLAGS:
+            return True
+        if source_type_for_evidence_record(evidence, id_map) in FRESHNESS_SENSITIVE_SOURCE_TYPES:
+            return True
+    return False
+
+
+def requires_freshness_policy(record: Record, id_map: dict[str, Record]) -> bool:
+    if record.kind == "source":
+        return False
+    if record.kind == "evidence":
+        risk_flags = set(risk_flags_for(record.data))
+        if risk_flags & FRESHNESS_SENSITIVE_RISK_FLAGS:
+            return True
+        return source_type_for_evidence_record(record, id_map) in FRESHNESS_SENSITIVE_SOURCE_TYPES
+    if record.kind == "metric":
+        risk_flags = set(risk_flags_for(record.data))
+        if risk_flags & FRESHNESS_SENSITIVE_RISK_FLAGS:
+            return True
+        metric_definition = str(record.data.get("metric_definition", ""))
+        if metric_definition in FRESHNESS_SENSITIVE_METRIC_DEFINITIONS:
+            return True
+        if has_market_data_evidence(record, id_map):
+            return True
+        return (
+            metric_definition in FRESHNESS_SENSITIVE_OBSERVED_METRIC_DEFINITIONS
+            and record.data.get("value_basis") == "observed"
+        )
+    return False
+
+
+def parse_freshness_date(value: Any) -> date | None:
+    if not isinstance(value, str) or not value.strip():
+        return None
+    try:
+        return date.fromisoformat(value[:10])
+    except ValueError:
+        return None
+
+
+def explicit_stale_review_ids(records: list[Record]) -> set[str]:
+    ids: set[str] = set()
+    for record in records:
+        if record.kind == "validation" and record.data.get("verdict") == "marks_stale":
+            target = record.data.get("target")
+        elif (
+            record.kind == "challenge"
+            and record.data.get("challenge_type") == "outdated"
+            and not any(record.data.get(key) for key in ("addressed_by", "withdrawn_by", "superseded_by"))
+        ):
+            target = record.data.get("target")
+        else:
+            continue
+        if isinstance(target, str):
+            ids.add(target)
+        depends_on = record.data.get("depends_on")
+        for values in dependency_ids(depends_on).values():
+            ids.update(values)
+    return ids
+
+
+def freshness_policy_issue(
+    record: Record,
+    id_map: dict[str, Record],
+    stale_review_ids: set[str] | None = None,
+    today: date | None = None,
+) -> dict[str, str] | None:
+    if not requires_freshness_policy(record, id_map):
+        return None
+    freshness = record.data.get("freshness")
+    if not isinstance(freshness, dict):
+        return {
+            "code": "freshness_sensitive_record_missing_policy",
+            "message": "Freshness-sensitive market/news/valuation record has no freshness policy.",
+            "hint": "Add freshness.freshness_class, freshness.as_of, freshness.review_after, freshness.automatic_window_days, and freshness.policy: warning_only.",
+        }
+    missing = [field for field in REQUIRED_FRESHNESS_FIELDS if not freshness.get(field)]
+    if missing:
+        return {
+            "code": "freshness_sensitive_record_incomplete_policy",
+            "message": "Freshness-sensitive market/news/valuation record has an incomplete freshness policy.",
+            "hint": f"Add missing freshness fields: {', '.join(missing)}.",
+        }
+    if freshness.get("policy") != "warning_only":
+        return {
+            "code": "freshness_policy_not_warning_only",
+            "message": "Automatic freshness windows must remain warning-only in v1.",
+            "hint": "Use freshness.policy: warning_only. Use a marks_stale validation or open outdated challenge to move review state to stale.",
+        }
+    review_after = parse_freshness_date(freshness.get("review_after"))
+    if review_after is None:
+        return {
+            "code": "freshness_sensitive_record_incomplete_policy",
+            "message": "Freshness-sensitive market/news/valuation record has an incomplete freshness policy.",
+            "hint": "Use review_after as an ISO date such as 2026-06-28.",
+        }
+    stale_review_ids = stale_review_ids or set()
+    if review_after < (today or date.today()) and record.id not in stale_review_ids:
+        return {
+            "code": "freshness_review_window_elapsed",
+            "message": "Freshness-sensitive market/news/valuation record is past its warning-only review_after date.",
+            "hint": "Refresh the market/news observation, add a marks_stale validation, or add/open an outdated challenge when the old observation should move to stale.",
+        }
+    return None
+
+
+def freshness_policy_warnings(root: Path, records: list[Record]) -> list[dict[str, Any]]:
+    id_map, _ = build_id_map(root, records)
+    stale_review_ids = explicit_stale_review_ids(records)
+    warnings: list[dict[str, Any]] = []
+    for record in records:
+        issue = freshness_policy_issue(record, id_map, stale_review_ids)
+        if issue:
+            warnings.append(
+                lint_warning(
+                    root,
+                    record,
+                    issue["code"],
+                    issue["message"],
+                    issue["hint"],
+                )
+            )
     return warnings
 
 
@@ -2966,7 +3126,7 @@ def staleness_summary(
         "stale_validation_ids": validation_summary["stale_validation_ids"],
         "stale_challenge_ids": challenge_summary["stale_challenge_ids"],
         "stale_risk_flags": stale_risk_flags,
-        "time_window_policy": "explicit_signals_only",
+        "time_window_policy": "automatic_windows_warning_only",
     }
 
 
@@ -3960,6 +4120,7 @@ def diff_review_warnings(
 ) -> list[dict[str, Any]]:
     before = record_map(base_records)
     after = record_map(current_records)
+    stale_review_ids = explicit_stale_review_ids(current_records)
     warnings = evidence_integrity_warnings(base_records, current_records, delta)
 
     for item in [*delta["added"], *delta["modified"], *delta["renamed"]]:
@@ -4029,6 +4190,25 @@ def diff_review_warnings(
                         related_ids=[str(data.get("target"))] if data.get("target") else [],
                     )
                 )
+        if record.kind == "challenge" and data.get("challenge_type") == "outdated":
+            warnings.append(
+                warning_item(
+                    "adds_or_updates_outdated_challenge",
+                    "Record adds or updates an outdated challenge.",
+                    record.id,
+                    related_ids=[str(data.get("target"))] if data.get("target") else [],
+                )
+            )
+
+        if record.kind == "validation" and data.get("verdict") == "marks_stale":
+            warnings.append(
+                warning_item(
+                    "adds_or_updates_stale_validation",
+                    "Record adds or updates a marks_stale validation.",
+                    record.id,
+                    related_ids=[str(data.get("target"))] if data.get("target") else [],
+                )
+            )
 
         if record.kind in REVIEWABLE_KINDS and (
             as_reference_list(data.get("contradicts"))
@@ -4071,6 +4251,16 @@ def diff_review_warnings(
                         related_ids=broad_revenue_metric_ids,
                     )
                 )
+        freshness_issue = freshness_policy_issue(record, after, stale_review_ids)
+        if freshness_issue:
+            warnings.append(
+                warning_item(
+                    freshness_issue["code"],
+                    freshness_issue["message"],
+                    record.id,
+                    details={"hint": freshness_issue["hint"]},
+                )
+            )
 
     for item in delta["deleted"]:
         if item["kind"] == "evidence":
@@ -4838,6 +5028,7 @@ def run_lint(root: Path, json_output: bool = False, current_only: bool = False) 
         *translation_policy_warnings(root, records),
         *metric_comparability_warnings(root, records),
         *relationship_promotion_policy_warnings(root, records),
+        *freshness_policy_warnings(root, records),
         *preservation_policy_warnings(root, records),
         *duplicate_detection_warnings(root, records),
     ]

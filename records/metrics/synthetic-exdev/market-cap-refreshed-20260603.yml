@@ -1,0 +1,31 @@
+schema_version: 1
+kind: metric
+id: metric:synthetic-exdev:market-cap-refreshed-20260603
+entity: entity:company:exdev
+metric_definition: metric_definition:market_cap
+value: 190000000.0
+unit: USD
+period:
+  type: point_in_time
+  as_of: "2026-06-03"
+value_basis: observed
+evidence:
+  - evidence:synthetic:exdev-market-data-20260603
+source_locator:
+  section: Synthetic refreshed market-data snapshot
+dimensions:
+  exchange: SYNTH
+as_of: "2026-06-03"
+published_at: "2026-06-03"
+freshness:
+  freshness_class: valuation_snapshot
+  as_of: "2026-06-03"
+  review_after: "2026-07-03"
+  automatic_window_days: 30
+  policy: warning_only
+submitted_by: github:scaffold
+created_at: "2026-06-03T00:00:00Z"
+limitations: Synthetic refreshed market-data fixture only; not real market data.
+risk_flags:
+  - synthetic_fixture
+  - market_data_snapshot
