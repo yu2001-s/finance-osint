@@ -128,9 +128,10 @@ First-hand, private, anonymous, and rumor evidence should declare
 `source_attribution`, `source_access`, and `risk_flags` so readers and agents can
 filter or discount it locally.
 
-Sources may also declare `source_perspective`. This is provenance metadata, not
+Sources must declare `source_perspective`. This is provenance metadata, not
 truth status. Review output uses it to expose whether support is company-originated,
-independent, first-hand/social, anonymous/internal, synthetic, or unknown.
+independent, first-hand/social, anonymous/internal, synthetic, or unknown. Use
+`unknown` only when the source-side viewpoint cannot be determined after review.
 
 ## Source Preservation
 

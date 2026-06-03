@@ -10,6 +10,7 @@
     "source_type",
     "title",
     "public_status",
+    "source_perspective",
     "accessed_at",
     "content_mode"
   ],
@@ -77,6 +78,7 @@
       ]
     },
     "provenance": { "type": "string" },
+    "submitted_by": { "type": "string", "pattern": "^github:[A-Za-z0-9_.-]+$" },
     "source_artifacts": {
       "type": "array",
       "items": {

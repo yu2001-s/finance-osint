@@ -8,4 +8,5 @@ identifiers:
   ticker: TICKER
 description: Short description.
 state: proposed
+submitted_by: github:username
 created_at: "YYYY-MM-DDTHH:MM:SSZ"
