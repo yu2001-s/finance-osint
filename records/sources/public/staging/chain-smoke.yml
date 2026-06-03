@@ -1,0 +1,17 @@
+schema_version: 1
+kind: source
+id: source:public:staging:chain-smoke
+source_type: web_page
+title: Staging chain smoke source
+public_status: public
+source_perspective: synthetic_fixture
+accessed_at: '2026-06-03T00:00:00Z'
+content_mode: small_fixture
+submitted_by: github:codex
+publisher: Finance OSINT staging fixture
+url: https://example.com/finance-osint/staging-chain
+archive_url: https://web.archive.org/web/20260603000000/https://example.com/finance-osint/staging-chain
+provenance: Private GitHub staging source/evidence/claim PR smoke test.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- staging_smoke
