@@ -21,9 +21,9 @@ For a full research-batch workflow, see
 `docs/research-batch-contribution.md`.
 For merge rules and ontology governance, see `docs/governance.md`.
 
-1. Add or update entities under `entities/`.
-2. Add source metadata under `sources/`.
-3. Add exact evidence or observation reports under `evidence/`.
+1. Add or update entities under `records/entities/`.
+2. Add source metadata under `records/sources/`.
+3. Add exact evidence or observation reports under `records/evidence/`.
 4. Add metrics, events, or datasets when the information has a structured shape.
 5. Add claims only when they point to evidence.
 6. Add validations or challenges as append-only review records when you support, dispute, or pressure an object.
@@ -102,9 +102,11 @@ reference them from source/evidence YAML, use only `png`, `jpg`, `jpeg`, or
 
 ## Archive
 
-Move records into `archive/` only by PR. Keep the record ID unchanged and add
-`superseded_by`, `duplicate_of`, or `archive_reason`. Update current dependents
-to point at a current replacement instead of depending on archived records.
+Move records into `archive/records/` only by PR. Move ontology records into
+`archive/ontology/` only when retiring vocabulary. Keep the record ID unchanged
+and add `superseded_by`, `duplicate_of`, or `archive_reason`. Update current
+dependents to point at a current replacement instead of depending on archived
+records.
 
 ## Claims
 
@@ -119,17 +121,17 @@ rumor
 ```
 
 If a claim predicate does not exist yet, use a provisional predicate with a
-proposed definition under `claim-predicates/proposals/`.
+proposed definition under `ontology/claim-predicates/proposals/`.
 
 ## Relationship Types
 
-Use registered types from `relationship-types/` whenever possible.
+Use registered types from `ontology/relationship-types/` whenever possible.
 
 If a type does not exist yet, use a provisional type:
 
 ```yaml
 type: provisional:critical_tooling_dependency
-proposed_type_definition: relationship-types/proposals/critical_tooling_dependency.yml
+proposed_type_definition: ontology/relationship-types/proposals/critical_tooling_dependency.yml
 ```
 
 Provisional types are allowed, but reviewers may register, rename, merge, or reject them.

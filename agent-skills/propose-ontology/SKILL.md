@@ -27,12 +27,12 @@ uv run fo search metric_definition --json
 
 ```yaml
 predicate: provisional:new_predicate
-proposed_predicate_definition: claim-predicates/proposals/new_predicate.yml
+proposed_predicate_definition: ontology/claim-predicates/proposals/new_predicate.yml
 ```
 
 ```yaml
 type: provisional:new_relationship_type
-proposed_type_definition: relationship-types/proposals/new_relationship_type.yml
+proposed_type_definition: ontology/relationship-types/proposals/new_relationship_type.yml
 ```
 
 5. Validate:

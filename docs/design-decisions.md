@@ -273,7 +273,7 @@ If a predicate does not exist yet, contributors may use a provisional predicate:
 
 ```yaml
 predicate: provisional:channel_inventory_signal
-proposed_predicate_definition: claim-predicates/proposals/channel_inventory_signal.yml
+proposed_predicate_definition: ontology/claim-predicates/proposals/channel_inventory_signal.yml
 ```
 
 Predicate definitions should eventually declare:
@@ -621,9 +621,9 @@ Archive layout:
 
 ```text
 archive/
-  claims/
-  relationships/
-  theses/
+  records/claims/
+  records/relationships/
+  records/theses/
   debates/
 ```
 
@@ -784,7 +784,7 @@ identifiers:
 Example path:
 
 ```text
-claims/company/apple-inc/aapl-tsmc-a-series-supply.yml
+records/claims/company/apple-inc/aapl-tsmc-a-series-supply.yml
 ```
 
 Agents need deterministic ID and path rules before large-scale writes. Rules should cover:
@@ -797,7 +797,7 @@ duplicate tickers
 CIKs and other stable identifiers
 cross-entity relationships
 date suffixes
-contributor suffixes for validations/challenges
+contributor suffixes for records/validations/challenges
 ```
 
 ## Public V1 Scope
@@ -835,7 +835,7 @@ metric extraction
 event extraction
 relationship mapping
 thesis writing
-validations/challenges
+records/validations/challenges
 ```
 
 ## Contract Spec
@@ -853,7 +853,7 @@ Use the Finance OSINT toolkit/plugin if available.
 Operate through `fo` commands where possible.
 The submitting GitHub user owns all contributions, agent-assisted or not.
 Do not add agent-specific provenance to canonical records.
-Do not edit evidence to resolve disagreement; add validations/challenges.
+Do not edit evidence to resolve disagreement; add records/validations/challenges.
 Run `fo lint`, `fo graph build`, and `fo index build` before finishing.
 ```
 

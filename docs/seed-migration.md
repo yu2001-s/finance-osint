@@ -29,7 +29,7 @@ Migrate each ticker/theme in layers:
 8. Theses
 
 Do not write theses first. Do not create relationships until the supporting
-claims/evidence exist.
+records/claims/evidence exist.
 
 ## Old Field Translation
 
@@ -72,7 +72,7 @@ During migration:
 - Keep contributor assumptions and scenarios inside thesis records, not metrics.
 - Record exact expected event dates only when a source gives an exact date. Put
   windows or inferred timing in `period` or `properties`.
-- Preserve source conflicts as parallel records plus questions/challenges rather
+- Preserve source conflicts as parallel records plus records/questions/challenges rather
   than silently choosing one value.
 - Mark stale, preliminary, unaudited, OCR-derived, missing-source, or
   contradicted material with explicit limitations or `risk_flags`.

@@ -136,7 +136,7 @@ Carry forward:
 Watch during full chain review:
 
 - Whether repeated use of compiled negative-search sidecars should remain
-  `source_attestation` claims or be demoted to evidence plus questions/challenges
+  `source_attestation` claims or be demoted to evidence plus records/questions/challenges
   only.
 - Whether a formal `implements_interface_layer` or similar relationship type is
   needed after more FAU/fiber-to-PIC cases.

@@ -481,7 +481,7 @@ Slug rules:
 Collision rules:
 
 - Prefer adding a disambiguating stable identifier such as CIK, LEI, exchange, period, or date.
-- For validations/challenges, use target slug + contributor slug + date.
+- For records/validations/challenges, use target slug + contributor slug + date.
 - For questions, use the proof gap or source surface being investigated.
 - If collision remains, append a short deterministic suffix from the source ID or evidence ID.
 
@@ -522,31 +522,31 @@ Paths are kind-first and domain-scoped.
 Preferred current paths:
 
 ```text
-entities/company/apple-inc.yml
-sources/public/sec/apple-inc/2025-10k.yml
-evidence/public/sec/apple-inc/2025-10k/revenue-note.yml
-claims/company/apple-inc/tsmc-a-series-supply.yml
-relationships/company/apple-inc/tsmc-a-series-supply.yml
-theses/company/apple-inc/tsmc-margin-risk.yml
-validations/company/apple-inc/tsmc-a-series-supply/alice-20260602.yml
-challenges/company/apple-inc/tsmc-a-series-scope/bob-20260603.yml
-questions/company/apple-inc/tsmc-customer-proof.yml
+records/entities/company/apple-inc.yml
+records/sources/public/sec/apple-inc/2025-10k.yml
+records/evidence/public/sec/apple-inc/2025-10k/revenue-note.yml
+records/claims/company/apple-inc/tsmc-a-series-supply.yml
+records/relationships/company/apple-inc/tsmc-a-series-supply.yml
+records/theses/company/apple-inc/tsmc-margin-risk.yml
+records/validations/company/apple-inc/tsmc-a-series-supply/alice-20260602.yml
+records/challenges/company/apple-inc/tsmc-a-series-scope/bob-20260603.yml
+records/questions/company/apple-inc/tsmc-customer-proof.yml
 ```
 
 Cross-entity records should be anchored by the primary subject or buyer/customer
 side when one exists. If no clear anchor exists, use the broader domain:
 
 ```text
-relationships/market/ai-infrastructure/
-claims/regulation/us-export-controls/
+records/relationships/market/ai-infrastructure/
+records/claims/regulation/us-export-controls/
 ```
 
 Archive paths mirror current paths:
 
 ```text
-archive/claims/company/apple-inc/
-archive/relationships/company/apple-inc/
-archive/theses/company/apple-inc/
+archive/records/claims/company/apple-inc/
+archive/records/relationships/company/apple-inc/
+archive/records/theses/company/apple-inc/
 archive/debates/company/apple-inc/
 ```
 
@@ -635,8 +635,8 @@ Error shape:
 ```json
 {
   "code": "missing_reference",
-  "path": "claims/company/apple-inc/example.yml",
-  "json_pointer": "/evidence/0",
+  "path": "records/claims/company/apple-inc/example.yml",
+  "json_pointer": "/records/evidence/0",
   "message": "references missing id evidence:example",
   "hint": "Add the evidence record or fix the reference.",
   "record_id": "claim:example",

@@ -73,7 +73,7 @@ Thesis
 
 ## Relationship Ontology
 
-Registered relationship types live in `relationship-types/`.
+Registered relationship types live in `ontology/relationship-types/`.
 
 For supply-chain research, prefer precise relationship types when evidence
 supports them:
@@ -94,7 +94,7 @@ If the graph needs a new type, contributors may use a provisional type:
 
 ```yaml
 type: provisional:critical_tooling_dependency
-proposed_type_definition: relationship-types/proposals/critical_tooling_dependency.yml
+proposed_type_definition: ontology/relationship-types/proposals/critical_tooling_dependency.yml
 ```
 
 Relationship instances are checked against their type definition:
@@ -160,8 +160,9 @@ artifacts are hard validation errors.
 ## Archive Policy
 
 Archive is a path-level lifecycle state, not a truth status field. Current
-records live in top-level data directories. Archived records live under
-`archive/` and keep their canonical ID.
+records live under `records/`, and ontology registries live under `ontology/`.
+Archived records live under `archive/records/` or `archive/ontology/` and keep
+their canonical ID.
 
 Archived records must include at least one of:
 

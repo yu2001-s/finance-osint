@@ -58,10 +58,10 @@ REF_PREFIXES = (
 )
 
 SKIP_PARTS = {".git", ".local", ".venv", "__pycache__", ".pytest_cache", ".mypy_cache"}
-DATA_DIRS = (
-    "relationship-types",
-    "claim-predicates",
-    "metric-definitions",
+RECORDS_ROOT = Path("records")
+ONTOLOGY_ROOT = Path("ontology")
+ARCHIVE_ROOT = Path("archive")
+RECORD_DIRS = (
     "entities",
     "sources",
     "evidence",
@@ -75,6 +75,21 @@ DATA_DIRS = (
     "relationships",
     "theses",
 )
+ONTOLOGY_DIRS = (
+    "relationship-types",
+    "claim-predicates",
+    "metric-definitions",
+)
+DATA_DIRS = (
+    tuple(str(RECORDS_ROOT / dirname) for dirname in RECORD_DIRS)
+    + tuple(str(ONTOLOGY_ROOT / dirname) for dirname in ONTOLOGY_DIRS)
+)
+ARCHIVE_DATA_DIRS = (
+    tuple(str(ARCHIVE_ROOT / RECORDS_ROOT / dirname) for dirname in RECORD_DIRS)
+    + tuple(str(ARCHIVE_ROOT / ONTOLOGY_ROOT / dirname) for dirname in ONTOLOGY_DIRS)
+)
+LEGACY_DATA_DIRS = (*ONTOLOGY_DIRS, *RECORD_DIRS)
+LEGACY_ARCHIVE_DATA_DIRS = tuple(str(ARCHIVE_ROOT / dirname) for dirname in LEGACY_DATA_DIRS)
 
 EVIDENCE_CLASSES_REQUIRING_ACCESS = {
     "firsthand_public",
@@ -295,23 +310,22 @@ def repo_root() -> Path:
 
 def iter_yaml_files(root: Path, include_archive: bool = True) -> list[Path]:
     files: list[Path] = []
-    for dirname in DATA_DIRS:
+    directories = list(DATA_DIRS)
+    if include_archive:
+        directories.extend(ARCHIVE_DATA_DIRS)
+        directories.extend(LEGACY_ARCHIVE_DATA_DIRS)
+
+    seen: set[Path] = set()
+    for dirname in directories:
         directory = root / dirname
         if not directory.exists():
             continue
         for path in directory.rglob("*"):
             if any(part in SKIP_PARTS for part in path.parts):
                 continue
-            if path.is_file() and path.suffix in {".yml", ".yaml"}:
+            if path.is_file() and path.suffix in {".yml", ".yaml"} and path not in seen:
+                seen.add(path)
                 files.append(path)
-    if include_archive:
-        archive = root / "archive"
-        if archive.exists():
-            for path in archive.rglob("*"):
-                if any(part in SKIP_PARTS for part in path.parts):
-                    continue
-                if path.is_file() and path.suffix in {".yml", ".yaml"}:
-                    files.append(path)
     return sorted(files)
 
 
@@ -3084,7 +3098,23 @@ def is_record_yaml_path(path: str) -> bool:
     relative = Path(path)
     if relative.suffix not in {".yml", ".yaml"}:
         return False
-    return bool(relative.parts) and relative.parts[0] in {*DATA_DIRS, "archive"}
+    if len(relative.parts) >= 2 and relative.parts[0] == str(RECORDS_ROOT):
+        return relative.parts[1] in RECORD_DIRS
+    if len(relative.parts) >= 2 and relative.parts[0] == str(ONTOLOGY_ROOT):
+        return relative.parts[1] in ONTOLOGY_DIRS
+    if len(relative.parts) >= 3 and relative.parts[0] == str(ARCHIVE_ROOT):
+        if relative.parts[1] == str(RECORDS_ROOT):
+            return relative.parts[2] in RECORD_DIRS
+        if relative.parts[1] == str(ONTOLOGY_ROOT):
+            return relative.parts[2] in ONTOLOGY_DIRS
+    # Legacy support keeps git comparisons useful across the layout migration.
+    if relative.parts[0] in LEGACY_DATA_DIRS:
+        return True
+    return (
+        len(relative.parts) >= 2
+        and relative.parts[0] == str(ARCHIVE_ROOT)
+        and relative.parts[1] in LEGACY_DATA_DIRS
+    )
 
 
 def run_git(root: Path, args: list[str]) -> subprocess.CompletedProcess[str]:
@@ -3764,11 +3794,17 @@ def ensure_id(prefix: str, explicit_id: str | None, seed: str) -> str:
     return f"{prefix}:{slugify(seed)}"
 
 
-def generated_record_path(root: Path, dirname: str, record_id: str, explicit_path: str | None) -> Path:
+def generated_record_path(
+    root: Path, dirname: str | Path, record_id: str, explicit_path: str | None
+) -> Path:
     if explicit_path:
         path = Path(explicit_path)
         return path if path.is_absolute() else root / path
     return root / dirname / "generated" / f"{id_slug(record_id)}.yml"
+
+
+def record_dir(*parts: str) -> Path:
+    return RECORDS_ROOT.joinpath(*parts)
 
 
 def parse_key_values(values: list[str] | None) -> dict[str, str]:
@@ -3963,7 +3999,7 @@ def run_new_source(root: Path, args: argparse.Namespace) -> int:
     if source_artifacts:
         data["source_artifacts"] = source_artifacts
     add_optional_common_fields(data, args)
-    path = generated_record_path(root, "sources", record_id, args.path)
+    path = generated_record_path(root, record_dir("sources"), record_id, args.path)
     return run_new_record(root, "new source", path, data, args.json, args.overwrite)
 
 
@@ -3995,7 +4031,7 @@ def run_new_evidence(root: Path, args: argparse.Namespace) -> int:
     if source_artifacts:
         data["source_artifacts"] = source_artifacts
     add_optional_common_fields(data, args)
-    path = generated_record_path(root, "evidence", record_id, args.path)
+    path = generated_record_path(root, record_dir("evidence"), record_id, args.path)
     return run_new_record(root, "new evidence", path, data, args.json, args.overwrite)
 
 
@@ -4024,7 +4060,7 @@ def run_new_claim(root: Path, args: argparse.Namespace) -> int:
     if args.proposed_predicate_definition:
         data["proposed_predicate_definition"] = args.proposed_predicate_definition
     add_optional_common_fields(data, args)
-    path = generated_record_path(root, "claims", record_id, args.path)
+    path = generated_record_path(root, record_dir("claims"), record_id, args.path)
     return run_new_record(root, "new claim", path, data, args.json, args.overwrite)
 
 
@@ -4042,7 +4078,7 @@ def run_new_validation(root: Path, args: argparse.Namespace) -> int:
         "depends_on": build_depends_on(args),
     }
     add_optional_common_fields(data, args)
-    path = generated_record_path(root, "validations", record_id, args.path)
+    path = generated_record_path(root, record_dir("validations"), record_id, args.path)
     return run_new_record(root, "new validation", path, data, args.json, args.overwrite)
 
 
@@ -4066,7 +4102,7 @@ def run_new_challenge(root: Path, args: argparse.Namespace) -> int:
         if value:
             data[field] = value
     add_optional_common_fields(data, args)
-    path = generated_record_path(root, "challenges", record_id, args.path)
+    path = generated_record_path(root, record_dir("challenges"), record_id, args.path)
     return run_new_record(root, "new challenge", path, data, args.json, args.overwrite)
 
 
@@ -4101,7 +4137,7 @@ def run_new_relationship(root: Path, args: argparse.Namespace) -> int:
     if args.proposed_type_definition:
         data["proposed_type_definition"] = args.proposed_type_definition
     add_optional_common_fields(data, args)
-    path = generated_record_path(root, "relationships", record_id, args.path)
+    path = generated_record_path(root, record_dir("relationships"), record_id, args.path)
     return run_new_record(root, "new relationship", path, data, args.json, args.overwrite)
 
 
@@ -4127,7 +4163,12 @@ def run_new_entity(root: Path, args: argparse.Namespace) -> int:
     if args.state:
         data["state"] = args.state
     add_optional_common_fields(data, args)
-    path = generated_record_path(root, f"entities/{args.entity_type}", record_id, args.path)
+    path = generated_record_path(
+        root,
+        record_dir("entities", args.entity_type),
+        record_id,
+        args.path,
+    )
     return run_new_record(root, "new entity", path, data, args.json, args.overwrite)
 
 
@@ -4169,7 +4210,7 @@ def run_new_metric(root: Path, args: argparse.Namespace) -> int:
         if value:
             data[field] = value
     add_optional_common_fields(data, args)
-    path = generated_record_path(root, "metrics", record_id, args.path)
+    path = generated_record_path(root, record_dir("metrics"), record_id, args.path)
     return run_new_record(root, "new metric", path, data, args.json, args.overwrite)
 
 
@@ -4197,7 +4238,7 @@ def run_new_event(root: Path, args: argparse.Namespace) -> int:
     if properties:
         data["properties"] = properties
     add_optional_common_fields(data, args)
-    path = generated_record_path(root, "events", record_id, args.path)
+    path = generated_record_path(root, record_dir("events"), record_id, args.path)
     return run_new_record(root, "new event", path, data, args.json, args.overwrite)
 
 
@@ -4221,7 +4262,7 @@ def run_new_dataset(root: Path, args: argparse.Namespace) -> int:
         if value:
             data[field] = value
     add_optional_common_fields(data, args)
-    path = generated_record_path(root, "datasets", record_id, args.path)
+    path = generated_record_path(root, record_dir("datasets"), record_id, args.path)
     return run_new_record(root, "new dataset", path, data, args.json, args.overwrite)
 
 
@@ -4255,7 +4296,7 @@ def run_new_thesis(root: Path, args: argparse.Namespace) -> int:
     if args.contradicting_evidence:
         data["contradicting_evidence"] = sorted(set(args.contradicting_evidence))
     add_optional_common_fields(data, args)
-    path = generated_record_path(root, "theses", record_id, args.path)
+    path = generated_record_path(root, record_dir("theses"), record_id, args.path)
     return run_new_record(root, "new thesis", path, data, args.json, args.overwrite)
 
 
@@ -4283,7 +4324,7 @@ def run_new_question(root: Path, args: argparse.Namespace) -> int:
         if values:
             data[data_field] = values
     add_optional_common_fields(data, args)
-    path = generated_record_path(root, "questions", record_id, args.path)
+    path = generated_record_path(root, record_dir("questions"), record_id, args.path)
     return run_new_record(root, "new question", path, data, args.json, args.overwrite)
 
 
