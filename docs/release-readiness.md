@@ -12,7 +12,7 @@ Current release posture:
 
 ```text
 private/dev release: ready
-public alpha: near-ready after owner decisions
+public alpha: ready after publication/tag owner decisions
 public v1: not ready
 ```
 
@@ -35,7 +35,7 @@ Required before tagging `v0.1.0-alpha`:
 - [x] Full-chain seeded graph review exists.
 - [x] Contributor research-batch workflow exists.
 - [x] Clean clone smoke test passed.
-- [ ] Owner chooses and commits a license.
+- [x] Owner chose and committed Apache-2.0 license.
 - [ ] Owner chooses default branch and public repo visibility.
 - [ ] Owner decides whether to tag `v0.1.0-alpha`.
 
@@ -90,7 +90,7 @@ This alpha release does not promise:
 
 ## Current Known Risks
 
-- No license is committed yet. This blocks public release.
+- Publication and release tagging are intentionally deferred by the owner.
 - Governance is intentionally lightweight; maintainer decisions still matter.
 - Source archival policy is usable but not fully mature.
 - Seed data is representative, not comprehensive.
