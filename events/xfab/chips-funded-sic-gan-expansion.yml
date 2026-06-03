@@ -1,0 +1,23 @@
+schema_version: 1
+kind: event
+id: event:xfab:chips-funded-sic-gan-expansion
+event_type: capacity_funding
+event_state: occurred
+title: CHIPS for America material supports X-FAB Texas SiC/GaN facility funding
+entities:
+- entity:company:x-fab
+- entity:service:xfab-sic-gan-foundry-services
+- entity:component:wide-bandgap-power-semiconductors
+evidence:
+- evidence:public:nist:xfab-texas-chips-funding
+submitted_by: github:codex
+period:
+  type: source_observed
+  value: '2026-05-31'
+properties:
+  funding_context: CHIPS for America
+  geography: United States
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- government_originated
+- funding_not_customer_revenue

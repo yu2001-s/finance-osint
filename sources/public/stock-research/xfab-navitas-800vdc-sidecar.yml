@@ -1,0 +1,19 @@
+schema_version: 1
+kind: source
+id: source:public:stock-research:xfab-navitas-800vdc-sidecar
+source_type: research_report
+title: X-FAB Navitas 800 VDC conversion sidecar
+public_status: public
+source_perspective: independent_research
+accessed_at: '2026-06-03T00:00:00Z'
+content_mode: summary
+submitted_by: github:codex
+publisher: Local stock research snapshot
+provenance: Migrated from frozen stock-research claims claim_xfab_800vdc_updated_strict_verdict_20260601,
+  claim_xfab_navitas_sic_foundry_relationship_20260601, claim_navitas_800vdc_xfab_foundry_chain_20260601,
+  claim_xfab_wbg_q1_2026_revenue_watch_20260601, and claim_xfab_social_media_rerating_20260527
+  at finance-osint-seed-20260603.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- compiled_research
+- negative_search

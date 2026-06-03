@@ -1,0 +1,19 @@
+schema_version: 1
+kind: claim
+id: claim:xfab:valuation-snapshot-20260529
+statement: StockAnalysis showed X-FAB at about EUR 1.41B market cap, 1.88x sales,
+  85.98 trailing P/E, and +110.16% 52-week price change as of May 29, 2026.
+subject: entity:company:x-fab
+predicate: market_signal
+support_type: observed
+evidence:
+- id: evidence:public:market-data:xfab-valuation-20260529
+submitted_by: github:codex
+object: rerated_market_snapshot
+qualifiers:
+  market_cap: metric:xfab:market-cap-20260529
+  price_to_sales: metric:xfab:price-to-sales-20260529
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- market_data_snapshot
+- valuation_conversion_unproven

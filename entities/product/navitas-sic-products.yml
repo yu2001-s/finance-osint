@@ -1,0 +1,11 @@
+schema_version: 1
+kind: entity
+id: entity:product:navitas-sic-products
+entity_type: product
+name: Navitas SiC products
+submitted_by: github:codex
+description: Navitas silicon-carbide product family described in the FY2025 Form
+  10-K as manufactured in the United States by X-FAB using Navitas-developed
+  technologies.
+state: active
+created_at: '2026-06-03T00:00:00Z'

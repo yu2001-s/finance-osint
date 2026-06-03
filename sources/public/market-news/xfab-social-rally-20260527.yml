@@ -1,0 +1,19 @@
+schema_version: 1
+kind: source
+id: source:public:market-news:xfab-social-rally-20260527
+source_type: news_article
+title: Chipmaker X-FAB surges in retail-driven rally as chip frenzy builds
+public_status: public
+source_perspective: independent_media
+accessed_at: '2026-06-03T00:00:00Z'
+content_mode: external_link
+submitted_by: github:codex
+publisher: Reuters via Global Banking & Finance Review
+url: https://www.globalbankingandfinance.com/chipmaker-x-fab-surges-retail-driven-rally-chip-frenzy/
+published_at: '2026-05-27'
+provenance: Migrated from frozen stock-research source src_reuters_xfab_social_rally_20260527
+  at finance-osint-seed-20260603.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- social_reported_by_media
+- reuters_reprint

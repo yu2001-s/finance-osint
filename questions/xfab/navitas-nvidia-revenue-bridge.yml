@@ -1,0 +1,37 @@
+schema_version: 1
+kind: question
+id: question:xfab:navitas-nvidia-revenue-bridge
+question: Does Navitas, NVIDIA, or X-FAB disclose production qualification, wafer
+  starts, order value, revenue split, or margin for X-FAB-manufactured Navitas
+  SiC in 800 VDC or AI data-center programs?
+entities:
+- entity:company:x-fab
+- entity:company:navitas-semiconductor
+- entity:company:nvidia
+- entity:architecture:800-vdc-ai-factory-power
+proof_type: customer_revenue_conversion
+priority: high
+submitted_by: github:codex
+related_evidence:
+- evidence:public:navitas:fy2025-10k-xfab-sic-manufacturer
+- evidence:public:navitas:800-vdc-data-center-development
+- evidence:public:xfab:q1-2026-wbg-revenue
+- evidence:public:stock-research:xfab-navitas-800vdc-proof-gaps
+related_claims:
+- claim:navitas:fy2025-10k-xfab-sic-manufacturer
+- claim:navitas:800-vdc-device-layer-support
+- claim:xfab:navitas-800vdc-chain-revenue-unproven
+related_relationships:
+- relationship:navitas:xfab-sic-manufacturing-partner
+- relationship:navitas-sic-products:supports-800-vdc
+next_actions:
+- Review Navitas, NVIDIA, and X-FAB disclosures for qualification, purchase-order,
+  wafer-start, customer allocation, revenue split, and margin language tied to
+  X-FAB-manufactured SiC.
+- Compare later X-FAB WBG revenue and SiC wafer shipments against Navitas 800 VDC
+  timing and any customer-specific disclosures.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- proof_gap
+- revenue_conversion_unproven
+- nvidia_allocation_unproven

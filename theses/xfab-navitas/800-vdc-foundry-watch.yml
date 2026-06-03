@@ -1,0 +1,110 @@
+schema_version: 1
+kind: thesis
+id: thesis:xfab-navitas:800-vdc-foundry-watch
+title: X-FAB Navitas 800 VDC foundry watch
+summary: X-FAB has source-backed SiC/GaN foundry capability, CHIPS-supported U.S.
+  capacity context, a Navitas customer-side filing naming X-FAB as U.S. manufacturer
+  for Navitas SiC products, and broad Q1 2026 WBG revenue growth. Navitas separately
+  supports 800 V data-center development. The watch thesis is that X-FAB may sit
+  in an 800 VDC WBG device manufacturing chain, but current evidence still lacks
+  NVIDIA qualification, production use, purchase orders, X-FAB wafer starts, customer-specific
+  revenue, margin, and cash-conversion proof.
+depends_on:
+  evidence:
+  - evidence:public:xfab:sic-gan-foundry-services
+  - evidence:public:nist:xfab-texas-chips-funding
+  - evidence:public:navitas:fy2025-10k-xfab-sic-manufacturer
+  - evidence:public:navitas:800-vdc-data-center-development
+  - evidence:public:xfab:q1-2026-wbg-revenue
+  - evidence:public:nvidia:800-vdc-architecture
+  - evidence:public:market-news:xfab-social-rerating-20260527
+  - evidence:public:market-data:xfab-valuation-20260529
+  - evidence:public:stock-research:xfab-navitas-800vdc-proof-gaps
+  claims:
+  - claim:xfab:sic-gan-foundry-capability
+  - claim:navitas:fy2025-10k-xfab-sic-manufacturer
+  - claim:navitas:800-vdc-device-layer-support
+  - claim:xfab:q1-2026-wbg-revenue-watch
+  - claim:xfab:navitas-800vdc-chain-revenue-unproven
+  - claim:xfab:social-rerating-20260527
+  - claim:xfab:valuation-snapshot-20260529
+  relationships:
+  - relationship:xfab:capacity-expansion-for-sic-gan-foundry-services
+  - relationship:navitas:xfab-sic-manufacturing-partner
+  - relationship:navitas-sic-products:supports-800-vdc
+  - relationship:wide-bandgap-power-semiconductors:supports-800-vdc
+  theses: []
+  metrics:
+  - metric:xfab:q1-2026-total-revenue
+  - metric:xfab:q1-2026-wide-bandgap-revenue
+  - metric:xfab:q1-2026-backlog
+  - metric:xfab:q1-2026-sic-wafer-shipments
+  - metric:xfab:market-cap-20260529
+  - metric:xfab:price-to-sales-20260529
+  events:
+  - event:xfab:chips-funded-sic-gan-expansion
+  datasets: []
+submitted_by: github:codex
+stance: watch
+time_horizon: 2026-2027
+pillars:
+- statement: The X-FAB/Navitas relationship is source-backed by a customer-side
+    SEC filing, not just inferred from product fit.
+  depends_on:
+    claims:
+    - claim:navitas:fy2025-10k-xfab-sic-manufacturer
+    relationships:
+    - relationship:navitas:xfab-sic-manufacturing-partner
+  proof_points:
+  - Navitas, X-FAB, or customer-side source quantifying wafer starts, order value,
+    revenue split, or margin tied to X-FAB-manufactured Navitas SiC.
+  kill_criteria:
+  - Later filing or customer disclosure showing Navitas moved material SiC manufacturing
+    away from X-FAB or that the relationship is immaterial.
+- statement: The 800 VDC relevance exists at the device-layer search-surface level,
+    but the NVIDIA revenue bridge is still open.
+  depends_on:
+    claims:
+    - claim:navitas:800-vdc-device-layer-support
+    - claim:xfab:navitas-800vdc-chain-revenue-unproven
+    relationships:
+    - relationship:navitas-sic-products:supports-800-vdc
+    - relationship:wide-bandgap-power-semiconductors:supports-800-vdc
+  proof_points:
+  - NVIDIA, Navitas, or X-FAB source naming X-FAB-manufactured Navitas SiC in
+    qualified, ordered, production, procurement, or service-part context.
+  kill_criteria:
+  - 800 VDC WBG design wins route to non-X-FAB manufacturers, or X-FAB WBG growth
+    fails to connect to Navitas/customer-specific revenue.
+- statement: Q1 2026 WBG revenue and SiC wafer shipments are real but broad, while
+    social-media rerating is only market-recognition evidence.
+  depends_on:
+    claims:
+    - claim:xfab:q1-2026-wbg-revenue-watch
+    - claim:xfab:social-rerating-20260527
+    - claim:xfab:valuation-snapshot-20260529
+    metrics:
+    - metric:xfab:q1-2026-wide-bandgap-revenue
+    - metric:xfab:q1-2026-sic-wafer-shipments
+    - metric:xfab:market-cap-20260529
+    - metric:xfab:price-to-sales-20260529
+  proof_points:
+  - X-FAB disclosures that split WBG revenue or margin by customer, product, or
+    AI data-center / 800 VDC end market.
+  kill_criteria:
+  - Market recognition remains elevated while disclosures stay broad and no customer-specific
+    conversion appears.
+next_missing_evidence:
+- Navitas/X-FAB wafer-start, order-value, shipment-volume, revenue-split, or margin
+  disclosure.
+- NVIDIA qualification, production use, purchase order, procurement, or service
+  evidence naming Navitas SiC manufactured by X-FAB.
+- X-FAB WBG customer split and product-level gross-margin bridge.
+- Later disclosures showing whether social-media rerating was followed by source-backed
+  revenue conversion.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- nvidia_allocation_unproven
+- revenue_conversion_unproven
+- customer_split_missing
+- social_reported_by_media

@@ -1,0 +1,13 @@
+schema_version: 1
+kind: entity
+id: entity:architecture:800-vdc-ai-factory-power
+entity_type: architecture
+name: 800 VDC AI factory power architecture
+submitted_by: github:codex
+aliases:
+- 800 VDC
+- 800VDC
+description: NVIDIA-anchored high-voltage DC power-distribution architecture for
+  efficient and scalable AI factory power delivery.
+state: active
+created_at: '2026-06-03T00:00:00Z'

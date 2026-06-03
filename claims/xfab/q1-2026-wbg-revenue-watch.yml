@@ -1,0 +1,22 @@
+schema_version: 1
+kind: claim
+id: claim:xfab:q1-2026-wbg-revenue-watch
+statement: X-FAB Q1 2026 disclosed a real WBG numerator, including USD 15.1M wide-bandgap
+  revenue and 14,300 SiC wafer shipments, but the evidence remains a broad bucket
+  without Navitas/NVIDIA/customer-specific revenue, wafer-start, or margin disclosure.
+subject: entity:company:x-fab
+predicate: reported_metric
+support_type: direct
+evidence:
+- id: evidence:public:xfab:q1-2026-wbg-revenue
+submitted_by: github:codex
+object: metric:xfab:q1-2026-wide-bandgap-revenue
+qualifiers:
+  total_revenue: metric:xfab:q1-2026-total-revenue
+  backlog: metric:xfab:q1-2026-backlog
+  sic_wafer_shipments: metric:xfab:q1-2026-sic-wafer-shipments
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- company_originated
+- broad_segment_bucket
+- customer_split_missing

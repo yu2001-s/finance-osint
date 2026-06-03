@@ -1,0 +1,26 @@
+schema_version: 1
+kind: challenge
+id: challenge:xfab:navitas-foundry-not-nvidia-revenue
+target: thesis:xfab-navitas:800-vdc-foundry-watch
+submitted_by: github:codex
+challenge_type: materiality_dispute
+summary: Navitas naming X-FAB as U.S. manufacturer for Navitas SiC products proves
+  a customer-side manufacturing relationship, but current evidence does not prove
+  NVIDIA qualification, purchase orders, production use, X-FAB wafer starts,
+  customer-specific revenue, or margin from the 800 VDC chain.
+depends_on:
+  evidence:
+  - evidence:public:navitas:fy2025-10k-xfab-sic-manufacturer
+  - evidence:public:navitas:800-vdc-data-center-development
+  - evidence:public:xfab:q1-2026-wbg-revenue
+  - evidence:public:stock-research:xfab-navitas-800vdc-proof-gaps
+  claims:
+  - claim:xfab:navitas-800vdc-chain-revenue-unproven
+  relationships:
+  - relationship:navitas:xfab-sic-manufacturing-partner
+  - relationship:navitas-sic-products:supports-800-vdc
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- nvidia_allocation_unproven
+- revenue_conversion_unproven
+- customer_split_missing

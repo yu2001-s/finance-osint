@@ -1,0 +1,28 @@
+schema_version: 1
+kind: relationship
+id: relationship:wide-bandgap-power-semiconductors:supports-800-vdc
+type: supports_architecture
+participants:
+- role: supporter
+  entity: entity:component:wide-bandgap-power-semiconductors
+- role: architecture
+  entity: entity:architecture:800-vdc-ai-factory-power
+derived_from:
+  claims:
+  - claim:navitas:800-vdc-device-layer-support
+  evidence:
+  - evidence:public:nvidia:800-vdc-architecture
+  - evidence:public:navitas:800-vdc-data-center-development
+submitted_by: github:codex
+scope:
+  market: entity:market:ai-datacenter-infrastructure
+qualifiers:
+- product_fit
+- direct_statement
+materiality:
+  level: medium
+  basis: observed
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- architecture_context
+- component_search_surface

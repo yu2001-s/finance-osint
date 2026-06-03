@@ -1,0 +1,23 @@
+schema_version: 1
+kind: claim
+id: claim:xfab:navitas-800vdc-chain-revenue-unproven
+statement: The frozen X-FAB/Navitas update records a stronger source-backed chain
+  from Navitas 800 VDC support to X-FAB-manufactured Navitas SiC, while still
+  finding no public proof of NVIDIA production qualification, purchase orders,
+  production use, X-FAB wafer starts, customer-specific revenue, or margin.
+subject: entity:company:x-fab
+predicate: source_attestation
+support_type: observed
+evidence:
+- id: evidence:public:navitas:fy2025-10k-xfab-sic-manufacturer
+- id: evidence:public:navitas:800-vdc-data-center-development
+- id: evidence:public:xfab:q1-2026-wbg-revenue
+- id: evidence:public:stock-research:xfab-navitas-800vdc-proof-gaps
+submitted_by: github:codex
+object: nvidia_800vdc_revenue_conversion_unproven
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- compiled_research
+- negative_search
+- revenue_conversion_unproven
+- nvidia_allocation_unproven

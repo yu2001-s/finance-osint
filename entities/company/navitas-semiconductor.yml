@@ -1,0 +1,15 @@
+schema_version: 1
+kind: entity
+id: entity:company:navitas-semiconductor
+entity_type: company
+name: Navitas Semiconductor
+submitted_by: github:codex
+aliases:
+- Navitas
+identifiers:
+  ticker: NVTS
+description: Public GaN/SiC power semiconductor company with source-backed 800
+  V data-center development exposure and a Form 10-K disclosure naming X-FAB as
+  U.S. manufacturer for Navitas SiC products.
+state: active
+created_at: '2026-06-03T00:00:00Z'
