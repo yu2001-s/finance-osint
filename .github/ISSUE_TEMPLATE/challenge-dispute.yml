@@ -1,0 +1,49 @@
+name: Challenge Or Dispute
+description: Raise an evidence, scope, ontology, materiality, or contradiction issue.
+title: "[challenge]: "
+labels: ["challenge", "needs-triage"]
+body:
+  - type: input
+    id: target
+    attributes:
+      label: Target Record
+      description: Record ID or file path being challenged.
+      placeholder: "claim:..., relationship:..., thesis:..."
+    validations:
+      required: true
+  - type: dropdown
+    id: challenge_type
+    attributes:
+      label: Challenge Type
+      options:
+        - contradiction
+        - missing_evidence
+        - source_quality
+        - scope_error
+        - outdated
+        - ontology_issue
+        - materiality_dispute
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: objection
+    attributes:
+      label: Objection
+      description: Explain the issue and the exact claim, scope, or evidence step you dispute.
+    validations:
+      required: true
+  - type: textarea
+    id: supporting_material
+    attributes:
+      label: Supporting Material
+      description: Link public sources, existing record IDs, or proposed evidence. Do not paste private material.
+    validations:
+      required: false
+  - type: textarea
+    id: proposed_record
+    attributes:
+      label: Proposed Repo-Native Follow-Up
+      description: Name the challenge, validation, question, evidence, or correction record that should be added.
+    validations:
+      required: false

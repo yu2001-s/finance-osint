@@ -11,11 +11,28 @@ canonical truth.
 
 For now, maintainers are the GitHub users with merge rights on the repo.
 
+## GitHub Controls
+
+The GitHub repository is the contribution queue and public audit trail. Before
+public launch, maintainers should verify the controls in
+`docs/github-public-launch-checklist.md`.
+
+At minimum:
+
+- Protect the default branch.
+- Require the `Validate` workflow before merge.
+- Require review for CODEOWNERS paths.
+- Require conversation resolution before merge.
+- Block force pushes and default-branch deletion.
+- Route disputes, ontology proposals, source/takedown concerns, and abuse or
+  market-integrity concerns through GitHub issue templates.
+
 ## Merge Criteria
 
 A PR is mergeable when:
 
 - Required CI passes.
+- `fo diff-review` warnings are reviewed and explained.
 - Support-affecting information is visible in the repo.
 - New claims point to evidence.
 - New relationships are supported by claims, evidence, metrics, or events.
@@ -38,6 +55,8 @@ A PR should be rejected or sent back when it:
   source-backed evidence.
 - Relies on anonymous/internal/rumor evidence as strong support without visible
   limitations.
+- Contains possible MNPI, private-source identity leakage, unsupported
+  defamatory claims, coordinated promotion, spam, or rumor laundering.
 - Uploads secrets, credentials, doxxing material, malware, or large copyrighted
   artifacts.
 - Breaks schemas, references, ontology rules, tests, or deterministic review
