@@ -504,6 +504,28 @@ identifiers:
 
 Tickers are identifiers, not canonical entity IDs.
 
+Global issuer identity should separate companies, securities, and listings:
+
+```text
+company
+  Legal issuer or operating company. Prefer stable issuer identifiers such as
+  LEI, CIK, local issuer ID, home jurisdiction, and native name where available.
+
+security
+  Tradable instrument or share class issued by a company. Include issuer,
+  security_type, share_class, ISIN/FIGI/CUSIP/SEDOL where available, and
+  `underlying_security` plus `depositary_ratio` for ADR/ADS instruments.
+
+listing
+  Venue-specific quote for a security. Include security, exchange, MIC,
+  ticker/local_symbol, quote_currency, listing_role, listing_date,
+  delisting_date, and ticker_history where relevant.
+```
+
+Do not collapse ADRs, ordinary shares, share classes, and venue listings into a
+single ticker-shaped company entity. `fo lint` warns on likely duplicate
+security identifiers and on duplicate listing ticker/local-symbol plus MIC.
+
 Supported v1 entity types include:
 
 ```text
@@ -516,6 +538,8 @@ listing
 market
 geography
 architecture
+facility
+manufacturing_process
 commodity
 technology
 regulation

@@ -1,0 +1,25 @@
+schema_version: 1
+kind: entity
+id: entity:listing:synthetic-global-tech-nasdaq-ads
+entity_type: listing
+name: Synthetic Global Technology NASDAQ ADS listing
+identifiers:
+  ticker: SGTX
+  local_symbol: SGTX
+  mic: XNAS
+issuer: entity:company:synthetic-global-tech
+security: entity:security:synthetic-global-tech-ads
+exchange: Nasdaq Stock Market
+quote_currency: USD
+listing_role: secondary
+listing_date: "2021-01-01"
+ticker_history:
+  - ticker: SGTX
+    start: "2021-01-01"
+    end: null
+description: Synthetic ADR/ADS listing linked to a separate ADS security and underlying ordinary shares.
+state: proposed
+submitted_by: github:scaffold
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - synthetic_fixture

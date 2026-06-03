@@ -1,0 +1,18 @@
+schema_version: 1
+kind: entity
+id: entity:company:synthetic-global-tech
+entity_type: company
+name: Synthetic Global Technology Ltd.
+aliases:
+  - Synthetic Global Tech
+  - SGT
+identifiers:
+  local_issuer_id: SGT-0001
+  lei: 549300SYNTHETIC001
+  jurisdiction: TW
+description: Synthetic issuer used to exercise company, security, listing, and ADR/ADS identity modeling.
+state: proposed
+submitted_by: github:scaffold
+created_at: "2026-06-03T00:00:00Z"
+risk_flags:
+  - synthetic_fixture

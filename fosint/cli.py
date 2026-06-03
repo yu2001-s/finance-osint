@@ -279,7 +279,17 @@ CURRENT_TO_ARCHIVE_ALLOWED_FIELDS = {
     "broadens",
     "contradicts",
 }
-DUPLICATE_ENTITY_IDENTIFIER_KEYS = ("cik", "lei", "isin", "figi", "ticker")
+DUPLICATE_ENTITY_IDENTIFIER_KEYS = (
+    "cik",
+    "lei",
+    "isin",
+    "figi",
+    "sedol",
+    "cusip",
+    "ric",
+    "local_issuer_id",
+    "ticker",
+)
 DUPLICATE_WARNING_HINT = (
     "If duplicate, keep one canonical record and move obsolete records under archive/ "
     "with duplicate_of or superseded_by. If distinct, add clarifying fields such as "
@@ -1277,6 +1287,8 @@ def add_entity_duplicate_signatures(
     if not isinstance(identifiers, dict):
         return
     for key in DUPLICATE_ENTITY_IDENTIFIER_KEYS:
+        if entity_type == "listing" and key == "ticker":
+            continue
         for value in duplicate_scalar_values(identifiers.get(key)):
             add_duplicate_signature(
                 groups,
@@ -1285,6 +1297,22 @@ def add_entity_duplicate_signatures(
                 f"Possible duplicate entity: same {key} and entity_type.",
                 (entity_type, key, value),
             )
+
+    if entity_type == "listing":
+        ticker_values = sorted(
+            set(duplicate_scalar_values(identifiers.get("ticker")))
+            | set(duplicate_scalar_values(identifiers.get("local_symbol")))
+        )
+        mic_values = duplicate_scalar_values(identifiers.get("mic"))
+        for ticker in ticker_values:
+            for mic in mic_values:
+                add_duplicate_signature(
+                    groups,
+                    record,
+                    "possible_duplicate_listing_symbol_mic",
+                    "Possible duplicate listing: same ticker/local symbol and MIC.",
+                    (ticker, mic),
+                )
 
 
 def add_source_duplicate_signatures(
@@ -5130,6 +5158,8 @@ def build_parser() -> argparse.ArgumentParser:
             "market",
             "geography",
             "architecture",
+            "facility",
+            "manufacturing_process",
             "commodity",
             "technology",
             "regulation",

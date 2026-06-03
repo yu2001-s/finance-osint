@@ -54,6 +54,12 @@ Metric
 Event
   A time-bound occurrence or expected occurrence.
 
+Entity
+  For global public-market identity, separate the legal issuer (`company`), the
+  tradable instrument or share class (`security`), and the venue quote
+  (`listing`). ADR/ADS records should link to their underlying security and
+  depositary ratio rather than reusing the ordinary-share listing as the ADR.
+
 Claim
   A narrow, checkable assertion backed by evidence.
 

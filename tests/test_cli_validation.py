@@ -718,6 +718,46 @@ class CliValidationTests(unittest.TestCase):
         self.assertEqual(entity_warning["record_id"], "entity:company:exdev")
         self.assertEqual(entity_warning["related_ids"], ["entity:company:exdev-alt"])
 
+    def test_lint_warns_for_duplicate_listing_symbol_and_mic(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            listing = load_yaml(
+                repo
+                / "records"
+                / "entities"
+                / "listing"
+                / "synthetic-global-tech-nasdaq-ads.yml"
+            )
+            listing["id"] = "entity:listing:synthetic-global-tech-nasdaq-ads-alt"
+            listing["name"] = "Synthetic Global Technology duplicate NASDAQ ADS listing"
+            listing["identifiers"] = {
+                "local_symbol": listing["identifiers"]["local_symbol"],
+                "mic": listing["identifiers"]["mic"],
+            }
+            write_yaml(
+                repo / "records" / "entities" / "listing" / "synthetic-global-tech-nasdaq-ads-alt.yml",
+                listing,
+            )
+
+            status, payload = run_json_command(cli.run_lint, repo)
+
+        self.assertEqual(status, 0, payload)
+        warning_codes = {warning["code"] for warning in payload["warnings"]}
+        self.assertIn("possible_duplicate_listing_symbol_mic", warning_codes)
+        listing_warning = next(
+            warning
+            for warning in payload["warnings"]
+            if warning["code"] == "possible_duplicate_listing_symbol_mic"
+        )
+        self.assertEqual(
+            listing_warning["record_id"],
+            "entity:listing:synthetic-global-tech-nasdaq-ads",
+        )
+        self.assertEqual(
+            listing_warning["related_ids"],
+            ["entity:listing:synthetic-global-tech-nasdaq-ads-alt"],
+        )
+
     def test_lint_duplicate_detection_ignores_archive_records(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = copy_fixture_repo(Path(tmp))
@@ -866,6 +906,42 @@ class CliValidationTests(unittest.TestCase):
                 "claim:synthetic:exdev-uses-fndwy-for-x1",
                 "evidence:synthetic:exdev-fy2025-supplier-note",
                 "evidence.0.id",
+            ),
+            graph_edges,
+        )
+
+    def test_global_identity_fixture_links_company_security_listing_and_adr(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = copy_fixture_repo(Path(tmp))
+            records, errors = cli.load_records(repo)
+            self.assertEqual(errors, [])
+            graph = cli.build_graph_data(repo, records)
+
+        graph_edges = {
+            (edge["from"], edge["to"], edge.get("field"))
+            for edge in graph["edges"]
+        }
+        self.assertIn(
+            (
+                "entity:security:synthetic-global-tech-ads",
+                "entity:security:synthetic-global-tech-ordinary-shares",
+                "underlying_security",
+            ),
+            graph_edges,
+        )
+        self.assertIn(
+            (
+                "entity:listing:synthetic-global-tech-nasdaq-ads",
+                "entity:security:synthetic-global-tech-ads",
+                "security",
+            ),
+            graph_edges,
+        )
+        self.assertIn(
+            (
+                "entity:listing:synthetic-global-tech-twse",
+                "entity:company:synthetic-global-tech",
+                "issuer",
             ),
             graph_edges,
         )
