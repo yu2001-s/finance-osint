@@ -1,0 +1,29 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:chroma-ate:q1-2026-cpo-insertion-purchase-orders
+evidence_class: public_secondary
+source: source:public:chroma-ate:q1-2026-earnings-call-transcript
+summary: Chroma's transcript-hosted Q1 2026 call described CPO as a 2026 upside
+  driver and said purchase orders had been received for several CPO insertion test
+  steps, with an Insertion 4E BER pilot planned for June 2026.
+content_mode: excerpt
+observed_at: '2026-04-30T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: Chroma's transcript-hosted Q1 2026 call says CPO became an incremental
+  2026 upside driver, with purchase orders already received for Insertion 1 PIC
+  testing, Insertion 2 EPIC testing, Insertion 3 optical-engine testing, and Insertion
+  4O optical light-in/out testing; Insertion 4E BER testing was planned for pilot
+  activity in June 2026.
+locator:
+  section: Q1 2026 management commentary on CPO insertion tests
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: transcript_hosted_management_statement
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- company_originated
+- transcript_secondary_host
+- unnamed_customer

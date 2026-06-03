@@ -1,0 +1,80 @@
+schema_version: 1
+kind: thesis
+id: thesis:chroma-ate:cpo-insertion-test-watch
+title: Chroma CPO insertion test watch
+summary: Chroma has source-backed SiPh/PIC reliability-test products and transcript-hosted
+  management language about CPO insertion test purchase orders. The watch thesis
+  is that Chroma may be exposed to CPO optical-engine production test workflows,
+  but current evidence still lacks named customer/platform proof, exact order value,
+  CPO revenue split, gross margin bridge, and valuation conversion after the May
+  29, 2026 market-data snapshot.
+depends_on:
+  evidence:
+  - evidence:public:chroma-ate:siph-pic-reliability-test-solutions
+  - evidence:public:chroma-ate:q1-2026-cpo-insertion-purchase-orders
+  - evidence:public:market-data:chroma-valuation-20260529
+  - evidence:public:stock-research:chroma-proof-gaps
+  claims:
+  - claim:chroma-ate:siph-pic-reliability-test-product-fit
+  - claim:chroma-ate:q1-2026-cpo-insertion-purchase-orders
+  - claim:chroma-ate:insertion-4e-pilot-window
+  - claim:chroma-ate:valuation-rerated-20260529
+  - claim:chroma-ate:no-named-cpo-customer-revenue-bridge
+  relationships:
+  - relationship:chroma-ate:manufactures-siph-pic-reliability-test-systems
+  - relationship:cpo-insertion-test-workflow:supports-cpo
+  theses: []
+  metrics:
+  - metric:chroma-ate:market-cap-20260529
+  - metric:chroma-ate:price-to-sales-20260529
+  - metric:chroma-ate:ttm-revenue-20260529
+  events:
+  - event:chroma-ate:insertion-4e-pilot-202606
+  datasets: []
+submitted_by: github:codex
+stance: watch
+time_horizon: 2026-2027
+pillars:
+- statement: Chroma clears source-backed product and process exposure to SiPh/PIC
+    reliability testing and CPO insertion test workflows.
+  depends_on:
+    claims:
+    - claim:chroma-ate:siph-pic-reliability-test-product-fit
+    - claim:chroma-ate:q1-2026-cpo-insertion-purchase-orders
+    relationships:
+    - relationship:chroma-ate:manufactures-siph-pic-reliability-test-systems
+    - relationship:cpo-insertion-test-workflow:supports-cpo
+  proof_points:
+  - Customer-side or platform-owner source naming Chroma equipment in a CPO optical-engine
+    production or qualification workflow.
+  kill_criteria:
+  - Later primary evidence showing the purchase-order or pilot language did not
+    convert into production equipment shipments or recurring CPO test demand.
+- statement: The purchase-order language is stronger than product-page proof but
+    still does not prove named customer, order value, revenue, margin, or valuation
+    conversion.
+  depends_on:
+    claims:
+    - claim:chroma-ate:q1-2026-cpo-insertion-purchase-orders
+    - claim:chroma-ate:no-named-cpo-customer-revenue-bridge
+    - claim:chroma-ate:valuation-rerated-20260529
+    metrics:
+    - metric:chroma-ate:market-cap-20260529
+    - metric:chroma-ate:price-to-sales-20260529
+  proof_points:
+  - Filing, transcript, or customer-side evidence tying CPO insertion test orders
+    to revenue, gross margin, or named production programs.
+  kill_criteria:
+  - Continued absence of named customer/order-value/revenue bridge while valuation
+    remains elevated.
+next_missing_evidence:
+- Named Chroma CPO customer or platform.
+- Exact order value or repeat purchase evidence for CPO insertion test systems.
+- CPO-specific revenue split, gross margin, and cash conversion.
+- Confirmation that the June 2026 Insertion 4E BER pilot occurred and converted.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- customer_design_in_unproven
+- order_value_unproven
+- valuation_conversion_unproven
+- transcript_secondary_host

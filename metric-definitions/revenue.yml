@@ -8,7 +8,7 @@ state: registered
 ontology_version: 1
 value_type: monetary
 default_unit: USD
-allowed_units: [USD, local_currency]
+allowed_units: [USD, TWD, JPY, EUR, HKD, SEK, local_currency]
 allowed_value_basis: [reported, derived, estimated, restated]
 required_dimensions: [period]
 optional_dimensions: [segment, geography, product, customer]

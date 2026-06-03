@@ -1,0 +1,19 @@
+schema_version: 1
+kind: claim
+id: claim:chroma-ate:q1-2026-cpo-insertion-purchase-orders
+statement: Chroma management stated on the transcript-hosted Q1 2026 call that purchase
+  orders had been received for multiple CPO insertion test steps, while the customer,
+  platform, order value, and revenue split were not named in this evidence.
+subject: entity:company:chroma-ate
+predicate: management_statement
+support_type: direct
+evidence:
+- id: evidence:public:chroma-ate:q1-2026-cpo-insertion-purchase-orders
+submitted_by: github:codex
+object: cpo_insertion_purchase_orders_unnamed_customer
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- company_originated
+- transcript_secondary_host
+- unnamed_customer
+- order_value_unproven

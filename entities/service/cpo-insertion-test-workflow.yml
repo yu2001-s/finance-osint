@@ -1,0 +1,14 @@
+schema_version: 1
+kind: entity
+id: entity:service:cpo-insertion-test-workflow
+entity_type: service
+name: CPO insertion test workflow
+submitted_by: github:codex
+aliases:
+- CPO insertion testing
+- PIC and optical-engine insertion test workflow
+description: CPO optical-engine insertion test workflow covering PIC, EPIC, optical
+  engine, optical light-in/out, and BER test steps as described in Chroma management
+  commentary.
+state: active
+created_at: '2026-06-03T00:00:00Z'
