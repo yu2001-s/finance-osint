@@ -8,6 +8,10 @@ is the tracked issue queue.
 
 ## P0: Launch Blockers
 
+Status: remote-dependent enforcement is deferred until the repository has a
+GitHub remote. Branch protection, CODEOWNERS enforcement, abuse operations,
+visibility, and tag decisions remain required before any public launch or tag.
+
 ### Verify GitHub Branch Protection And CODEOWNERS
 
 Rationale: The repository is designed so all meaningful contribution and review
@@ -289,14 +293,20 @@ Acceptance criteria:
 
 Rationale: The first contribution path is still tool-heavy.
 
-Status: first preview slice addressed locally. `fo new` helpers now support
-`--dry-run` to validate and preview records without writing files. ID recovery
-hints for `context`, `review`, and `graph neighbors` are addressed locally.
-Every public v1 kind now has a YAML template.
+Status: first contributor UX slice addressed locally. `fo new` helpers now
+support `--dry-run` to validate and preview records without writing files. ID
+recovery hints for `context`, `review`, and `graph neighbors` are addressed
+locally. Every public v1 kind now has a YAML template. The quickstart now uses
+locked setup, explicit `BASE` handling, real fixture IDs, dry-run source,
+evidence, and claim examples, chain review, diff review, and GitHub-view
+artifact review. A fresh-clone plus current-doc-patch smoke passed the fixture
+setup, search, context, review, dry-run constructor, chain-review, graph,
+diff-review, and view-build commands; real PR review still uses the
+contributor's changed record ID.
 
 Acceptance criteria:
 
-- Test `docs/first-pr-quickstart.md` from a clean clone.
+- [x] Test `docs/first-pr-quickstart.md` from a clean clone.
 - [x] Add `fo new --dry-run` or equivalent preview mode.
 - [x] Improve not-found ID hints with search suggestions.
 - [x] Ensure every public record type has a template or helper.
