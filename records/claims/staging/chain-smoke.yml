@@ -1,0 +1,17 @@
+schema_version: 1
+kind: claim
+id: claim:staging:chain-smoke
+statement: The private GitHub staging workflow can validate a connected source-evidence-claim
+  chain.
+subject: entity:company:nebius-group
+predicate: market_signal
+support_type: observed
+evidence:
+- id: evidence:public:staging:chain-smoke
+submitted_by: github:codex
+object: staging_connected_chain_smoke
+qualifiers:
+  signal_type: workflow_smoke_test
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- staging_smoke

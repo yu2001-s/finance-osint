@@ -1,0 +1,21 @@
+schema_version: 1
+kind: evidence
+id: evidence:public:staging:chain-smoke
+evidence_class: public_secondary
+source: source:public:staging:chain-smoke
+summary: Staging fixture evidence says the private GitHub PR workflow can carry a
+  connected source-evidence-claim chain.
+content_mode: excerpt
+observed_at: '2026-06-03T00:00:00Z'
+submitted_by: github:codex
+source_attribution: named_public
+excerpt: 'Staging fixture: connected source, evidence, and claim records should validate
+  and appear in PR review.'
+source_access:
+  nda_or_confidentiality: false
+  recording_available: false
+  source_identity_public: true
+verification_status: staging_fixture
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- staging_smoke
