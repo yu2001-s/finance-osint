@@ -1,0 +1,21 @@
+schema_version: 1
+kind: question
+id: question:staging:nebius-proof-gap-smoke
+question: Does the private GitHub staging workflow surface an atomic question linked
+  to an existing NBIS claim and evidence path?
+entities:
+- entity:company:nebius-group
+proof_type: staging_question_smoke
+priority: medium
+submitted_by: github:codex
+related_evidence:
+- evidence:public:nebius:q1-2026-revenue-ai-factory
+related_claims:
+- claim:nebius:q1-2026-revenue-ai-factory-signal
+next_actions:
+- Confirm PR review shows this question as an open proof gap without requiring a new
+  source/evidence/claim chain.
+created_at: '2026-06-03T00:00:00Z'
+risk_flags:
+- proof_gap
+- staging_smoke
